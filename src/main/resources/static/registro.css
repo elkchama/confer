@@ -1,0 +1,69 @@
+/* Centrar vertical/horizontal y fondo degradado */
+body {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    margin: 0; /* Asegúrate de resetear márgenes */
+    background: linear-gradient(to bottom, #6a0dad, #4b0082, #000000);
+  }
+
+  /* Contenedor principal del formulario */
+  .auth-container {
+    max-width: 700px; /* Ajusta a tu gusto (700, 800, etc.) */
+    width: 100%;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  /* Ajustar el título (opcional, si quieres centrarlo o cambiar color) */
+  .auth-container .h3 {
+    color: #4b0082; /* ejemplo de color */
+  }
+
+  /* Ajustar el botón primario */
+  .btn-primary {
+    background: linear-gradient(135deg, #6a0dad, #4b0082);
+    border: none;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(-135deg, #6a0dad, #4b0082);
+  }
+
+  /* Ajustes a los inputs flotantes de Bootstrap */
+  .form-floating > label {
+    color: #666; /* Cambia el color del label flotante */
+  }
+  .form-control {
+    border-radius: 5px;
+    /* Puedes personalizar más aquí */
+  }
+
+  /* Ajustar el radio de Género */
+  .form-check-input[type="radio"] {
+    accent-color: #6a0dad; /* en navegadores compatibles */
+  }
+
+  /* Ajustes para pantallas pequeñas (opcional) */
+  @media (max-width: 576px) {
+    .auth-container {
+      padding: 20px;
+    }
+    .row > [class*="col-"] {
+      margin-bottom: 15px;
+    }
+
+
+  /* ----- Contenedor principal para centrar todo ----- */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;            /* ocupa toda la altura de la ventana */
+    background: #6a0dad;     /* ejemplo de fondo degradado o color sólido */
+    /* background: linear-gradient(to bottom, #6a0dad, #4b0082, #000000); */
+    margin: 0;               /* elimina márgenes por defecto */
+  }
+}
