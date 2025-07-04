@@ -3,6 +3,7 @@ package com.example.confer.service;
 import com.example.confer.model.Usuario;
 import com.example.confer.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,9 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder; // ✅ Usa PasswordEncoder, no directamente BCrypt
+
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
@@ -24,7 +28,13 @@ public class UsuarioService {
             Usuario existente = usuarioRepository.findById(usuario.getId()).orElse(null);
             if (existente != null && (usuario.getPassword() == null || usuario.getPassword().isBlank())) {
                 usuario.setPassword(existente.getPassword());
+            } else {
+                // Si se cambió la contraseña, encriptarla
+                usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
             }
+        } else {
+            // Registro nuevo: encriptar contraseña
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         }
 
         validarUsuario(usuario);
@@ -59,11 +69,13 @@ public class UsuarioService {
         return usuarioRepository.findClientes();
     }
 
+    // ✅ Autenticación con password encriptado
     public Optional<Usuario> autenticar(String correo, String password) {
-        return usuarioRepository.findByCorreoAndPassword(correo, password);
+        return usuarioRepository.findByCorreo(correo)
+                .filter(usuario -> passwordEncoder.matches(password, usuario.getPassword()));
     }
 
-    // Validación mejorada según el tipo de usuario
+    // Validación de datos según tipo de usuario
     private void validarUsuario(Usuario usuario) {
         if (usuario.getNombre() == null || usuario.getNombre().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre es obligatorio");
@@ -73,7 +85,6 @@ public class UsuarioService {
             throw new IllegalArgumentException("El correo es obligatorio");
         }
 
-        // Solo exigir contraseña si es nuevo
         if (usuario.getId() == null && (usuario.getPassword() == null || usuario.getPassword().trim().isEmpty())) {
             throw new IllegalArgumentException("La contraseña es obligatoria");
         }
@@ -87,7 +98,6 @@ public class UsuarioService {
         }
 
         if (usuario.getIdRol() != null && usuario.getIdRol() == 3 && usuario.getId() == null) {
-            // Validaciones específicas para vendedor
             if (usuario.getEmpresa() == null || usuario.getEmpresa().trim().isEmpty()) {
                 throw new IllegalArgumentException("El nombre de la empresa es obligatorio para vendedores");
             }

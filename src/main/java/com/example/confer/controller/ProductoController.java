@@ -24,8 +24,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.confer.model.Producto;
 import com.example.confer.model.Usuario;
 import com.example.confer.service.ProductoService;
+import com.example.confer.service.ReporteProductoPDFService;
 
 import jakarta.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/vendedor")
@@ -188,4 +194,99 @@ public class ProductoController {
         }
         return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
+    
+    @GetMapping("/indexProductos")
+public String mostrarTodosLosProductosFiltrados(
+        @RequestParam(value = "buscar", required = false) String buscar, 
+        Model model) {
+    
+    List<Producto> productos;
+    if (buscar != null && !buscar.isEmpty()) {
+        productos = productoService.buscarPorNombre(buscar);
+    } else {
+        productos = productoService.listarProductos();
+    }
+
+    model.addAttribute("productos", productos);
+    model.addAttribute("totalProductos", productos.size());
+    model.addAttribute("terminoBusqueda", buscar);
+    return "indexProductos";  // Este archivo debe estar en templates/indexProductos.html
+}
+
+@Autowired
+private ReporteProductoPDFService reporteProductoPDFService;
+
+@GetMapping("/productos/reporte")
+public ResponseEntity<InputStreamResource> generarReporteProductos() {
+    List<Producto> productos = productoService.listarProductos();
+
+    ByteArrayInputStream bis = reporteProductoPDFService.generarReporteProductos(productos);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Disposition", "inline; filename=productos.pdf");
+
+    return ResponseEntity.ok()
+            .headers(headers)
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(new InputStreamResource(bis));
+}
+
+
+// =======================
+// CRUD ADMIN PRODUCTOS
+// =======================
+
+
+@GetMapping("/admin/productos")
+public String listarProductosAdmin(Model model) {
+    model.addAttribute("productos", productoService.listarProductos());
+    return "admin/productos"; // Este archivo debe estar en templates/admin/productos.html
+}
+
+
+@GetMapping("/admin/productos/nuevo")
+public String mostrarFormularioNuevoProductoAdmin(Model model) {
+    model.addAttribute("producto", new Producto());
+    return "admin/producto-form";
+}
+
+@PostMapping("/admin/productos/guardar")
+public String guardarProductoAdmin(@ModelAttribute Producto producto,
+                                   @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                   RedirectAttributes redirectAttributes) {
+    try {
+        if (imagen != null && !imagen.isEmpty()) {
+            String nombreImagen = procesarImagen(imagen);
+            producto.setImagenUrl(nombreImagen);
+        }
+        productoService.guardarProducto(producto);
+        redirectAttributes.addFlashAttribute("success", "Producto guardado correctamente");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Error al guardar producto: " + e.getMessage());
+    }
+    return "redirect:/vendedor/admin/productos";
+}
+
+@GetMapping("/admin/productos/editar/{id}")
+public String editarProductoAdmin(@PathVariable Long id, Model model) {
+    Producto producto = productoService.obtenerProductoPorId(id);
+    if (producto == null) {
+        return "redirect:/vendedor/admin/productos";
+    }
+    model.addAttribute("producto", producto);
+    return "admin/producto-form";
+}
+
+@GetMapping("/admin/productos/eliminar/{id}")
+public String eliminarProductoAdmin(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    try {
+        productoService.eliminarProducto(id);
+        redirectAttributes.addFlashAttribute("success", "Producto eliminado correctamente");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Error al eliminar producto: " + e.getMessage());
+    }
+    return "redirect:/vendedor/admin/productos";
+}
+
+
 }

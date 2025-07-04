@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/indexVendedor.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -486,11 +487,15 @@
                 transform: translateY(0);
             }
         }
-    </style>
+     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <!-- Mensajes de éxito o error -->
+            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
             <h1><i class="fas fa-store"></i> Panel Vendedor</h1>
             <p class="subtitle">Gestiona tu inventario de productos de manera eficiente</p>
         </div>
@@ -502,7 +507,7 @@
                     <i class="fas fa-plus-circle"></i>
                     Agregar Nuevo Producto
                 </h2>
-                <form th:action="@{/vendedor/guardar}" method="post" th:object="${nuevoProducto}" enctype="multipart/form-data" class="form-container">
+                <form th:action="@{/vendedor/guardar}" method="post" th:object="${nuevoProducto}" enctype="multipart/form-data" class="form-container" onsubmit="return confirmarGuardado(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nombre">Nombre del Producto</label>
@@ -545,7 +550,7 @@
                 </form>
             </div>
 
-            <!-- Sección: Productos existentes -->
+           <!-- Sección: Productos existentes -->
             <div class="section">
                 <h2 class="section-title">
                     <i class="fas fa-box-open"></i>
@@ -564,9 +569,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="producto : ${productos}">
+                             <tr th:each="producto : ${productos}">
+                                <!-- Celdas de producto -->
                                 <td>
-                                    <!-- Mostrar imagen si existe, sino mostrar placeholder -->
                                     <img th:if="${producto.imagenUrl != null and producto.imagenUrl != ''}" 
                                          th:src="@{/uploads/} + ${producto.imagenUrl}" 
                                          th:alt="${producto.nombre}"
@@ -576,30 +581,23 @@
                                         <i class="fas fa-image"></i>
                                     </div>
                                 </td>
-                                <td>
-                                    <strong th:text="${producto.nombre}">Nombre del Producto</strong>
-                                </td>
-                                <td th:text="${producto.descripcion}">Descripción del producto</td>
-                                <td>
-                                    <span class="price-badge" th:text="'$' + ${producto.precio}">$0.00</span>
-                                </td>
+                                <td><strong th:text="${producto.nombre}">Nombre del Producto</strong></td>
+                                <td th:text="${producto.descripcion}">Descripción</td>
+                                <td><span class="price-badge" th:text="'$' + ${producto.precio}">$0.00</span></td>
                                 <td>
                                     <div class="action-buttons">
-    <a th:href="@{/vendedor/editar/{id}(id=${producto.id})}" class="btn-small btn-edit">
-        <i class="fas fa-edit"></i>
-        Editar
-    </a>
-    <a th:href="@{/vendedor/eliminar/{id}(id=${producto.id})}" class="btn-small btn-delete">
-        <i class="fas fa-trash"></i>
-        Eliminar
-    </a>
-</div>
+                                        <a href="#" th:attr="data-id=${producto.id}" onclick="confirmarEdicion(this)" class="btn-small btn-edit">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <a href="#" th:attr="data-id=${producto.id}" onclick="confirmarEliminacion(this)" class="btn-small btn-delete">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
                 <!-- Estado vacío cuando no hay productos -->
                 <div class="empty-state" th:if="${productos == null or productos.empty}">
                     <i class="fas fa-box-open"></i>
@@ -610,7 +608,10 @@
         </div>
     </div>
 
-    <!-- Modal para ver imagen ampliada -->
+
+                
+
+     <!-- Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()">
         <div class="modal-content">
             <span class="close-modal" onclick="closeImageModal()">
@@ -621,7 +622,6 @@
     </div>
 
     <script>
-        // Función para previsualizar la imagen seleccionada
         function previewImage(input) {
             const file = input.files[0];
             const preview = document.getElementById('imagePreview');
@@ -639,50 +639,87 @@
             }
         }
 
-        // Función para remover la imagen seleccionada
         function removeImage() {
-            const input = document.getElementById('imagen');
-            const preview = document.getElementById('imagePreview');
-            const uploadLabel = document.querySelector('.file-upload-label');
-            
-            input.value = '';
-            preview.style.display = 'none';
-            uploadLabel.style.display = 'flex';
+            document.getElementById('imagen').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.querySelector('.file-upload-label').style.display = 'flex';
         }
 
-        // Función para abrir el modal de imagen
         function openImageModal(imageSrc) {
             const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            
-            modalImage.src = imageSrc;
+            document.getElementById('modalImage').src = imageSrc;
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
 
-        // Función para cerrar el modal de imagen
         function closeImageModal() {
-            const modal = document.getElementById('imageModal');
-            modal.style.display = 'none';
+            document.getElementById('imageModal').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
-        // Cerrar modal con tecla Escape
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
-            }
+            if (e.key === 'Escape') closeImageModal();
         });
 
-        // Validar tamaño de archivo
         document.getElementById('imagen').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) { // 5MB
-                alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB.');
+            if (file && file.size > 5 * 1024 * 1024) {
+                Swal.fire('Tamaño excedido', 'Máximo permitido: 5MB', 'warning');
                 e.target.value = '';
                 removeImage();
             }
         });
+
+        function confirmarEliminacion(elemento) {
+            const id = elemento.getAttribute('data-id');
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/vendedor/eliminar/${id}`;
+                }
+            });
+            return false;
+        }
+
+        function confirmarGuardado(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: '¿Guardar producto?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, guardar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        function confirmarEdicion(elemento) {
+            const id = elemento.getAttribute('data-id');
+            Swal.fire({
+                title: '¿Editar producto?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/vendedor/editar/${id}`;
+                }
+            });
+            return false;
+        }
     </script>
 </body>
 </html>

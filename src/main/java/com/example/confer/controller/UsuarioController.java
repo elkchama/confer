@@ -2,6 +2,7 @@ package com.example.confer.controller;
 
 import com.example.confer.model.Usuario;
 import com.example.confer.model.Producto;
+import com.example.confer.service.EmailService;
 import com.example.confer.service.ProductoService;
 import com.example.confer.service.ReportePDFService;
 import com.example.confer.service.UsuarioService;
@@ -15,6 +16,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +33,18 @@ public class UsuarioController {
     @Autowired
     private ReportePDFService reportePDFService;
 
-    // Página de inicio
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private EmailService emailService;
+
+
     @GetMapping("/")
     public String mostrarPaginaInicio() {
         return "login";
     }
 
-    // Mostrar formulario de login
     @GetMapping("/login")
     public String mostrarFormularioLogin(@RequestParam(value = "registrado", required = false) String registrado,
                                          Model model) {
@@ -47,7 +54,6 @@ public class UsuarioController {
         return "login";
     }
 
-    // Procesar login
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String correo,
                                  @RequestParam String password,
@@ -62,7 +68,6 @@ public class UsuarioController {
                             return "login";
                         }
 
-                        // Guardar usuario autenticado en sesión
                         session.setAttribute("usuario", usuarios);
 
                         if (rol == 2) {
@@ -86,14 +91,12 @@ public class UsuarioController {
         }
     }
 
-    // Formulario de registro
     @GetMapping("/registro")
     public String mostrarFormularioRegistro(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "registro";
     }
 
-    // Procesar registro
     @PostMapping("/registro")
     public String procesarRegistro(@ModelAttribute Usuario usuario,
                                    @RequestParam String tipoUsuario,
@@ -112,6 +115,10 @@ public class UsuarioController {
             }
 
             usuarioService.guardar(usuario);
+            
+            // Enviar notificación al correo del usuario
+            emailService.enviarCorreoRegistroExitoso(usuario.getCorreo(), usuario.getNombre());
+
             return "redirect:/login?registrado";
 
         } catch (NumberFormatException e) {
@@ -123,14 +130,6 @@ public class UsuarioController {
         }
     }
 
-    // Vistas por rol
-//    @GetMapping("/bienvenida")
-//    public String vistaCliente(Model model) {
-//        List<Producto> productos = productoService.listarProductos();
-//        model.addAttribute("productos", productos);
-//        return "indexCliente";
-//    }
-
     @GetMapping("/vendedor/inicio")
     public String vistaVendedor() {
         return "indexVendedor";
@@ -141,7 +140,6 @@ public class UsuarioController {
         return "admin";
     }
 
-    // CRUD de usuarios
     @GetMapping("/admin/usuarios")
     public String listarUsuarios(Model model) {
         model.addAttribute("usuarios", usuarioService.listarTodos());
@@ -173,7 +171,6 @@ public class UsuarioController {
         return "redirect:/admin/usuarios";
     }
 
-    // Generar PDF
     @GetMapping("/admin/usuarios/reporte")
     public ResponseEntity<InputStreamResource> generarReportePDF() {
         List<Usuario> usuarios = usuarioService.listarTodos();

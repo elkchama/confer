@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Productos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- íconos de FontAwesome -->
+</head>
+<body class="container mt-5">
+    <h2>Listado de Productos</h2>
+
+    <div class="mb-3 d-flex gap-2">
+        <a href="/vendedor/admin/productos/nuevo" class="btn btn-success">Agregar producto</a>
+        <a href="/vendedor/productos/reporte" class="btn btn-danger" target="_blank">
+            <i class="fas fa-file-pdf"></i> Generar PDF
+        </a>
+    </div>
+
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Vendedor</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="producto : ${productos}">
+                <td th:text="${producto.nombre}"></td>
+                <td th:text="${producto.descripcion}"></td>
+                <td th:text="${producto.precio}"></td>
+                <td th:text="${producto.vendedor != null ? producto.vendedor.nombre : '---'}"></td>
+                <td>
+                    <a th:href="@{'/vendedor/admin/productos/editar/' + ${producto.id}}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{'/vendedor/admin/productos/eliminar/' + ${producto.id}}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
