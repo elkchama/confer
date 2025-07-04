@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title th:text="${usuario.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">Formulario Usuario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="container mt-5">
+    <a th:href="@{/admin/usuarios}" class="btn btn-secondary mb-3"><i class="fas fa-arrow-left"></i> Volver</a>
     <h2 th:text="${usuario.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}" class="mb-4"></h2>
 
     <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post">

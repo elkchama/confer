@@ -40,10 +40,22 @@ public class UsuarioController {
     private EmailService emailService;
 
 
-    @GetMapping("/")
+    @GetMapping("/inicio")
     public String mostrarPaginaInicio() {
         return "login";
     }
+
+    @GetMapping("/logout")
+public String cerrarSesion(HttpSession session) {
+    session.invalidate(); // cierra la sesión del usuario
+    return "redirect:/bienvenida"; // redirige a tu pantalla principal
+}
+
+@GetMapping("/bienvenida")
+public String mostrarBienvenida() {
+    return "bienvenida"; // debe existir src/main/resources/templates/bienvenida.html
+}
+
 
     @GetMapping("/login")
     public String mostrarFormularioLogin(@RequestParam(value = "registrado", required = false) String registrado,
@@ -54,42 +66,43 @@ public class UsuarioController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String procesarLogin(@RequestParam String correo,
-                                 @RequestParam String password,
-                                 Model model,
-                                 HttpSession session) {
-        try {
-            return usuarioService.autenticar(correo, password)
-                    .map(usuarios -> {
-                        Integer rol = usuarios.getIdRol();
-                        if (rol == null) {
-                            model.addAttribute("error", "Tu cuenta no tiene un rol asignado.");
-                            return "login";
-                        }
-
-                        session.setAttribute("usuario", usuarios);
-
-                        if (rol == 2) {
-                            model.addAttribute("usuario", usuarios);
-                            return "bienvenida";
-                        } else if (rol == 3) {
-                            return "redirect:/vendedor/index";
-                        } else {
-                            return "redirect:/admin";
-                        }
-                    })
-                    .orElseGet(() -> {
-                        model.addAttribute("error", "Credenciales inválidas. Intenta nuevamente.");
+   @PostMapping("/login")
+public String procesarLogin(@RequestParam String correo,
+                             @RequestParam String password,
+                             Model model,
+                             HttpSession session) {
+    try {
+        return usuarioService.autenticar(correo, password)
+                .map(usuarios -> {
+                    Integer rol = usuarios.getIdRol();
+                    if (rol == null) {
+                        model.addAttribute("error", "Tu cuenta no tiene un rol asignado.");
                         return "login";
-                    });
+                    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Ocurrió un error inesperado: " + e.getMessage());
-            return "login";
-        }
+                    session.setAttribute("usuario", usuarios);
+
+                    if (rol == 2) {
+                        // ✅ ESTO ES LO IMPORTANTE
+                        return "redirect:/bienvenida";
+                    } else if (rol == 3) {
+                        return "redirect:/vendedor/index";
+                    } else {
+                        return "redirect:/admin";
+                    }
+                })
+                .orElseGet(() -> {
+                    model.addAttribute("error", "Credenciales inválidas. Intenta nuevamente.");
+                    return "login";
+                });
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        model.addAttribute("error", "Ocurrió un error inesperado: " + e.getMessage());
+        return "login";
     }
+}
+
 
     @GetMapping("/registro")
     public String mostrarFormularioRegistro(Model model) {
