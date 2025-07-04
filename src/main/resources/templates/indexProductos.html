@@ -480,6 +480,98 @@
         justify-content: center;
       }
     }
+
+    /* Estilos personalizados para el modal del vendedor */
+    #vendedorModal .modal-content {
+      background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(106,17,203,0.18);
+      border: 2px solid #6a11cb33;
+    }
+    #vendedorModal .modal-header {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      border-bottom: none;
+    }
+    #vendedorModal .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #vendedorModal .modal-title i {
+      font-size: 2rem;
+      color: #ffd700;
+      text-shadow: 0 2px 8px #6a11cb55;
+    }
+    #vendedorModal .modal-body {
+      padding: 30px 24px 18px 24px;
+      text-align: center;
+    }
+    #vendedorModal .vendedor-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(40,40,80,0.10);
+      padding: 24px 18px 18px 18px;
+      margin: 0 auto;
+      max-width: 350px;
+      display: inline-block;
+    }
+    #vendedorModal .vendedor-avatar {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px auto;
+      box-shadow: 0 4px 16px #6a11cb22;
+    }
+    #vendedorModal .vendedor-avatar i {
+      color: #fff;
+      font-size: 2.5rem;
+    }
+    #vendedorModal .modal-body p {
+      font-size: 1.1rem;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    #vendedorModal .modal-body span {
+      color: #2575fc;
+      font-weight: 600;
+    }
+    #vendedorModal .modal-footer {
+      border-top: none;
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    #contactarBtn {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      border: none;
+      font-weight: 600;
+      border-radius: 25px;
+      box-shadow: 0 4px 16px #6a11cb22;
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    #contactarBtn:hover {
+      background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+      color: #fff;
+      transform: translateY(-2px) scale(1.04);
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -576,6 +668,14 @@
           <div class="product-price" style="font-weight:bold;color:#4b2994;">
             <span th:text="'Precio: $' + ${producto.precio}">Precio</span>
           </div>
+          <!-- Botón para ver información del vendedor -->
+          <button class="btn btn-info mt-2" type="button"
+            th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},
+                     data-vendedor-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'},
+                     data-vendedor-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'}"
+            onclick="mostrarVendedor(this)">
+            <i class="fas fa-user"></i> Ver Vendedor
+          </button>
         </div>
       </div>
     </div>
@@ -592,6 +692,32 @@
         <i class="fas fa-times"></i>
       </span>
       <img id="modalImage" src="" alt="Imagen ampliada" class="modal-image">
+    </div>
+  </div>
+
+  <!-- Modal para información del vendedor -->
+  <div class="modal fade" id="vendedorModal" tabindex="-1" aria-labelledby="vendedorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="vendedorModalLabel"><i class="fas fa-user-circle"></i> Información del Vendedor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="vendedor-card">
+            <div class="vendedor-avatar"><i class="fas fa-user"></i></div>
+            <p><strong>Nombre:</strong> <span id="vendedorNombre"></span></p>
+            <p><strong>Correo:</strong> <span id="vendedorCorreo"></span></p>
+            <p><strong>Teléfono:</strong> <span id="vendedorTelefono"></span></p>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: center; gap: 12px;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <a id="contactarBtn" href="#" target="_blank" class="btn btn-primary" style="background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%); border: none; font-weight: 600; border-radius: 25px; box-shadow: 0 4px 16px #6a11cb22; padding: 10px 28px; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.2s;">
+            <i class="fas fa-envelope"></i> Contactar ahora
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -647,6 +773,26 @@
         }, 100);
       });
     });
+
+    function mostrarVendedor(btn) {
+      var nombre = btn.getAttribute('data-vendedor-nombre');
+      var correo = btn.getAttribute('data-vendedor-correo');
+      var telefono = btn.getAttribute('data-vendedor-telefono');
+      document.getElementById('vendedorNombre').textContent = nombre;
+      document.getElementById('vendedorCorreo').textContent = correo;
+      document.getElementById('vendedorTelefono').textContent = telefono;
+      // Actualizar el enlace del botón Contactar ahora
+      var contactarBtn = document.getElementById('contactarBtn');
+      if (correo && correo !== 'No disponible') {
+        contactarBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(correo)}`;
+        contactarBtn.style.display = '';
+      } else {
+        contactarBtn.href = '#';
+        contactarBtn.style.display = 'none';
+      }
+      var modal = new bootstrap.Modal(document.getElementById('vendedorModal'));
+      modal.show();
+    }
   </script>
 </body>
 </html>

@@ -4,19 +4,60 @@
     <meta charset="UTF-8">
     <title>Gestión de Productos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- íconos de FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .header-bar {
+            background: #4cc9f0;
+            color: #212529;
+            border-radius: 12px;
+            padding: 24px 32px 18px 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 4px 12px rgba(76,201,240,0.08);
+        }
+        .header-bar i {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        .btn-volver {
+            background: #f0f2f5;
+            color: #212529;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+        .btn-volver:hover {
+            background: #e0e2e5;
+        }
+        .table thead {
+            background: #4cc9f0;
+            color: #212529;
+        }
+        .table-striped>tbody>tr:nth-of-type(odd) {
+            background-color: #f8f9fa;
+        }
+        .acciones-btns .btn {
+            margin-right: 6px;
+        }
+    </style>
 </head>
 <body class="container mt-5">
-    <h2>Listado de Productos</h2>
-
-    <div class="mb-3 d-flex gap-2">
-        <a href="/vendedor/admin/productos/nuevo" class="btn btn-success">Agregar producto</a>
+    <div class="header-bar mb-4">
+        <i class="fas fa-shopping-bag"></i>
+        <div>
+            <h2 class="mb-0" style="font-size:1.7rem;">Listado de Productos</h2>
+            <small>Panel de administración de productos</small>
+        </div>
+    </div>
+    <a href="/admin" class="btn btn-volver mb-3"><i class="fas fa-arrow-left"></i> Volver</a>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="/vendedor/admin/productos/nuevo" class="btn btn-success"><i class="fas fa-plus"></i> Agregar producto</a>
         <a href="/vendedor/productos/reporte" class="btn btn-danger" target="_blank">
             <i class="fas fa-file-pdf"></i> Generar PDF
         </a>
     </div>
-
-    <table class="table table-bordered">
+    <table class="table table-bordered table-striped align-middle shadow-sm">
         <thead class="table-light">
             <tr>
                 <th>Nombre</th>
@@ -32,10 +73,10 @@
                 <td th:text="${producto.descripcion}"></td>
                 <td th:text="${producto.precio}"></td>
                 <td th:text="${producto.vendedor != null ? producto.vendedor.nombre : '---'}"></td>
-                <td>
-                    <a th:href="@{'/vendedor/admin/productos/editar/' + ${producto.id}}" class="btn btn-primary btn-sm">Editar</a>
+                <td class="acciones-btns">
+                    <a th:href="@{'/vendedor/admin/productos/editar/' + ${producto.id}}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Editar</a>
                     <a th:href="@{'/vendedor/admin/productos/eliminar/' + ${producto.id}}" class="btn btn-danger btn-sm"
-                       onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</a>
+                       onclick="return confirm('¿Estás seguro de eliminar este producto?')"><i class="fas fa-trash"></i> Eliminar</a>
                 </td>
             </tr>
         </tbody>
