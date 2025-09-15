@@ -1,5 +1,6 @@
 package com.example.confer.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,10 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +32,6 @@ import com.example.confer.service.ProductoService;
 import com.example.confer.service.ReporteProductoPDFService;
 
 import jakarta.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/vendedor")
@@ -72,6 +72,7 @@ public class ProductoController {
                 producto.setImagenUrl(nombreImagen);
             }
             producto.setVendedor(vendedor);
+            // La categoría ya viene del formulario
             productoService.guardarProducto(producto);
             redirectAttributes.addFlashAttribute("success", "Producto guardado exitosamente");
         } catch (IllegalArgumentException | IOException e) {
@@ -217,14 +218,17 @@ public String mostrarTodosLosProductosFiltrados(
 private ReporteProductoPDFService reporteProductoPDFService;
 
 @GetMapping("/productos/reporte")
-public ResponseEntity<InputStreamResource> generarReporteProductos() {
-    List<Producto> productos = productoService.listarProductos();
-
+public ResponseEntity<InputStreamResource> generarReporteProductos(@RequestParam(value = "categoria", required = false) String categoria,
+                                                                 @RequestParam(value = "marca", required = false) String marca) {
+    List<Producto> productos;
+    if ((categoria != null && !categoria.isEmpty()) || (marca != null && !marca.isEmpty())) {
+        productos = productoService.listarProductosPorCategoriaYMarca(categoria, marca);
+    } else {
+        productos = productoService.listarProductos();
+    }
     ByteArrayInputStream bis = reporteProductoPDFService.generarReporteProductos(productos);
-
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Disposition", "inline; filename=productos.pdf");
-
     return ResponseEntity.ok()
             .headers(headers)
             .contentType(MediaType.APPLICATION_PDF)

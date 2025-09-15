@@ -1,7 +1,16 @@
 package com.example.confer.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "productos")
@@ -22,6 +31,12 @@ public class Producto {
     
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
+    
+    @Column(nullable = false, length = 100)
+    private String categoria;
+    
+    @Column(nullable = false, length = 100)
+    private String marca;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendedor_id")
@@ -84,6 +99,22 @@ public class Producto {
         this.imagenUrl = imagenUrl;
     }
     
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+    
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+    
     public Usuario getVendedor() {
         return vendedor;
     }
@@ -101,6 +132,8 @@ public class Producto {
                 ", descripcion='" + descripcion + '\'' +
                 ", precio=" + precio +
                 ", imagenUrl='" + imagenUrl + '\'' +
+                ", categoria='" + categoria + '\'' +
+                ", marca='" + marca + '\'' +
                 '}';
     }
 }

@@ -512,14 +512,38 @@
                     Agregar Nuevo Producto
                 </h2>
                 <form th:action="@{/vendedor/guardar}" method="post" th:object="${nuevoProducto}" enctype="multipart/form-data" class="form-container" onsubmit="return confirmarGuardado(event)">
-                    <div class="form-row">
-                        <div class="form-group">
+                    <div class="form-row" style="display: flex; gap: 24px; align-items: flex-end; margin-bottom: 20px;">
+                        <div class="form-group" style="flex:1;">
                             <label for="nombre">Nombre del Producto</label>
                             <input type="text" id="nombre" th:field="*{nombre}" placeholder="Ej: iPhone 14 Pro Max" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="flex:1;">
                             <label for="precio">Precio ($)</label>
                             <input type="number" step="0.01" id="precio" th:field="*{precio}" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label for="categoria">Categoría</label>
+                            <select id="categoria" th:field="*{categoria}" class="form-select" style="height:40px;" required>
+                                <option value="">Selecciona una categoría</option>
+                                <option value="celulares">Celulares</option>
+                                <option value="computadores">Computadores</option>
+                                <option value="audifonos">Audífonos</option>
+                                <option value="tablets">Tablets</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label for="marca">Marca</label>
+                            <select id="marca" th:field="*{marca}" class="form-select" style="height:40px;" required>
+                                <option value="">Selecciona una marca</option>
+                                <option value="apple">Apple</option>
+                                <option value="bose">Bose</option>
+                                <option value="dell">Dell</option>
+                                <option value="google">Google</option>
+                                <option value="hp">HP</option>
+                                <option value="lenovo">Lenovo</option>
+                                <option value="samsung">Samsung</option>
+                                <option value="sony">Sony</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group">
@@ -569,12 +593,13 @@
                                 <th><i class="fas fa-tag"></i> Producto</th>
                                 <th><i class="fas fa-align-left"></i> Descripción</th>
                                 <th><i class="fas fa-dollar-sign"></i> Precio</th>
+                                <th><i class="fas fa-list"></i> Categoría</th>
+                                <th><i class="fas fa-industry"></i> Marca</th>
                                 <th><i class="fas fa-cogs"></i> Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                              <tr th:each="producto : ${productos}">
-                                <!-- Celdas de producto -->
                                 <td>
                                     <img th:if="${producto.imagenUrl != null and producto.imagenUrl != ''}" 
                                          th:src="@{/uploads/} + ${producto.imagenUrl}" 
@@ -588,6 +613,8 @@
                                 <td><strong th:text="${producto.nombre}">Nombre del Producto</strong></td>
                                 <td th:text="${producto.descripcion}">Descripción</td>
                                 <td><span class="price-badge" th:text="'$' + ${producto.precio}">$0.00</span></td>
+                                <td th:text="${producto.categoria}">Categoría</td>
+                                <td th:text="${producto.marca}">Marca</td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="#" th:attr="data-id=${producto.id}" onclick="confirmarEdicion(this)" class="btn-small btn-edit">

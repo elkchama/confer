@@ -1,16 +1,8 @@
 package com.example.confer.controller;
 
-import com.example.confer.model.Usuario;
-import com.example.confer.model.Producto;
-import com.example.confer.service.EmailService;
-import com.example.confer.service.ProductoService;
-import com.example.confer.service.ReportePDFService;
-import com.example.confer.service.UsuarioService;
-
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +11,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.confer.model.Usuario;
+import com.example.confer.service.EmailService;
+import com.example.confer.service.ProductoService;
+import com.example.confer.service.ReportePDFService;
+import com.example.confer.service.UsuarioService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UsuarioController {
@@ -172,9 +176,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/admin/usuarios/reporte")
-    public ResponseEntity<InputStreamResource> generarReportePDF() {
+    public ResponseEntity<InputStreamResource> generarReportePDF(@RequestParam(value = "rol", required = false) String rol) {
         List<Usuario> usuarios = usuarioService.listarTodos();
-        ByteArrayInputStream bis = reportePDFService.generarReporteUsuarios(usuarios);
+        ByteArrayInputStream bis = reportePDFService.generarReporteUsuarios(usuarios, rol);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=usuarios.pdf");

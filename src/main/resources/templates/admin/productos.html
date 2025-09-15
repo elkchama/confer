@@ -53,7 +53,25 @@
     <a href="/admin" class="btn btn-volver mb-3"><i class="fas fa-arrow-left"></i> Volver</a>
     <div class="d-flex flex-wrap gap-2 mb-3">
         <a href="/vendedor/admin/productos/nuevo" class="btn btn-success"><i class="fas fa-plus"></i> Agregar producto</a>
-        <a href="/vendedor/productos/reporte" class="btn btn-danger" target="_blank">
+        <select id="categoriaFiltro" class="form-select form-select-sm" style="width:auto;display:inline-block;">
+            <option value="">Todas las categorías</option>
+            <option value="celulares">Celulares</option>
+            <option value="computadores">Computadores</option>
+            <option value="audifonos">Audífonos</option>
+            <option value="tablets">Tablets</option>
+        </select>
+        <select id="marcaFiltro" class="form-select form-select-sm" style="width:auto;display:inline-block;">
+            <option value="">Todas las marcas</option>
+            <option value="apple">Apple</option>
+            <option value="bose">Bose</option>
+            <option value="dell">Dell</option>
+            <option value="google">Google</option>
+            <option value="hp">HP</option>
+            <option value="lenovo">Lenovo</option>
+            <option value="samsung">Samsung</option>
+            <option value="sony">Sony</option>
+        </select>
+        <a href="#" id="btnGenerarPDF" class="btn btn-danger" target="_blank">
             <i class="fas fa-file-pdf"></i> Generar PDF
         </a>
     </div>
@@ -81,5 +99,18 @@
             </tr>
         </tbody>
     </table>
+    <script>
+        document.getElementById('btnGenerarPDF').addEventListener('click', function(e) {
+            e.preventDefault();
+            var categoria = document.getElementById('categoriaFiltro').value;
+            var marca = document.getElementById('marcaFiltro').value;
+            var url = '/vendedor/productos/reporte';
+            var params = [];
+            if(categoria) params.push('categoria=' + encodeURIComponent(categoria));
+            if(marca) params.push('marca=' + encodeURIComponent(marca));
+            if(params.length > 0) url += '?' + params.join('&');
+            window.open(url, '_blank');
+        });
+    </script>
 </body>
 </html>

@@ -26,6 +26,32 @@
             <input id="precio" type="number" step="0.01" th:field="*{precio}" class="form-control" placeholder="0.00" required />
         </div>
 
+        <div class="mb-3">
+            <label for="categoria" class="form-label">Categoría</label>
+            <select id="categoria" th:field="*{categoria}" class="form-select" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="celulares">Celulares</option>
+                <option value="computadores">Computadores</option>
+                <option value="audifonos">Audífonos</option>
+                <option value="tablets">Tablets</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="marca" class="form-label">Marca</label>
+            <select id="marca" th:field="*{marca}" class="form-select" required>
+                <option value="">Selecciona una marca</option>
+                <option value="apple">Apple</option>
+                <option value="bose">Bose</option>
+                <option value="dell">Dell</option>
+                <option value="google">Google</option>
+                <option value="hp">HP</option>
+                <option value="lenovo">Lenovo</option>
+                <option value="samsung">Samsung</option>
+                <option value="sony">Sony</option>
+            </select>
+        </div>
+
         <div class="mb-3" th:if="${producto.imagenUrl != null}">
             <label class="form-label">Imagen actual:</label><br>
             <img th:src="@{'/uploads/' + ${producto.imagenUrl}}" alt="Imagen del producto" width="150" class="img-thumbnail" />

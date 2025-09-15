@@ -52,7 +52,13 @@
     <a href="/admin" class="btn btn-volver mb-3"><i class="fas fa-arrow-left"></i> Volver</a>
     <div class="d-flex flex-wrap gap-2 mb-3">
         <a class="btn btn-success" th:href="@{/admin/usuarios/nuevo}"><i class="fas fa-user-plus"></i> Nuevo Usuario</a>
-        <a href="/admin/usuarios/reporte" class="btn btn-danger" target="_blank">
+        <select id="rolFiltroPDF" class="form-select form-select-sm" style="width:auto;display:inline-block;">
+            <option value="">Todos los roles</option>
+            <option value="admin">Admin</option>
+            <option value="cliente">Cliente</option>
+            <option value="vendedor">Vendedor</option>
+        </select>
+        <a href="#" id="btnGenerarPDF" class="btn btn-danger" target="_blank">
             <i class="fas fa-file-pdf"></i> Generar PDF
         </a>
     </div>
@@ -80,5 +86,16 @@
             </tr>
         </tbody>
     </table>
+    <script>
+        document.getElementById('btnGenerarPDF').addEventListener('click', function(e) {
+            e.preventDefault();
+            var rol = document.getElementById('rolFiltroPDF').value;
+            var url = '/admin/usuarios/reporte';
+            if(rol) {
+                url += '?rol=' + rol;
+            }
+            window.open(url, '_blank');
+        });
+    </script>
 </body>
 </html>

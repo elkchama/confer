@@ -1,27 +1,43 @@
 package com.example.confer.service;
 
-import com.example.confer.model.Usuario;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.common.BitMatrix;
-
-import org.springframework.stereotype.Service;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.imageio.ImageIO;
+
+import org.springframework.stereotype.Service;
+
+import com.example.confer.model.Usuario;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
 @Service
 public class ReportePDFService {
 
-    public ByteArrayInputStream generarReporteUsuarios(List<Usuario> usuarios) {
+    public ByteArrayInputStream generarReporteUsuarios(List<Usuario> usuarios, String rol) {
         Document documento = new Document(PageSize.A4, 40, 40, 40, 40);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -50,10 +66,22 @@ public class ReportePDFService {
 
             documento.add(Chunk.NEWLINE);
 
-            // Agrupar por roles
-            agregarTablaPorRol(documento, usuarios, 1, "Admin");
-            agregarTablaPorRol(documento, usuarios, 2, "Usuario");
-            agregarTablaPorRol(documento, usuarios, 3, "Vendedor");
+            // Filtrar por rol si se selecciona
+            if (rol != null && !rol.isEmpty()) {
+                int rolInt = 0;
+                String tituloRol = "";
+                switch (rol) {
+                    case "admin": rolInt = 1; tituloRol = "Admin"; break;
+                    case "cliente": rolInt = 2; tituloRol = "Usuario"; break;
+                    case "vendedor": rolInt = 3; tituloRol = "Vendedor"; break;
+                }
+                agregarTablaPorRol(documento, usuarios, rolInt, tituloRol);
+            } else {
+                // Todos los roles
+                agregarTablaPorRol(documento, usuarios, 1, "Admin");
+                agregarTablaPorRol(documento, usuarios, 2, "Usuario");
+                agregarTablaPorRol(documento, usuarios, 3, "Vendedor");
+            }
 
             documento.add(Chunk.NEWLINE);
 

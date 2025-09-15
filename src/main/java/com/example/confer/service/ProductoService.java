@@ -44,4 +44,22 @@ public class ProductoService {
     public List<Producto> buscarPorNombre(String nombre) {
         return productoRepository.findByNombreContainingIgnoreCase(nombre);
     }
+
+    // Listar productos por categoría
+    public List<Producto> listarProductosPorCategoria(String categoria) {
+        return productoRepository.findByCategoria(categoria);
+    }
+
+    // Listar productos por categoría y marca
+    public List<Producto> listarProductosPorCategoriaYMarca(String categoria, String marca) {
+        if ((categoria != null && !categoria.isEmpty()) && (marca != null && !marca.isEmpty())) {
+            return productoRepository.findByCategoriaAndMarca(categoria, marca);
+        } else if (categoria != null && !categoria.isEmpty()) {
+            return productoRepository.findByCategoria(categoria);
+        } else if (marca != null && !marca.isEmpty()) {
+            return productoRepository.findByMarca(marca);
+        } else {
+            return listarProductos();
+        }
+    }
 }
