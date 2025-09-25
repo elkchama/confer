@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">Formulario Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 th:text="${usuario.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}" class="mb-4"></h2>
+
+    <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" th:field="*{nombre}" id="nombre" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="correo" class="form-label">Correo</label>
+            <input type="email" th:field="*{correo}" id="correo" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="text" th:field="*{telefono}" id="telefono" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="idRol" class="form-label">Rol</label>
+            <select th:field="*{idRol}" id="idRol" class="form-select" required onchange="mostrarCamposVendedor(this)">
+                <option th:value="1">Administrador</option>
+                <option th:value="2">Usuario</option>
+                <option th:value="3">Vendedor</option>
+            </select>
+        </div>
+
+        <!-- Campos adicionales para Vendedor -->
+        <div id="camposVendedor" th:if="${usuario.idRol == 3}">
+            <div class="mb-3">
+                <label for="empresa" class="form-label">Empresa</label>
+                <input type="text" th:field="*{empresa}" id="empresa" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="nit" class="form-label">NIT</label>
+                <input type="text" th:field="*{nit}" id="nit" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" th:field="*{direccion}" id="direccion" class="form-control" />
+            </div>
+        </div>
+
+        <!-- Contraseña solo si es nuevo -->
+        <div class="mb-3" th:if="${usuario.id == null}">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" th:field="*{password}" id="password" class="form-control" required />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a th:href="@{/admin/usuarios}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+
+    <!-- JS para mostrar dinámicamente los campos si se cambia el rol -->
+    <script>
+        function mostrarCamposVendedor(select) {
+            const campos = document.getElementById('camposVendedor');
+            if (select.value === '3') {
+                campos.style.display = 'block';
+            } else {
+                campos.style.display = 'none';
+                campos.querySelectorAll('input').forEach(input => input.value = '');
+            }
+        }
+
+        // Mostrar campos si ya estaba seleccionado vendedor
+        document.addEventListener('DOMContentLoaded', () => {
+            const rol = document.getElementById('idRol');
+            mostrarCamposVendedor(rol);
+        });
+    </script>
+</body>
+</html>

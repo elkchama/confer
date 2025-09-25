@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos Tecnológicos - CONFER</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(to right, #6a11cb, #2575fc);
+            --secondary-color: #ff6f61;
+            --dark-text: #1f2e4d;
+            --light-text: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --card-shadow-hover: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            background: #f0f4f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--dark-text);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            margin: 30px 0;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .filters {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            margin-bottom: 25px;
+        }
+        
+        .filter-group h3 {
+            margin: 0 0 15px 0;
+            color: var(--dark-text);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .filter-option {
+            padding: 8px 18px;
+            background-color: #f1f5f9;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-option:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        .filter-option.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 8px rgba(106,17,203,0.2);
+        }
+        
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 18px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-category {
+            color: var(--light-text);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--dark-text);
+            font-size: 1.1rem;
+            flex-grow: 1;
+        }
+        
+        .product-price {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-top: 10px;
+        }
+        
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 50px;
+            color: var(--light-text);
+            font-size: 1.1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(106,17,203,0.1);
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(106,17,203,0.2);
+        }
+        
+        .navbar {
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .header-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 111, 97, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        
+        .header-btn:hover {
+            background-color: #e85c50;
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 6px 16px rgba(255, 111, 97, 0.4);
+        }
+        
+        .header-btn i {
+            font-size: 0.95rem;
+        }
+        
+        .header-btn.logout {
+            background-color: #f8d7da;
+            color: #dc3545;
+            box-shadow: none;
+        }
+        
+        .header-btn.logout:hover {
+            background-color: #f1b0b7;
+            color: #dc3545;
+        }
+        
+        .back-btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 25px;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(106,17,203,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0 0 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(106,17,203,0.3);
+        }
+        
+        .product-image .img-placeholder {
+            position: absolute;
+            color: #cbd5e1;
+            font-size: 2rem;
+            z-index: 1;
+        }
+        
+        .product-image img {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .products {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 15px;
+            }
+            
+            .navbar-container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .header-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .filters {
+                padding: 15px;
+            }
+            
+            .filter-options {
+                gap: 8px;
+            }
+            
+            .filter-option {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .products {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid navbar-container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-store"></i> CONFER
+            </a>
+            <div class="header-buttons">
+                <a href="/contactos" class="header-btn">
+                    <i class="fas fa-users"></i> Contactos
+                </a>
+                <a href="/vendedor/indexProductos" class="header-btn">
+                    <i class="fas fa-shopping-bag"></i> Productos
+                </a>
+                <a href="/categorias" class="header-btn">
+                    <i class="fas fa-tags"></i> Categorías
+                </a>
+            </div>
+            <div class="user-menu">
+                <a href="/login" class="header-btn logout"> 
+                    <i class="fas fa-sign-out-alt"></i> Salir 
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <button onclick="window.history.back()" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Volver
+    </button>
+    
+    <div class="container">
+        <h1>
+            <i class="fas fa-laptop-code"></i>
+            <span>Catálogo de Productos Tecnológicos</span>
+        </h1>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <h3><i class="fas fa-list"></i> Categoría</h3>
+                <div class="filter-options" id="category-filter">
+                    <div class="filter-option active" data-category="all">
+                        <i class="fas fa-th-large"></i> Todos
+                    </div>
+                    <div class="filter-option" data-category="celulares">
+                        <i class="fas fa-mobile-alt"></i> Celulares
+                    </div>
+                    <div class="filter-option" data-category="computadores">
+                        <i class="fas fa-laptop"></i> Computadores
+                    </div>
+                    <div class="filter-option" data-category="audifonos">
+                        <i class="fas fa-headphones"></i> Audífonos
+                    </div>
+                    <div class="filter-option" data-category="tablets">
+                        <i class="fas fa-tablet-alt"></i> Tablets
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3><i class="fas fa-tag"></i> Marca</h3>
+                <div class="filter-options" id="brand-filter">
+                    <div class="filter-option active" data-brand="all">
+                        <i class="fas fa-th-large"></i> Todas
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3><i class="fas fa-dollar-sign"></i> Precio</h3>
+                <div class="filter-options" id="price-filter">
+                    <div class="filter-option active" data-price="all">
+                        <i class="fas fa-th-large"></i> Todos
+                    </div>
+                    <div class="filter-option" data-price="0-1000000">
+                        <i class="fas fa-coins"></i> Menos de $1M
+                    </div>
+                    <div class="filter-option" data-price="1000000-3000000">
+                        <i class="fas fa-wallet"></i> $1M - $3M
+                    </div>
+                    <div class="filter-option" data-price="3000000-5000000">
+                        <i class="fas fa-money-bill-wave"></i> $3M - $5M
+                    </div>
+                    <div class="filter-option" data-price="5000000+">
+                        <i class="fas fa-gem"></i> Más de $5M
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="products" id="products-container">
+            <!-- Los productos se cargarán dinámicamente con JavaScript -->
+            <div class="no-results">
+                <div class="loading"></div>
+                <p>Cargando productos...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de productos con imágenes verificadas
+        const products = [
+             { 
+                id: 1, 
+                name: "iPhone 13", 
+                category: "celulares", 
+                brand: "Apple", 
+                price: 3999000, 
+                image: "https://www.apple.com/v/iphone-13/a/images/overview/hero/hero_1_static__d195o2nfxt26_large.jpg",
+                backupImage: "https://www.apple.com/newsroom/images/product/iphone/standard/Apple_iPhone-13_Lineup_09142021_inline.jpg.large.jpg"
+            },
+            { 
+                id: 2, 
+                name: "Samsung Galaxy S21", 
+                category: "celulares", 
+                brand: "Samsung", 
+                price: 3199000, 
+                image: "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg",
+                backupImage: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg"
+            },
+            { 
+                id: 3, 
+                name: "MacBook Pro", 
+                category: "computadores", 
+                brand: "Apple", 
+                price: 7999000, 
+                image: "https://images.pexels.com/photos/18105/pexels-photo.jpg",
+                backupImage: "https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg"
+            },
+            { 
+                id: 4, 
+                name: "Dell XPS 15", 
+                category: "computadores", 
+                brand: "Dell", 
+                price: 8999000, 
+                image: "https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg",
+                backupImage: "https://images.pexels.com/photos/7974/pexels-photo.jpg"
+            },
+            { 
+                id: 5, 
+                name: "AirPods Pro", 
+                category: "audifonos", 
+                brand: "Apple", 
+                price: 1299000, 
+                image: "https://images.pexels.com/photos/7156886/pexels-photo-7156886.jpeg",
+                backupImage: "https://images.pexels.com/photos/3394651/pexels-photo-3394651.jpeg"
+            },
+            { 
+                id: 6, 
+                name: "Sony WH-1000XM4", 
+                category: "audifonos", 
+                brand: "Sony", 
+                price: 1499000, 
+                image: "https://images.pexels.com/photos/3394651/pexels-photo-3394651.jpeg",
+                backupImage: "https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg"
+            },
+            { 
+                id: 7, 
+                name: "iPad Air", 
+                category: "tablets", 
+                brand: "Apple", 
+                price: 2999000, 
+                image: "https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg",
+                backupImage: "https://images.pexels.com/photos/1334598/pexels-photo-1334598.jpeg"
+            },
+            { 
+                id: 8, 
+                name: "Samsung Galaxy Tab S7", 
+                category: "tablets", 
+                brand: "Samsung", 
+                price: 2599000, 
+                image: "https://images.pexels.com/photos/1334598/pexels-photo-1334598.jpeg",
+                backupImage: "https://images.pexels.com/photos/1334599/pexels-photo-1334599.jpeg"
+            },
+            { 
+                id: 9, 
+                name: "Google Pixel 6", 
+                category: "celulares", 
+                brand: "Google", 
+                price: 2399000, 
+                image: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg",
+                backupImage: "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg"
+            },
+            { 
+                id: 10, 
+                name: "HP Spectre x360", 
+                category: "computadores", 
+                brand: "HP", 
+                price: 5999000, 
+                image: "https://images.pexels.com/photos/7974/pexels-photo.jpg",
+                backupImage: "https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg"
+            },
+            { 
+                id: 11, 
+                name: "Bose QuietComfort 45", 
+                category: "audifonos", 
+                brand: "Bose", 
+                price: 1399000, 
+                image: "https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg",
+                backupImage: "https://images.pexels.com/photos/3394651/pexels-photo-3394651.jpeg"
+            },
+            { 
+                id: 12, 
+                name: "Lenovo Yoga Tab 13", 
+                category: "tablets", 
+                brand: "Lenovo", 
+                price: 1999000, 
+                image: "https://images.pexels.com/photos/1334599/pexels-photo-1334599.jpeg",
+                backupImage: "https://images.pexels.com/photos/1334598/pexels-photo-1334598.jpeg"
+            }
+        ];
+
+        // Variables para los filtros seleccionados
+        let selectedCategory = "all";
+        let selectedBrand = "all";
+        let selectedPrice = "all";
+
+        // Función para formatear precios en COP
+        function formatPrice(price) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Función para renderizar los productos
+        function renderProducts() {
+            const productsContainer = document.getElementById("products-container");
+            
+            // Mostrar indicador de carga
+            productsContainer.innerHTML = `
+                <div class="no-results">
+                    <div class="loading"></div>
+                    <p>Cargando productos...</p>
+                </div>
+            `;
+            
+            // Simular carga asíncrona
+            setTimeout(() => {
+                // Filtrar productos según los criterios seleccionados
+                const filteredProducts = products.filter(product => {
+                    // Filtro por categoría
+                    if (selectedCategory !== "all" && product.category !== selectedCategory) {
+                        return false;
+                    }
+                    
+                    // Filtro por marca
+                    if (selectedBrand !== "all" && product.brand !== selectedBrand) {
+                        return false;
+                    }
+                    
+                    // Filtro por precio
+                    if (selectedPrice !== "all") {
+                        const [min, max] = selectedPrice.split("-");
+                        if (max === "+") {
+                            if (product.price < parseInt(min)) return false;
+                        } else {
+                            if (product.price < parseInt(min) || product.price > parseInt(max)) return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+
+                // Mostrar productos o mensaje si no hay resultados
+                if (filteredProducts.length === 0) {
+                    productsContainer.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                            <p>No se encontraron productos con los filtros seleccionados</p>
+                            <button class="reset-btn" onclick="resetFilters()">
+                                <i class="fas fa-sync-alt"></i> Mostrar todos
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar cada producto
+                productsContainer.innerHTML = "";
+                filteredProducts.forEach(product => {
+                    const productCard = document.createElement("div");
+                    productCard.className = "product-card";
+                    
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <i class="fas ${getCategoryIcon(product.category)} img-placeholder"></i>
+                            <img src="${product.image}" 
+                                 alt="${product.name}" 
+                                 onerror="this.onerror=null;this.src='${product.backupImage}';this.onerror=function(){this.style.display='none';}">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-category">
+                                <i class="${getCategoryIcon(product.category)}"></i> 
+                                ${capitalizeFirstLetter(product.category)} • ${product.brand}
+                            </div>
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">${formatPrice(product.price)}</div>
+                        </div>
+                    `;
+                    
+                    // Agregar evento de clic para ver detalles del producto
+                    productCard.addEventListener("click", () => {
+                        // Aquí podrías redirigir a una página de detalles o mostrar un modal
+                        console.log("Ver detalles de:", product.name);
+                    });
+                    
+                    productsContainer.appendChild(productCard);
+                });
+            }, 500); // Retraso simulado para mostrar el indicador de carga
+        }
+
+        // Función para resetear filtros
+        function resetFilters() {
+            document.querySelectorAll(".filter-option.active").forEach(option => {
+                option.classList.remove("active");
+            });
+            
+            document.querySelector("#category-filter .filter-option[data-category='all']").classList.add("active");
+            document.querySelector("#brand-filter .filter-option[data-brand='all']").classList.add("active");
+            document.querySelector("#price-filter .filter-option[data-price='all']").classList.add("active");
+            
+            selectedCategory = "all";
+            selectedBrand = "all";
+            selectedPrice = "all";
+            
+            renderProducts();
+        }
+
+        // Función para obtener el icono según la categoría
+        function getCategoryIcon(category) {
+            const icons = {
+                'celulares': 'fa-mobile-alt',
+                'computadores': 'fa-laptop',
+                'audifonos': 'fa-headphones',
+                'tablets': 'fa-tablet-alt'
+            };
+            return icons[category] || 'fa-box';
+        }
+
+        // Función para capitalizar la primera letra
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Función para extraer y mostrar las marcas disponibles
+        function renderBrandFilters() {
+            const brandFilter = document.getElementById("brand-filter");
+            // Limpiar opciones existentes (excepto "Todas")
+            while (brandFilter.children.length > 1) {
+                brandFilter.removeChild(brandFilter.lastChild);
+            }
+            
+            // Obtener marcas únicas de los productos
+            const brands = [...new Set(products.map(product => product.brand))];
+            
+            // Ordenar alfabéticamente
+            brands.sort();
+            
+            // Agregar opciones de filtro por marca
+            brands.forEach(brand => {
+                const brandOption = document.createElement("div");
+                brandOption.className = "filter-option";
+                brandOption.dataset.brand = brand;
+                brandOption.innerHTML = `<i class="fas fa-tag"></i> ${brand}`;
+                brandFilter.appendChild(brandOption);
+            });
+        }
+
+        // Inicializar la página
+        document.addEventListener("DOMContentLoaded", () => {
+            renderBrandFilters();
+            renderProducts();
+            
+            // Event listeners para los filtros
+            document.getElementById("category-filter").addEventListener("click", (e) => {
+                if (e.target.classList.contains("filter-option")) {
+                    // Remover clase active de todas las opciones
+                    document.querySelectorAll("#category-filter .filter-option").forEach(option => {
+                        option.classList.remove("active");
+                    });
+                    
+                    // Añadir clase active a la opción seleccionada
+                    e.target.classList.add("active");
+                    
+                    // Actualizar filtro seleccionado
+                    selectedCategory = e.target.dataset.category;
+                    renderProducts();
+                }
+            });
+            
+            document.getElementById("brand-filter").addEventListener("click", (e) => {
+                if (e.target.classList.contains("filter-option")) {
+                    // Remover clase active de todas las opciones
+                    document.querySelectorAll("#brand-filter .filter-option").forEach(option => {
+                        option.classList.remove("active");
+                    });
+                    
+                    // Añadir clase active a la opción seleccionada
+                    e.target.classList.add("active");
+                    
+                    // Actualizar filtro seleccionado
+                    selectedBrand = e.target.dataset.brand;
+                    renderProducts();
+                }
+            });
+            
+            document.getElementById("price-filter").addEventListener("click", (e) => {
+                if (e.target.classList.contains("filter-option")) {
+                    // Remover clase active de todas las opciones
+                    document.querySelectorAll("#price-filter .filter-option").forEach(option => {
+                        option.classList.remove("active");
+                    });
+                    
+                    // Añadir clase active a la opción seleccionada
+                    e.target.classList.add("active");
+                    
+                    // Actualizar filtro seleccionado
+                    selectedPrice = e.target.dataset.price;
+                    renderProducts();
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

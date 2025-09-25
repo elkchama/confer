@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${producto.id == null} ? 'Nuevo Producto' : 'Editar Producto'"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+    <h2 class="mb-4" th:text="${producto.id == null} ? 'Nuevo Producto' : 'Editar Producto'"></h2>
+
+    <form th:action="@{/vendedor/admin/productos/guardar}" method="post" enctype="multipart/form-data" th:object="${producto}">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input id="nombre" type="text" th:field="*{nombre}" class="form-control" placeholder="Nombre del producto" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea id="descripcion" th:field="*{descripcion}" class="form-control" rows="4" placeholder="Descripción del producto" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="precio" class="form-label">Precio</label>
+            <input id="precio" type="number" step="0.01" th:field="*{precio}" class="form-control" placeholder="0.00" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoria" class="form-label">Categoría</label>
+            <select id="categoria" th:field="*{categoria}" class="form-select" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="celulares">Celulares</option>
+                <option value="computadores">Computadores</option>
+                <option value="audifonos">Audífonos</option>
+                <option value="tablets">Tablets</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="marca" class="form-label">Marca</label>
+            <select id="marca" th:field="*{marca}" class="form-select" required>
+                <option value="">Selecciona una marca</option>
+                <option value="apple">Apple</option>
+                <option value="bose">Bose</option>
+                <option value="dell">Dell</option>
+                <option value="google">Google</option>
+                <option value="hp">HP</option>
+                <option value="lenovo">Lenovo</option>
+                <option value="samsung">Samsung</option>
+                <option value="sony">Sony</option>
+            </select>
+        </div>
+
+        <div class="mb-3" th:if="${producto.imagenUrl != null}">
+            <label class="form-label">Imagen actual:</label><br>
+            <img th:src="@{'/uploads/' + ${producto.imagenUrl}}" alt="Imagen del producto" width="150" class="img-thumbnail" />
+        </div>
+
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Nueva imagen</label>
+            <input id="imagen" type="file" name="imagen" class="form-control" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a th:href="@{/vendedor/admin/productos}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Vendedores</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      body {
+        background: #f0f4f8;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .navbar {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        padding: 15px 20px;
+        border-radius: 0 0 10px 10px;
+      }
+      .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      .navbar-brand {
+        font-weight: bold;
+        color: white !important;
+        font-size: 24px;
+      }
+      .header-buttons {
+        display: flex;
+        gap: 20px;
+      }
+      .header-btn {
+        padding: 10px 28px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        background-color: #ff6f61;
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 111, 97, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        font-size: 1.1rem;
+      }
+      .header-btn:hover {
+        background-color: #e85c50;
+        transform: translateY(-2px);
+        color: white;
+      }
+      .header-btn i {
+        font-size: 18px;
+      }
+      .header-btn.logout {
+        background-color: #f8d7da;
+        color: #dc3545;
+        box-shadow: none;
+      }
+      .header-btn.logout:hover {
+        background-color: #f1b0b7;
+        color: #dc3545;
+      }
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 40px 30px 30px 30px;
+        margin-top: 40px;
+      }
+      h2 {
+        font-weight: 700;
+        color: #1f2e4d;
+      }
+      .table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      }
+      .table th {
+        background: #f5f7fa;
+        color: #6a11cb;
+        font-weight: 600;
+        border: none;
+      }
+      .table td {
+        color: #4b6584;
+        border: none;
+      }
+      .btn-primary {
+        background-color: #ff6f61;
+        border-color: #ff6f61;
+        color: white;
+        padding: 0.6rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 30px;
+        box-shadow: 0 4px 12px rgba(255, 111, 97, 0.2);
+        transition: all 0.3s ease-in-out;
+        margin-top: 20px;
+      }
+      .btn-primary:hover {
+        background-color: #e85c50;
+        transform: translateY(-2px);
+      }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid navbar-container">
+    <a class="navbar-brand" href="/bienvenida">CONFER</a>
+    <div class="header-buttons">
+      <button class="header-btn" onclick="window.location.href='/contactos'">
+        <i class="fas fa-users"></i> Contactos
+      </button>
+      <button class="header-btn" onclick="window.location.href='/vendedor/indexProductos'">
+        <i class="fas fa-shopping-bag"></i> Productos
+      </button>
+      <a href="/categorias" class="header-btn">
+        <i class="fas fa-tags"></i> Categorías
+      </a>
+    </div>
+    <div class="user-menu">
+      <a href="/login" class="header-btn logout">
+        <i class="fas fa-sign-out-alt"></i> Salir
+      </a>
+    </div>
+  </div>
+</nav>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Lista de Vendedores</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="vendedor : ${vendedores}">
+            <td th:text="${vendedor.id}"></td>
+            <td th:text="${vendedor.nombre}"></td>
+            <td th:text="${vendedor.correo}"></td>
+            <td th:text="${vendedor.telefono}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="/bienvenida" class="btn btn-primary">Volver a Bienvenida</a>
+</div>
+</body>
+</html>
