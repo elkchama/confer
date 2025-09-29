@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <!-- SweetAlert2 para alertas modernas -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CONFER - Catálogo de Productos</title>
@@ -580,7 +582,7 @@
     <div class="container-fluid navbar-container">
       <a class="navbar-brand" href="/">CONFER</a>
       <div class="header-buttons">
-        <a href="/contactos" class="header-btn">
+        <a href="#" class="header-btn" onclick="return mostrarAlertaContactos(event)">
           <i class="fas fa-users"></i> Contactos
         </a>
         <a href="/productos/index" class="header-btn">
@@ -591,10 +593,38 @@
         </a>
       </div>
       <div class="user-menu">
-        <a href="/login" class="header-btn logout"> 
-          <i class="fas fa-sign-out-alt"></i> Salir 
-      </a>
-        <div class="user-info"></div>
+        <th:block th:if="${usuario != null}">
+          <a href="/logout" class="header-btn logout" onclick="return confirmarCerrarSesion(event)">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar sesión</span>
+          </a>
+        </th:block>
+<script>
+function confirmarCerrarSesion(event) {
+  event.preventDefault();
+  Swal.fire({
+    title: '¿Cerrar sesión?',
+    text: '¿Estás seguro que deseas salir?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, cerrar sesión',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/logout';
+    }
+  });
+  return false;
+}
+</script>
+        <th:block th:unless="${usuario != null}">
+          <a href="/login" class="header-btn logout"> 
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Iniciar sesión</span>
+          </a>
+        </th:block>
       </div>
     </div>
   </nav>
@@ -631,14 +661,14 @@
 
     <!-- Sección de búsqueda -->
     <div class="search-section">
-      <form class="search-form" th:action="@{/vendedor/indexProductos}" method="get">
+      <form class="search-form" th:action="@{/indexProductos}" method="get">
         <input type="text" 
                id="searchInput"
                name="buscar" 
                class="search-input" 
                placeholder="Buscar productos por nombre o descripción..."
                th:value="${terminoBusqueda}">
-        <a href="/vendedor/indexProductos" class="clear-btn" th:if="${terminoBusqueda}">
+        <a href="/indexProductos" class="clear-btn" th:if="${terminoBusqueda}">
           <i class="fas fa-times"></i>
           Limpiar
         </a>
@@ -669,13 +699,71 @@
             <span th:text="'Precio: $' + ${producto.precio}">Precio</span>
           </div>
           <!-- Botón para ver información del vendedor -->
-          <button class="btn btn-info mt-2" type="button"
-            th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},
-                     data-vendedor-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'},
-                     data-vendedor-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'}"
-            onclick="mostrarVendedor(this)">
-            <i class="fas fa-user"></i> Ver Vendedor
-          </button>
+            <button class="btn btn-info mt-2" type="button"
+              th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},
+                       data-vendedor-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'},
+                       data-vendedor-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'}"
+              th:if="${usuario != null}"
+              onclick="mostrarVendedor(this)">
+              <i class="fas fa-user"></i> Ver Vendedor
+            </button>
+            <button class="btn btn-warning mt-2" type="button" th:unless="${usuario != null}" onclick="mostrarAlertaLoginVendedor()">
+              <i class="fas fa-user-lock"></i> Ver Vendedor
+            </button>
+<script>
+function mostrarAlertaContactos(e) {
+  e.preventDefault();
+  if (/*[[${usuario != null}]]*/ true) {
+    window.location.href = '/contactos';
+  } else {
+    Swal.fire({
+      icon: 'info',
+      title: 'Acceso a contactos',
+      text: 'Debes iniciar sesión para ver los contactos.',
+      confirmButtonText: 'Iniciar sesión',
+      confirmButtonColor: '#6a11cb',
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      cancelButtonColor: '#aaa',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '/login';
+      }
+    });
+  }
+}
+
+function cerrarSesion(e) {
+  e.preventDefault();
+  Swal.fire({
+    icon: 'success',
+    title: 'Sesión cerrada',
+    text: 'Has cerrado sesión correctamente.',
+    confirmButtonText: 'Ir a inicio',
+    confirmButtonColor: '#6a11cb',
+  }).then(() => {
+    window.location.href = '/bienvenida';
+  });
+  // No hacer submit del enlace
+  return false;
+}
+function mostrarAlertaLoginVendedor() {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Acceso restringido',
+    text: 'Debes iniciar sesión para ver la información del vendedor.',
+    confirmButtonText: 'Iniciar sesión',
+    confirmButtonColor: '#6a11cb',
+    showCancelButton: true,
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#aaa',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/login';
+    }
+  });
+}
+</script>
         </div>
       </div>
     </div>
@@ -704,12 +792,19 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-          <div class="vendedor-card">
-            <div class="vendedor-avatar"><i class="fas fa-user"></i></div>
-            <p><strong>Nombre:</strong> <span id="vendedorNombre"></span></p>
-            <p><strong>Correo:</strong> <span id="vendedorCorreo"></span></p>
-            <p><strong>Teléfono:</strong> <span id="vendedorTelefono"></span></p>
-          </div>
+          <th:block th:if="${usuario == null}">
+            <div class="alert alert-warning text-center">
+              <i class="fas fa-exclamation-triangle"></i> Debes iniciar sesión para ver la información del vendedor.
+            </div>
+          </th:block>
+          <th:block th:if="${usuario != null}">
+            <div class="vendedor-card">
+              <div class="vendedor-avatar"><i class="fas fa-user"></i></div>
+              <p><strong>Nombre:</strong> <span id="vendedorNombre"></span></p>
+              <p><strong>Correo:</strong> <span id="vendedorCorreo"></span></p>
+              <p><strong>Teléfono:</strong> <span id="vendedorTelefono"></span></p>
+            </div>
+          </th:block>
         </div>
         <div class="modal-footer" style="display: flex; justify-content: center; gap: 12px;">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -781,11 +876,17 @@
       document.getElementById('vendedorNombre').textContent = nombre;
       document.getElementById('vendedorCorreo').textContent = correo;
       document.getElementById('vendedorTelefono').textContent = telefono;
-      // Actualizar el enlace del botón Contactar ahora
       var contactarBtn = document.getElementById('contactarBtn');
+      // Validación de sesión usando Thymeleaf
+      var usuarioAutenticado = /*[[${usuario != null}]]*/ true;
+      if (!usuarioAutenticado) {
+        mostrarAlertaLoginVendedor();
+        return;
+      }
       if (correo && correo !== 'No disponible') {
         contactarBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(correo)}`;
         contactarBtn.style.display = '';
+        contactarBtn.innerHTML = '<i class="fas fa-envelope"></i> Contactar ahora';
       } else {
         contactarBtn.href = '#';
         contactarBtn.style.display = 'none';

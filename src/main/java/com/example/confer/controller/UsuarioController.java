@@ -27,6 +27,21 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UsuarioController {
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/bienvenida";
+    }
+    @GetMapping("/bienvenida")
+    public String mostrarBienvenida(HttpSession session, Model model) {
+        Object usuario = session.getAttribute("usuario");
+        if (usuario != null) {
+            model.addAttribute("usuario", usuario);
+        } else {
+            model.addAttribute("usuario", null);
+        }
+        return "bienvenida";
+    }
 
     @Autowired
     private UsuarioService usuarioService;
@@ -45,8 +60,14 @@ public class UsuarioController {
 
 
     @GetMapping("/")
-    public String mostrarPaginaInicio() {
-        return "login";
+    public String mostrarPaginaInicio(HttpSession session, Model model) {
+        Object usuario = session.getAttribute("usuario");
+        if (usuario != null) {
+            model.addAttribute("usuario", usuario);
+        } else {
+            model.addAttribute("usuario", null);
+        }
+        return "bienvenida";
     }
 
     @GetMapping("/login")
@@ -74,12 +95,15 @@ public class UsuarioController {
 
                         session.setAttribute("usuario", usuarios);
 
-                        if (rol == 2) {
+                        if (rol == 3) {
+                            // Vendedor: redirige a /vendedor/index
+                            return "redirect:/vendedor/index";
+                        } else if (rol == 2) {
+                            // Cliente: bienvenida
                             model.addAttribute("usuario", usuarios);
                             return "bienvenida";
-                        } else if (rol == 3) {
-                            return "redirect:/vendedor/index";
                         } else {
+                            // Otros roles (ejemplo: admin)
                             return "redirect:/admin";
                         }
                     })
@@ -190,3 +214,6 @@ public class UsuarioController {
                 .body(new InputStreamResource(bis));
     }
 }
+
+
+
