@@ -278,7 +278,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="form-floating">
-                        <input type="tel" class="form-control" name="telefono" id="telefono" placeholder="Teléfono" required>
+                        <input type="tel" class="form-control" name="telefono" id="telefono" placeholder="Teléfono" required pattern="[0-9]+" inputmode="numeric">
                         <label for="telefono"><i class="fas fa-phone me-2"></i>Teléfono</label>
                     </div>
                 </div>
@@ -401,6 +401,14 @@
                 isValid = false;
             }
             
+            // Validar teléfono solo números
+            const telefono = document.getElementById('telefono');
+            const telefonoRegex = /^[0-9]+$/;
+            if (telefono.value && !telefonoRegex.test(telefono.value)) {
+                telefono.classList.add('is-invalid');
+                isValid = false;
+            }
+            
             // Validar contraseña
             const password = document.getElementById('password');
             if (password.value && password.value.length < 6) {
@@ -418,6 +426,11 @@
             input.addEventListener('input', function() {
                 this.classList.remove('is-invalid');
             });
+        });
+        
+        // Solo permitir números en el campo teléfono al escribir
+        document.getElementById('telefono').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
         });
     </script>
 </body>
