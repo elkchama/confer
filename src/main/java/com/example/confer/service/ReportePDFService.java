@@ -84,7 +84,23 @@ public class ReportePDFService {
             }
 
             documento.add(Chunk.NEWLINE);
+             
+            // 👉 Gráfica de usuarios
+Paragraph tituloGrafica = new Paragraph(
+        "Distribución de usuarios por rol",
+        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)
+);
+tituloGrafica.setAlignment(Element.ALIGN_CENTER);
+documento.add(tituloGrafica);
 
+Image grafica = generarGraficaUsuarios(usuarios);
+grafica.scaleToFit(500, 300);
+grafica.setAlignment(Element.ALIGN_CENTER);
+documento.add(grafica);
+
+documento.add(Chunk.NEWLINE);
+
+            
             // 👉 Código QR
             Paragraph textoQR = new Paragraph("Código QR de verificación:", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
             textoQR.setSpacingBefore(20f);
@@ -158,7 +174,7 @@ public class ReportePDFService {
         celda.setBackgroundColor(BaseColor.LIGHT_GRAY);
         tabla.addCell(celda);
     }
-
+    
     private Image generarQR(String texto) throws WriterException, IOException, BadElementException {
         int size = 150;
         QRCodeWriter qrWriter = new QRCodeWriter();
@@ -175,5 +191,37 @@ public class ReportePDFService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "png", baos);
         return Image.getInstance(baos.toByteArray());
+    }
+    
+    
+    private Image generarGraficaUsuarios(List<Usuario> usuarios) throws IOException, BadElementException {
+    // Contar usuarios por rol
+    long admins = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 1).count();
+    long clientes = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 2).count();
+    long vendedores = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 3).count();
+
+    // Dataset
+    org.jfree.data.category.DefaultCategoryDataset dataset = new org.jfree.data.category.DefaultCategoryDataset();
+    dataset.addValue(admins, "Usuarios", "Admin");
+    dataset.addValue(clientes, "Usuarios", "Usuario");
+    dataset.addValue(vendedores, "Usuarios", "Vendedor");
+
+    // Crear gráfica
+    org.jfree.chart.JFreeChart chart = org.jfree.chart.ChartFactory.createBarChart(
+            "Usuarios por Rol",      // Título
+            "Rol",                   // Eje X
+            "Cantidad",              // Eje Y
+            dataset
+    );
+
+    // Renderizar a imagen
+    int width = 500;
+    int height = 300;
+    BufferedImage chartImage = chart.createBufferedImage(width, height);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ImageIO.write(chartImage, "png", baos);
+
+    // Convertir a iText Image
+    return Image.getInstance(baos.toByteArray());
     }
 }

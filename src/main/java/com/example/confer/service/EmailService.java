@@ -1,11 +1,12 @@
 package com.example.confer.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
@@ -62,4 +63,20 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void enviarCorreo(String destinatario, String asunto, String cuerpo) {
+    try {
+        MimeMessage mensaje = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+
+        helper.setTo(destinatario);
+        helper.setSubject(asunto);
+        helper.setText(cuerpo, true); // true permite contenido HTML
+
+        mailSender.send(mensaje);
+    } catch (MessagingException e) {
+        e.printStackTrace();
+    }
+}
+
 }

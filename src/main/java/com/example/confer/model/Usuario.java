@@ -1,6 +1,12 @@
 package com.example.confer.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "usuarios")
@@ -32,7 +38,9 @@ public class Usuario {
     @Column(name = "id_rol")
     private Integer idRol = 3; // Por defecto cliente (3)
 
-    // Getters y Setters
+    private boolean requiereCambioContrasena;
+
+    // ===== Getters y Setters =====
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -65,4 +73,7 @@ public class Usuario {
 
     public Integer getIdRol() { return idRol; }
     public void setIdRol(Integer idRol) { this.idRol = idRol; }
+
+    public boolean isRequiereCambioContrasena() { return requiereCambioContrasena; }
+    public void setRequiereCambioContrasena(boolean requiereCambioContrasena) { this.requiereCambioContrasena = requiereCambioContrasena; }
 }

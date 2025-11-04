@@ -448,3 +448,19 @@ h1 {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+.forgot-password {
+    text-align: right;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.forgot-password a {
+    font-size: 14px;
+    color: #6A1B9A;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
