@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +31,9 @@ import com.example.confer.model.Producto;
 import com.example.confer.model.Usuario;
 import com.example.confer.service.ProductoService;
 import com.example.confer.service.ReporteProductoPDFService;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -276,6 +280,46 @@ public class ProductoController {
         return "redirect:/vendedor/admin/productos";
     }
 
+    @PostMapping("/guardar-multiple")
+    public String guardarMultiplesProductos(@RequestParam("productos") String productosJson,
+                                      @RequestParam("imagenes") MultipartFile[] imagenes,
+                                      RedirectAttributes redirectAttributes,
+                                      HttpSession session) {
+        try {
+            Usuario vendedor = (Usuario) session.getAttribute("usuario");
+            if (vendedor == null) {
+                redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión como vendedor.");
+                return "redirect:/login";
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            List<Producto> productos = mapper.readValue(productosJson, 
+                new TypeReference<List<Producto>>() {});
+
+            int productosGuardados = 0;
+            for (int i = 0; i < productos.size(); i++) {
+                Producto producto = productos.get(i);
+                producto.setVendedor(vendedor);
+                
+                // Procesar imagen si existe
+                if (i < imagenes.length && !imagenes[i].isEmpty()) {
+                    String nombreImagen = procesarImagen(imagenes[i]);
+                    producto.setImagenUrl(nombreImagen);
+                }
+                
+                productoService.guardarProducto(producto);
+                productosGuardados++;
+            }
+
+            redirectAttributes.addFlashAttribute("success", 
+                "Se guardaron " + productosGuardados + " productos exitosamente");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Error al guardar los productos: " + e.getMessage());
+        }
+        return "redirect:/vendedor/index";
+    }
 
 }
 
