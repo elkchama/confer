@@ -574,6 +574,69 @@
       transform: translateY(-2px) scale(1.04);
       text-decoration: none;
     }
+
+    /* ===== Nuevos estilos para productos destacados ===== */
+    .product-card.destacado {
+      background: linear-gradient(180deg, #fffef0 0%, #fff8e5 40%);
+      border: 2px solid rgba(255, 170, 0, 0.18);
+      box-shadow: 0 18px 40px rgba(255,165,0,0.12), 0 6px 18px rgba(0,0,0,0.08);
+      transform: translateY(-6px);
+      position: relative;
+      overflow: visible;
+    }
+
+    .product-card .ribbon {
+      position: absolute;
+      top: 12px;
+      left: -42px;
+      width: 170px;
+      height: 36px;
+      background: linear-gradient(90deg, #ff7a18 0%, #ff5722 100%);
+      color: white;
+      transform: rotate(-25deg);
+      text-align: center;
+      line-height: 36px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(255,87,34,0.18);
+      z-index: 5;
+      font-size: 0.95rem;
+      letter-spacing: 0.6px;
+    }
+
+    .product-card .ribbon .star {
+      margin-right: 8px;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    }
+
+    /* ===== Ajustes finales: precios centrados y en negro ===== */
+    /* Reset visual que asegura que el texto sea visible (anula gradientes y -webkit-text-fill-color: transparent) */
+    .product-card .product-price,
+    .product-card .original-price,
+    .product-card .original-price.struck,
+    .product-card .discounted-price,
+    .product-card .percent-pill {
+      background: none !important;
+      -webkit-background-clip: initial !important;
+      background-clip: initial !important;
+      -webkit-text-fill-color: initial !important;
+      color: #000 !important;
+    }
+
+    /* Badge simple (cuando se usa) también en negro y sin fondo */
+    .product-card .product-price.badge,
+    .product-card .price-badge {
+      background: none !important;
+      color: #000 !important;
+      -webkit-text-fill-color: initial !important;
+    }
+
+    .product-card .original-price.struck {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: #000;
+      opacity: 0.95;
+    }
   </style>
 </head>
 <body>
@@ -683,21 +746,39 @@ function confirmarCerrarSesion(event) {
 
     <!-- Grid de productos -->
     <div class="products-grid" th:if="${productos != null and !productos.empty}">
-      <div class="product-card" th:each="producto : ${productos}" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px;min-height:320px;">
+      <div class="product-card" th:each="producto : ${productos}"
+           th:classappend="${producto.destacado} ? ' destacado' : ''"
+           style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px;min-height:320px;">
+        <!-- Ribbon visible solo si está destacado -->
+        <div th:if="${producto.destacado}" class="ribbon">
+          <i class="fas fa-star star"></i> DESTACADO
+        </div>
+
         <div class="product-image" style="width:100%;height:180px;">
           <img th:if="${producto.imagenUrl != null}" th:src="@{'/uploads/' + ${producto.imagenUrl}}" alt="Imagen del producto" style="width:100%;height:180px;object-fit:cover;border-radius:10px;">
           <div th:if="${producto.imagenUrl == null}" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;border-radius:10px;">
             <i class="fas fa-image fa-3x" style="color:#bbb;"></i>
           </div>
         </div>
+
         <div class="product-info" style="width:100%;padding:10px 0 0 0;text-align:center;">
-          <h5 th:text="${producto.nombre}">Nombre del producto</h5>
-          <p th:if="${producto.descripcion != null}" th:text="${producto.descripcion}">Descripción del producto</p>
-          <p th:if="${producto.descripcion == null and producto.detalle != null}" th:text="${producto.detalle}">Detalle del producto</p>
-          <p th:if="${producto.descripcion == null and producto.detalle == null}">Sin descripción</p>
-          <div class="product-price" style="font-weight:bold;color:#4b2994;">
-            <span th:text="'Precio: $' + ${producto.precio}">Precio</span>
+          <h5 th:text="${producto.nombre}" style="margin-bottom:6px;">Nombre del producto</h5>
+          <p th:if="${producto.descripcion != null}" th:text="${producto.descripcion}" class="product-description">Descripción del producto</p>
+
+          <!-- Mejora visual de precios -->
+          <div class="product-price price-wrapper" style="font-weight:bold;">
+            <!-- Siempre mostrar precio original -->
+            <span th:attr="class=${producto.destacado} ? 'original-price struck' : 'original-price'" th:text="'$' + ${producto.precio}">$0.00</span>
+
+            <!-- Si está destacado, mostrar precio con descuento debajo -->
+            <div th:if="${producto.destacado}">
+              <span class="discounted-price" th:text="'$' + ${producto.precioConDescuento}">$0.00</span>
+              <span class="percent-pill"
+                    th:if="${producto.porcentajeDescuento != null and producto.porcentajeDescuento.doubleValue() > 0}"
+                    th:text="${producto.porcentajeDescuento} + ' % OFF'">0% OFF</span>
+            </div>
           </div>
+
           <!-- Botón para ver información del vendedor -->
             <button class="btn btn-info mt-2" type="button"
               th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},

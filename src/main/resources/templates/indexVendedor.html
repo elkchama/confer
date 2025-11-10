@@ -489,14 +489,73 @@
             transform: translateY(-2px);
         }
 
+        /* Precios en tabla: centrados y en color negro, tachado visible */
+        /* Forzar visibilidad: anular gradientes/transparencias aplicadas por clases globales */
+        .price-cell .original-price,
+        .price-cell .original-price.struck,
+        .price-cell .discounted-price,
+        .price-cell .price-badge,
+        .price-cell .percent-pill {
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+            color: #000 !important;
+        }
+
+        /* Si hay algún estilo anterior que deja el texto transparente, éste lo corrige. */
+        .price-cell .original-price {
+            color: #000;
+            font-size: 0.95rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .price-cell .original-price.struck {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            text-decoration-color: #000;
+        }
+        .price-cell .discounted-price {
+            color: #000;
+            font-weight: 800;
+            font-size: 1.05rem;
+            display: block;
+        }
+        .price-cell .percent-pill {
+            display:inline-block;
+            background: linear-gradient(90deg,#d1fae5 0%,#a7f3d0 100%);
+            color:#064e3b;
+            padding:3px 8px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:0.8rem;
+            margin-top:6px;
+        }
+        .price-cell .percent-pill:empty { display: none !important; }
+        .price-cell .price-badge {
+            /* estilo para precio simple cuando no hay descuento */
+            background: none;
+            color: #000;
+            padding: 0;
+            font-weight: 700;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
+            * {
+                box-sizing: border-box;
             }
 
-            .content {
-                padding: 20px;
+            body {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .container {
+                padding: 0;
+                border-radius: 0;
+                box-shadow: none;
+                background: none;
+                backdrop-filter: none;
             }
 
             .header {
@@ -505,6 +564,18 @@
 
             .header h1 {
                 font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
             }
 
             .form-row {
@@ -638,22 +709,41 @@
                     <i class="fas fa-box-open"></i>
                     Inventario de Productos
                 </h2>
-               
+
+                <!-- CONTROLES (PORCENTAJE / APLICAR / SELECCIONAR / LIMPIAR) - SOBRE EL INVENTARIO -->
+                <div style="display:flex;gap:10px;align-items:center;margin:12px 0;">
+                    <input type="number" id="porcentaje-multiple" min="0" max="100" step="0.01" placeholder="%" style="width:100px;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                    <button type="button" class="btn btn-save" onclick="aplicarDestacadoMultiple()" id="btnApplyMultiple" style="padding:8px 18px;">
+                        <i class="fas fa-star"></i> Aplicar a seleccionados
+                    </button>
+                    <button type="button" class="btn btn-add" onclick="seleccionarTodosToggle(this)" id="btnToggleSelect" style="padding:8px 18px;background:#6c757d;">
+                        <i class="fas fa-check-square"></i> Seleccionar todo
+                    </button>
+                    <button type="button" class="btn" onclick="limpiarSeleccion()" id="btnClearSelection" style="padding:8px 18px;background:#f8f9fa;color:#333;border:1px solid #e1e5e9;">
+                        <i class="fas fa-eraser"></i> Limpiar selección
+                    </button>
+                </div>
+
                 <div class="table-container" th:if="${productos != null and !productos.empty}">
                     <table>
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="select-thead" onchange="toggleSeleccionTodos(this)"></th>
                                 <th><i class="fas fa-image"></i> Imagen</th>
                                 <th><i class="fas fa-tag"></i> Producto</th>
                                 <th><i class="fas fa-align-left"></i> Descripción</th>
                                 <th><i class="fas fa-dollar-sign"></i> Precio</th>
                                 <th><i class="fas fa-list"></i> Categoría</th>
                                 <th><i class="fas fa-industry"></i> Marca</th>
+                                <!-- columna Destacado eliminada -->
                                 <th><i class="fas fa-cogs"></i> Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                             <tr th:each="producto : ${productos}">
+                             <tr th:each="producto : ${productos}" th:attr="data-id=${producto.id}" th:style="${producto.destacado} ? 'background:#fff7cd;' : ''">
+                                <td>
+                                    <input type="checkbox" class="select-producto" th:attr="data-id=${producto.id}">
+                                </td>
                                 <td>
                                     <img th:if="${producto.imagenUrl != null and producto.imagenUrl != ''}" 
                                          th:src="@{/uploads/} + ${producto.imagenUrl}" 
@@ -666,9 +756,22 @@
                                 </td>
                                 <td><strong th:text="${producto.nombre}">Nombre del Producto</strong></td>
                                 <td th:text="${producto.descripcion}">Descripción</td>
-                                <td><span class="price-badge" th:text="'$' + ${producto.precio}">$0.00</span></td>
+                                <td class="price-cell">
+                                    <!-- siempre mostrar precio original; aplicar clase struck solo si está destacado -->
+                                    <span th:attr="class=${producto.destacado} ? 'original-price struck' : 'original-price'"
+                                          th:text="'$' + ${producto.precio}">$0.00</span>
+                                    <div th:if="${producto.destacado}">
+                                        <span class="discounted-price" th:text="'$' + ${producto.precioConDescuento}">$0.00</span>
+                                        <span class="percent-pill"
+                                              th:if="${producto.porcentajeDescuento != null and producto.porcentajeDescuento.doubleValue() > 0}"
+                                              th:text="${producto.porcentajeDescuento} + '% off'">0% off</span>
+                                    </div>
+                                </td>
                                 <td th:text="${producto.categoria}">Categoría</td>
                                 <td th:text="${producto.marca}">Marca</td>
+
+                                <!-- Se eliminó td de porcentaje por fila y botón Aplicar -->
+
                                 <td>
                                     <div class="action-buttons">
                                         <a href="#" th:attr="data-id=${producto.id}" onclick="confirmarEdicion(this)" class="btn-small btn-edit">
@@ -806,8 +909,6 @@
             return false;
         }
 
-        let productoCount = 0;
-
         function agregarProducto() {
             const container = document.getElementById('productos-container');
             const productoDiv = document.createElement('div');
@@ -879,7 +980,6 @@
             `;
 
             container.appendChild(productoDiv);
-            productoCount++;
 
             // Scroll al final del contenedor y enfocar el primer campo
             setTimeout(() => {
@@ -891,7 +991,6 @@
 
         function eliminarProducto(button) {
             button.closest('.producto-form').remove();
-            productoCount--;
         }
 
         function previewMultipleImage(input) {
@@ -923,7 +1022,9 @@
         }
 
         function guardarTodos() {
-            if (productoCount === 0) {
+            // Obtener formularios desde el DOM en lugar de usar productoCount (evita desincronía)
+            const forms = document.getElementsByClassName('producto-form');
+            if (!forms || forms.length === 0) {
                 Swal.fire('Error', 'Agrega al menos un producto', 'warning');
                 return;
             }
@@ -937,22 +1038,27 @@
             btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
 
             const productos = [];
-            const forms = document.getElementsByClassName('producto-form');
             const formData = new FormData();
 
             for (let i = 0; i < forms.length; i++) {
                 const form = forms[i];
+                const nombreEl = form.querySelector('.producto-nombre');
+                const precioEl = form.querySelector('.producto-precio');
+                const categoriaEl = form.querySelector('.producto-categoria');
+                const marcaEl = form.querySelector('.producto-marca');
+                const descripcionEl = form.querySelector('.producto-descripcion');
+
                 const producto = {
-                    nombre: form.querySelector('.producto-nombre').value,
-                    precio: parseFloat(form.querySelector('.producto-precio').value),
-                    categoria: form.querySelector('.producto-categoria').value,
-                    marca: form.querySelector('.producto-marca').value,
-                    descripcion: form.querySelector('.producto-descripcion').value
+                    nombre: nombreEl ? nombreEl.value.trim() : '',
+                    precio: precioEl ? parseFloat(precioEl.value) : NaN,
+                    categoria: categoriaEl ? categoriaEl.value : '',
+                    marca: marcaEl ? marcaEl.value : '',
+                    descripcion: descripcionEl ? descripcionEl.value.trim() : ''
                 };
 
-                if (!producto.nombre || !producto.precio || !producto.categoria ||
+                if (!producto.nombre || isNaN(producto.precio) || !producto.categoria ||
                     !producto.marca || !producto.descripcion) {
-                    Swal.fire('Error', 'Todos los campos son obligatorios', 'error');
+                    Swal.fire('Error', 'Todos los campos son obligatorios en cada formulario', 'error');
                     btnAdd.disabled = false;
                     btnSave.disabled = false;
                     btnSave.innerHTML = originalSaveHtml;
@@ -961,7 +1067,7 @@
 
                 productos.push(producto);
 
-                // Agregar la imagen si existe
+                // Agregar la imagen si existe (mismo nombre 'imagenes' repetido para que Spring reciba array)
                 const imageInput = form.querySelector('.producto-imagen');
                 if (imageInput && imageInput.files && imageInput.files.length > 0) {
                     formData.append('imagenes', imageInput.files[0]);
@@ -990,11 +1096,11 @@
                         if (response.ok) {
                             window.location.reload();
                         } else {
-                            throw new Error('Error al guardar los productos');
+                            return response.text().then(text => { throw new Error(text || 'Error al guardar los productos'); });
                         }
                     })
                     .catch(error => {
-                        Swal.fire('Error', error.message, 'error');
+                        Swal.fire('Error', error.message || 'Error al guardar los productos', 'error');
                         btnAdd.disabled = false;
                         btnSave.disabled = false;
                         btnSave.innerHTML = originalSaveHtml;
@@ -1006,6 +1112,123 @@
                     btnSave.innerHTML = originalSaveHtml;
                 }
             });
+        }
+
+        function aplicarDestacado(btn) {
+            const row = btn.closest('tr');
+            const id = row.getAttribute('data-id');
+            const input = row.querySelector('.porcentaje-input');
+            const porcentaje = input ? input.value : '';
+            btn.disabled = true;
+            fetch('/vendedor/destacar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${encodeURIComponent(id)}&porcentaje=${encodeURIComponent(porcentaje)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data && data.success) {
+                    if (data.destacado) {
+                        row.style.background = '#fff7cd';
+                        // actualizar precio en la celda
+                        const precioCelda = row.querySelector('td:nth-child(4)');
+                        if (precioCelda) {
+                            const originalTxt = precioCelda.querySelector('.original-price') ? precioCelda.querySelector('.original-price').textContent.replace('$','') : '0';
+                            precioCelda.innerHTML = `<span class="original-price struck">$${parseFloat(originalTxt).toFixed(2)}</span>
+                                                     <span style="margin-left:6px;font-weight:700;color:#d63384;">$${parseFloat(data.precioConDescuento).toFixed(2)}</span>
+                                                     <small style="display:block;color:#6c757d;">${data.porcentaje}% off</small>`;
+                        }
+                    } else {
+                        row.style.background = '';
+                        // restaurar precio a original (recargar página para seguridad si es necesario)
+                        window.location.reload();
+                    }
+                } else {
+                    Swal.fire('Error', data && data.error ? data.error : 'No se pudo actualizar', 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                Swal.fire('Error', 'Error en la petición', 'error');
+            });
+        }
+
+        function toggleSeleccionTodos(chk) {
+            const checked = !!chk.checked;
+            document.querySelectorAll('.select-producto').forEach(c => c.checked = checked);
+            const btn = document.getElementById('btnToggleSelect');
+            if (btn) btn.textContent = checked ? 'Deseleccionar todo' : 'Seleccionar todo';
+        }
+
+        function seleccionarTodosToggle(btn) {
+            const inputs = Array.from(document.querySelectorAll('.select-producto'));
+            if (inputs.length === 0) return;
+            const anyUnchecked = inputs.some(i => !i.checked);
+            inputs.forEach(i => i.checked = anyUnchecked);
+            btn.textContent = anyUnchecked ? 'Deseleccionar todo' : 'Seleccionar todo';
+            const header = document.getElementById('select-thead');
+            if (header) header.checked = anyUnchecked;
+        }
+
+        function limpiarSeleccion() {
+            document.querySelectorAll('.select-producto').forEach(c => c.checked = false);
+            const header = document.getElementById('select-thead');
+            if (header) header.checked = false;
+            const btn = document.getElementById('btnToggleSelect');
+            if (btn) btn.textContent = 'Seleccionar todo';
+            const porcentajeInput = document.getElementById('porcentaje-multiple');
+            if (porcentajeInput) porcentajeInput.value = '';
+        }
+
+        async function aplicarDestacadoMultiple() {
+            const porcentajeEl = document.getElementById('porcentaje-multiple');
+            let porcentaje = porcentajeEl ? porcentajeEl.value : '';
+            porcentaje = porcentaje === '' ? 0 : Number(porcentaje);
+            if (isNaN(porcentaje) || porcentaje < 0) porcentaje = 0;
+            if (porcentaje > 100) porcentaje = 100;
+
+            const selected = Array.from(document.querySelectorAll('.select-producto:checked'))
+                .map(i => i.getAttribute('data-id'))
+                .filter(Boolean)
+                .map(id => Number(id));
+
+            if (selected.length === 0) {
+                Swal.fire('Atención', 'Selecciona al menos un producto', 'warning');
+                return;
+            }
+
+            const confirm = await Swal.fire({
+                title: 'Confirmar',
+                text: `Aplicar descuento ${porcentaje}% a ${selected.length} producto(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, aplicar'
+            });
+            if (!confirm.isConfirmed) return;
+
+            const btn = document.getElementById('btnApplyMultiple');
+            if (btn) btn.disabled = true;
+            try {
+                const res = await fetch('/vendedor/destacar-multiple', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selected, porcentaje: porcentaje })
+                });
+                const data = await res.json();
+                if (btn) btn.disabled = false;
+                if (res.ok && data && data.success) {
+                    // Recargar para mostrar precios calculados por el servidor
+                    window.location.reload();
+                } else {
+                    Swal.fire('Error', data && data.error ? data.error : 'No se pudo aplicar', 'error');
+                }
+            } catch (err) {
+                if (btn) btn.disabled = false;
+                Swal.fire('Error', 'Error en la petición', 'error');
+            }
         }
     </script>
 </body>

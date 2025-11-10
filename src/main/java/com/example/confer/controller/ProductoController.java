@@ -7,13 +7,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,7 +61,8 @@ public class ProductoController {
         }
         model.addAttribute("usuario", usuario);
         // Cambia la vista a indexVendedor para el panel del vendedor
-        model.addAttribute("productos", productoService.listarProductos());
+        // Mostrar únicamente los productos pertenecientes al vendedor autenticado
+        model.addAttribute("productos", productoService.listarProductosPorVendedor(usuario));
         model.addAttribute("nuevoProducto", new Producto());
         return "indexVendedor";
     }
@@ -319,6 +324,124 @@ public class ProductoController {
                 "Error al guardar los productos: " + e.getMessage());
         }
         return "redirect:/vendedor/index";
+    }
+
+    @PostMapping("/destacar")
+    public ResponseEntity<Map<String, Object>> destacarProducto(@RequestParam("id") Long id,
+                                                                 @RequestParam(value = "porcentaje", required = false) String porcentajeStr,
+                                                                 HttpSession session) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            Usuario vendedor = (Usuario) session.getAttribute("usuario");
+            if (vendedor == null) {
+                resp.put("error", "Sesión no iniciada");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
+            }
+            Producto producto = productoService.obtenerProductoPorId(id);
+            if (producto == null || producto.getVendedor() == null || !vendedor.getId().equals(producto.getVendedor().getId())) {
+                resp.put("error", "Producto no encontrado o no autorizado");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
+            }
+            // Parsear porcentaje (acepta string vacío o nulo)
+            java.math.BigDecimal porcentaje = java.math.BigDecimal.ZERO;
+            if (porcentajeStr != null && !porcentajeStr.trim().isEmpty()) {
+                try {
+                    porcentaje = new java.math.BigDecimal(porcentajeStr.trim());
+                    if (porcentaje.compareTo(java.math.BigDecimal.ZERO) < 0) porcentaje = java.math.BigDecimal.ZERO;
+                    if (porcentaje.compareTo(new java.math.BigDecimal("100")) > 0) porcentaje = new java.math.BigDecimal("100");
+                } catch (NumberFormatException e) {
+                    porcentaje = java.math.BigDecimal.ZERO;
+                }
+            }
+            if (porcentaje.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                producto.setDestacado(true);
+                producto.setPorcentajeDescuento(porcentaje);
+            } else {
+                producto.setDestacado(false);
+                producto.setPorcentajeDescuento(java.math.BigDecimal.ZERO);
+            }
+            productoService.guardarProducto(producto);
+            resp.put("success", true);
+            resp.put("destacado", producto.isDestacado());
+            resp.put("porcentaje", producto.getPorcentajeDescuento());
+            resp.put("precioConDescuento", producto.getPrecioConDescuento());
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            resp.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resp);
+        }
+    }
+
+    @PostMapping("/destacar-multiple")
+    public ResponseEntity<Map<String, Object>> destacarMultiples(@RequestBody Map<String, Object> payload,
+                                                                  HttpSession session) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            Usuario vendedor = (Usuario) session.getAttribute("usuario");
+            if (vendedor == null) {
+                resp.put("error", "Sesión no iniciada");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
+            }
+
+            Object idsObj = payload.get("ids");
+            Object porcentajeObj = payload.get("porcentaje");
+
+            if (idsObj == null) {
+                resp.put("error", "No se recibieron IDs");
+                return ResponseEntity.badRequest().body(resp);
+            }
+
+            // Convertir ids a lista de Long
+            List<Long> ids = new ArrayList<>();
+            if (idsObj instanceof List<?>) {
+                for (Object o : (List<?>) idsObj) {
+                    if (o == null) continue;
+                    try {
+                        ids.add(Long.valueOf(String.valueOf(o)));
+                    } catch (NumberFormatException ex) {
+                        // ignorar entradas no válidas
+                    }
+                }
+            }
+
+            java.math.BigDecimal porcentaje = java.math.BigDecimal.ZERO;
+            if (porcentajeObj != null) {
+                try {
+                    porcentaje = new java.math.BigDecimal(String.valueOf(porcentajeObj));
+                    if (porcentaje.compareTo(java.math.BigDecimal.ZERO) < 0) porcentaje = java.math.BigDecimal.ZERO;
+                    if (porcentaje.compareTo(new java.math.BigDecimal("100")) > 0) porcentaje = new java.math.BigDecimal("100");
+                } catch (Exception ex) {
+                    porcentaje = java.math.BigDecimal.ZERO;
+                }
+            }
+
+            int updated = 0;
+            List<Long> skipped = new ArrayList<>();
+            for (Long id : ids) {
+                Producto producto = productoService.obtenerProductoPorId(id);
+                if (producto == null || producto.getVendedor() == null || !vendedor.getId().equals(producto.getVendedor().getId())) {
+                    skipped.add(id);
+                    continue;
+                }
+                if (porcentaje.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    producto.setDestacado(true);
+                    producto.setPorcentajeDescuento(porcentaje);
+                } else {
+                    producto.setDestacado(false);
+                    producto.setPorcentajeDescuento(java.math.BigDecimal.ZERO);
+                }
+                productoService.guardarProducto(producto);
+                updated++;
+            }
+
+            resp.put("success", true);
+            resp.put("updated", updated);
+            resp.put("skipped", skipped);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            resp.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resp);
+        }
     }
 
 }

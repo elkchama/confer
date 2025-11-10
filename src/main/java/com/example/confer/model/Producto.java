@@ -1,6 +1,7 @@
 package com.example.confer.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "productos")
@@ -41,6 +43,13 @@ public class Producto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendedor_id")
     private Usuario vendedor;
+    
+    // Nuevos campos para destacar y descuento
+    @Column(name = "destacado", nullable = false)
+    private boolean destacado = false;
+
+    @Column(name = "porcentaje_descuento", precision = 5, scale = 2)
+    private BigDecimal porcentajeDescuento = BigDecimal.ZERO;
     
     // Constructores
     public Producto() {}
@@ -122,8 +131,35 @@ public class Producto {
     public void setVendedor(Usuario vendedor) {
         this.vendedor = vendedor;
     }
-    
-    // toString
+
+    // Getters/Setters nuevos
+    public boolean isDestacado() {
+        return destacado;
+    }
+
+    public void setDestacado(boolean destacado) {
+        this.destacado = destacado;
+    }
+
+    public BigDecimal getPorcentajeDescuento() {
+        return porcentajeDescuento;
+    }
+
+    public void setPorcentajeDescuento(BigDecimal porcentajeDescuento) {
+        this.porcentajeDescuento = porcentajeDescuento != null ? porcentajeDescuento : BigDecimal.ZERO;
+    }
+
+    // Precio con descuento calculado (no persistido)
+    @Transient
+    public BigDecimal getPrecioConDescuento() {
+        if (porcentajeDescuento == null || porcentajeDescuento.compareTo(BigDecimal.ZERO) <= 0) {
+            return precio;
+        }
+        BigDecimal factor = BigDecimal.ONE.subtract(porcentajeDescuento.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+        return precio.multiply(factor).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // toString (actualizar para incluir nuevos campos opcionalmente)
     @Override
     public String toString() {
         return "Producto{" +
@@ -134,6 +170,8 @@ public class Producto {
                 ", imagenUrl='" + imagenUrl + '\'' +
                 ", categoria='" + categoria + '\'' +
                 ", marca='" + marca + '\'' +
+                ", destacado=" + destacado +
+                ", porcentajeDescuento=" + porcentajeDescuento +
                 '}';
     }
 }
