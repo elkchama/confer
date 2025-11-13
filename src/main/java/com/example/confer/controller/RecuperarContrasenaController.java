@@ -1,5 +1,7 @@
 package com.example.confer.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,25 +19,50 @@ public class RecuperarContrasenaController {
     @Autowired
     private RecuperarContrasenaService recuperarContrasenaService;
 
-    // Muestra el formulario HTML
+    // Paso 1: mostrar formulario para ingresar correo
     @GetMapping("/recuperar")
     public String mostrarFormularioRecuperar() {
-        return "recuperar"; // busca templates/recuperar.html
+        return "recuperar"; // templates/recuperar.html
     }
 
-    // Procesa el formulario
+    // Paso 1: procesar correo y enviar código
     @PostMapping("/recuperar")
-    public String recuperarContrasena(@RequestParam String correo, Model model) {
-        boolean resultado = recuperarContrasenaService.recuperar(correo);
+    public String enviarCodigo(@RequestParam String correo, Model model) {
+        boolean resultado = recuperarContrasenaService.enviarCodigo(correo);
 
         if (resultado) {
-            model.addAttribute("mensaje", "✅ Se ha enviado una nueva contraseña a tu correo.");
+            model.addAttribute("mensaje", "✅ Se ha enviado un código de verificación a tu correo.");
             model.addAttribute("exito", true);
         } else {
             model.addAttribute("mensaje", "❌ No se encontró un usuario con ese correo.");
             model.addAttribute("exito", false);
         }
 
-        return "recuperar"; // vuelve a la misma vista con el mensaje
+        return "recuperar";
+    }
+
+    // Paso 2: mostrar formulario para ingresar código + nueva contraseña
+    @GetMapping("/recuperar/codigo")
+    public String mostrarFormularioCodigo() {
+        return "recuperar_codigo"; // templates/recuperar_codigo.html
+    }
+
+    // Paso 2: procesar código y nueva contraseña
+    @PostMapping("/recuperar/codigo")
+    public String confirmarCodigo(@RequestParam String correo,
+                                  @RequestParam String codigo,
+                                  @RequestParam String nuevaContrasena,
+                                  Model model) {
+        boolean resultado = recuperarContrasenaService.confirmarCodigo(correo, codigo, nuevaContrasena);
+
+        if (resultado) {
+            model.addAttribute("mensaje", "✅ Tu contraseña ha sido actualizada correctamente.");
+            model.addAttribute("exito", true);
+        } else {
+            model.addAttribute("mensaje", "❌ Código incorrecto o expirado.");
+            model.addAttribute("exito", false);
+        }
+
+        return "recuperar_codigo";
     }
 }
