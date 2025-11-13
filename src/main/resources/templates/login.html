@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" th:href="@{/login.css}">
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="logo">
+            <img th:src="@{/img/logo.png}" alt="CONFER Logo">
+        </div>
+
+        <!-- Título -->
+        <h1>Iniciar Sesión</h1>
+        
+        <p th:if="${msgSuccess}" th:text="${msgSuccess}" class="text-success text-center"></p>
+
+        <!-- Formulario de Login -->
+        <form th:action="@{/login}" method="post" class="login-form" id="login-form">
+
+            <!-- Mensaje de error -->
+            <p th:if="${error}" th:text="${error}" class="text-danger"></p>
+
+            <!-- Campo: Correo -->
+            <div class="input-group">
+                <label for="correo">Correo</label>
+                <input type="text" id="correo" name="correo" placeholder="Ingresa tu correo" required autofocus>
+            </div>
+
+            <!-- Campo: Contraseña -->
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+
+            <!-- Botón de Ingresar -->
+            <button type="submit" class="btn-login">Ingresar</button>
+        </form>
+
+        <!-- Enlace para Registro -->
+        <p class="signup-link">
+            ¿No tienes cuenta?
+            <a th:href="@{/registro}">Regístrate aquí</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

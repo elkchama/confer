@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONFER - MARKETPLACE</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8f0fe 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #1f2937;
+    overflow-x: hidden;
+  }
+
+  /* Animaciones */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Navbar mejorada */
+  .navbar {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(106, 17, 203, 0.3);
+    padding: 18px 0;
+    border-radius: 0 0 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .navbar-brand {
+    font-weight: 800;
+    color: white !important;
+    font-size: 28px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+  }
+
+  .navbar-brand::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6f61, #ff8a65);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .navbar-brand:hover::after {
+    transform: scaleX(1);
+  }
+
+  .header-buttons {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Botones del header mejorados */
+  .header-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+  }
+
+  .header-btn:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .header-btn:hover {
+    background: linear-gradient(135deg, #e85c50 0%, #ff7043 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 111, 97, 0.6);
+  }
+
+  .header-btn:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+
+  .header-btn i {
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-btn span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-btn.logout {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #dc3545;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+  }
+
+  .header-btn.logout:hover {
+    background: linear-gradient(135deg, #f1b0b7 0%, #e8a1aa 100%);
+    color: #a71e2a;
+  }
+
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Sección de bienvenida mejorada */
+  .welcome-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0;
+  }
+
+  .welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+  }
+
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .welcome-section h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    letter-spacing: -1px;
+  }
+
+  .welcome-section .brand-highlight {
+    background: linear-gradient(45deg, #ff6f61, #ff8a65);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+
+  .welcome-section .lead {
+    font-size: 1.4rem;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+
+  /* Botones principales mejorados */
+  .btn-primary {
+    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
+    border: none;
+    color: white;
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+  }
+
+  .btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #e85c50 0%, #ff7043 100%);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(255, 111, 97, 0.6);
+  }
+
+  /* Secciones mejoradas */
+  .section {
+    padding: 80px 0;
+    position: relative;
+  }
+
+  .section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6f61, #ff8a65);
+    border-radius: 2px;
+  }
+
+  /* Cards de características mejoradas */
+  .feature-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255,255,255,0.8);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6f61, #ff8a65);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+  }
+
+  .feature-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 25px;
+    background: linear-gradient(135deg, #ff6f61, #ff8a65);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .feature-icon img {
+    width: 40px;
+    filter: brightness(0) invert(1);
+  }
+
+  /* Cards de productos mejoradas */
+  .product-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    position: relative;
+  }
+
+  .product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,111,97,0.1), rgba(255,138,101,0.1));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .product-card:hover::before {
+    opacity: 1;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  }
+
+  .product-card .card-img-top {
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .product-card:hover .card-img-top {
+    transform: scale(1.1);
+  }
+
+  .product-card .card-body {
+    padding: 25px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .product-card .card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 10px;
+  }
+
+  .product-card .card-text {
+    font-size: 1.1rem;
+    color: #ff6f61;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .btn-outline-primary {
+    color: #ff6f61;
+    border: 2px solid #ff6f61;
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+
+  .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #ff6f61, #ff8a65);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+  }
+
+  /* Testimonios mejorados */
+  .testimonial-card {
+    background: white;
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.8);
+  }
+
+  .testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: 20px;
+    left: 25px;
+    font-size: 4rem;
+    color: #ff6f61;
+    font-family: serif;
+    opacity: 0.3;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  }
+
+  .blockquote {
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .blockquote p {
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #374151;
+  }
+
+  .blockquote-footer {
+    color: #6b7280;
+    font-weight: 600;
+    margin-top: 15px;
+    position: relative;
+  }
+
+  .blockquote-footer::before {
+    content: '— ';
+    color: #ff6f61;
+  }
+
+  /* Footer mejorado */
+  footer {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    color: white;
+    padding: 50px 0 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6f61, #ff8a65);
+  }
+
+  footer p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+  }
+
+  footer a {
+    color: #e5e7eb;
+    text-decoration: none;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  footer a:hover {
+    color: #ff6f61;
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .welcome-section h1 {
+      font-size: 2.5rem;
+    }
+    
+    .header-buttons {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .header-btn {
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+    
+    .navbar-container {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .section h2 {
+      font-size: 2rem;
+    }
+  }
+
+  /* Scroll suave */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Elementos que aparecen al hacer scroll */
+  .fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .fade-in.delay-1 {
+    animation-delay: 0.2s;
+  }
+
+  .fade-in.delay-2 {
+    animation-delay: 0.4s;
+  }
+
+  .fade-in.delay-3 {
+    animation-delay: 0.6s;
+  }
+</style>
+</head>
+<body>
+<!-- Navbar mejorada -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container navbar-container">
+    <a class="navbar-brand" href="/">CONFER</a>
+    <div class="header-buttons">
+      <a href="/contactos" class="header-btn">
+        <i class="fas fa-users"></i>
+        <span>Contactos</span>
+      </a>
+      <a href="/indexProductos" class="header-btn">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Productos</span>
+      </a>
+      <a href="/categorias" class="header-btn">
+        <i class="fas fa-tags"></i>
+        <span>Categorías</span>
+      </a>
+    </div>
+    <div class="user-menu">
+      <th:block th:if="${usuario != null}">
+        <a href="/logout" class="header-btn logout" onclick="return cerrarSesion(event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar sesión</span>
+        </a>
+      </th:block>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function cerrarSesion(event) {
+  event.preventDefault();
+  Swal.fire({
+    title: '¿Cerrar sesión?',
+    text: '¿Estás seguro que deseas salir?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, cerrar sesión',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/logout';
+    }
+  });
+  return false;
+}
+</script>
+      <th:block th:unless="${usuario != null}">
+        <a href="/login" class="header-btn logout"> 
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Iniciar sesión</span>
+        </a>
+      </th:block>
+    </div>
+  </div>
+</nav>
+
+<!-- Sección de bienvenida mejorada -->
+<section class="welcome-section">
+  <div class="container welcome-content">
+    <h1>Bienvenido a <span class="brand-highlight">CONFER</span></h1>
+    <th:block th:if="${usuario != null}">
+      <p class="lead text-success">¡Hola <span th:text="${usuario.nombre}"></span>! Has iniciado sesión correctamente. Ahora puedes contactar a los vendedores.</p>
+    </th:block>
+    <th:block th:unless="${usuario != null}">
+      <p class="lead">Descubre y compara los mejores precios en tecnología de última generación</p>
+    </th:block>
+    <a href="/productos" class="btn btn-primary">
+      <i class="fas fa-search me-2"></i>
+      Explorar Productos
+    </a>
+  </div>
+</section>
+
+<!-- Sección de características mejorada -->
+<section class="section">
+  <div class="container">
+    <h2>¿Por qué elegirnos?</h2>
+    <div class="row">
+      <div class="col-md-4 mb-4 fade-in">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/1002/1002011.png" alt="Ahorro">
+          </div>
+          <h5>Ahorra Dinero</h5>
+          <p>Compara entre cientos de productos y encuentra las mejores ofertas del mercado con descuentos exclusivos.</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4 fade-in delay-1">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/1674/1674291.png" alt="Variedad">
+          </div>
+          <h5>Gran Variedad</h5>
+          <p>Explora una amplia gama de productos tecnológicos de las mejores marcas y diferentes rangos de precios.</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4 fade-in delay-2">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" alt="Seguridad">
+          </div>
+          <h5>Compra Segura</h5>
+          <p>Conectamos directamente con tiendas verificadas y confiables que garantizan la seguridad de tu compra.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Productos destacados mejorados -->
+<section class="section" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+  <div class="container">
+    <h2>Productos Destacados</h2>
+    <div class="row justify-content-center">
+      <div class="col-md-4 mb-4 fade-in">
+        <div class="card product-card">
+          <img src="https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Laptop Lenovo">
+          <div class="card-body">
+            <h5 class="card-title">Laptop Lenovo</h5>
+            <p class="card-text">Desde $1.500.000 COP</p>
+            <a href="/productos" class="btn btn-outline-primary">
+              <i class="fas fa-eye me-2"></i>Ver detalles
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4 fade-in delay-1">
+        <div class="card product-card">
+          <img src="https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Smartphone Samsung">
+          <div class="card-body">
+            <h5 class="card-title">Smartphone Samsung</h5>
+            <p class="card-text">Desde $900.000 COP</p>
+            <a href="/productos" class="btn btn-outline-primary">
+              <i class="fas fa-eye me-2"></i>Ver detalles
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4 fade-in delay-2">
+        <div class="card product-card">
+          <img src="https://images.pexels.com/photos/3394651/pexels-photo-3394651.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Audífonos Bluetooth">
+          <div class="card-body">
+            <h5 class="card-title">Audífonos Bluetooth</h5>
+            <p class="card-text">Desde $120.000 COP</p>
+            <a href="/productos" class="btn btn-outline-primary">
+              <i class="fas fa-eye me-2"></i>Ver detalles
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonios mejorados -->
+<section class="section">
+  <div class="container">
+    <h2>Lo que dicen nuestros usuarios</h2>
+    <div class="row">
+      <div class="col-md-4 mb-4 fade-in">
+        <div class="testimonial-card">
+          <blockquote class="blockquote">
+            <p>Gracias a CONFER encontré la laptop perfecta a un precio increíble. El proceso fue muy fácil y confiable.</p>
+            <footer class="blockquote-footer">Laura Gómez</footer>
+          </blockquote>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4 fade-in delay-1">
+        <div class="testimonial-card">
+          <blockquote class="blockquote">
+            <p>Muy fácil de usar y con productos de excelente calidad. Definitivamente mi primera opción para compras tech.</p>
+            <footer class="blockquote-footer">Carlos Martínez</footer>
+          </blockquote>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4 fade-in delay-2">
+        <div class="testimonial-card">
+          <blockquote class="blockquote">
+            <p>Recomiendo esta plataforma a todos los que quieran ahorrar dinero sin sacrificar calidad en tecnología.</p>
+            <footer class="blockquote-footer">Diana Ruiz</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer mejorado -->
+<footer>
+  <div class="container">
+    <p>&copy; 2025 CONFER - Todos los derechos reservados</p>
+    <div>
+      <a href="/contacto"><i class="fas fa-envelope me-1"></i>Contacto</a>
+      <a href="/terminos"><i class="fas fa-file-contract me-1"></i>Términos y Condiciones</a>
+      <a href="/privacidad"><i class="fas fa-shield-alt me-1"></i>Política de Privacidad</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Animaciones al hacer scroll
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, observerOptions);
+
+// Observar elementos con animación
+document.querySelectorAll('.fade-in').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = 'all 0.8s ease-out';
+  observer.observe(el);
+});
+
+// Efecto parallax suave en el hero
+window.addEventListener('scroll', () => {
+  const scrolled = window.pageYOffset;
+  const parallax = document.querySelector('.welcome-section');
+  if (parallax) {
+    const speed = scrolled * 0.5;
+    parallax.style.transform = translateY(${speed}px);
+  }
+});
+
