@@ -1,4 +1,4 @@
-/* login.css */
+/* recuperar.css */
 
 * {
   box-sizing: border-box;
@@ -32,21 +32,21 @@ body::before {
   pointer-events: none;
 }
 
-.login-container {
+.recuperar-container {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 1200px;
+  max-width: 450px;
   z-index: 1;
   position: relative;
 }
 
-.login-card {
+.recuperar-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 60px 50px;
+  padding: 50px 45px;
   border-radius: 32px;
   box-shadow: 
     0 32px 80px rgba(0, 0, 0, 0.12),
@@ -54,7 +54,6 @@ body::before {
     0 8px 20px rgba(0, 0, 0, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
     inset 0 -1px 0 rgba(255, 255, 255, 0.2);
-  max-width: 450px;
   width: 100%;
   text-align: center;
   position: relative;
@@ -74,7 +73,7 @@ body::before {
   }
 }
 
-.login-card::before {
+.recuperar-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -96,32 +95,8 @@ body::before {
   50% { background-position: 100% 50%; }
 }
 
-.logo {
-  margin-bottom: 32px;
-  position: relative;
-}
-
-.logo img {
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-  filter: drop-shadow(0 8px 24px rgba(78, 84, 200, 0.2));
-  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
-  animation: logoFloat 3s ease-in-out infinite;
-}
-
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(1deg); }
-}
-
-.logo img:hover {
-  transform: scale(1.1) rotate(5deg);
-  filter: drop-shadow(0 12px 32px rgba(78, 84, 200, 0.3));
-}
-
 h1 {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   color: #2c3e50;
   font-size: 32px;
   font-weight: 800;
@@ -140,32 +115,10 @@ h1 {
   50% { background-position: 100% 50%; }
 }
 
-.text-center {
-  text-align: center;
-}
-
-.text-danger {
-  color: #e74c3c;
-  margin-bottom: 20px;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.05) 100%);
-  border-radius: 16px;
-  border-left: 4px solid #e74c3c;
-  font-weight: 600;
-  font-size: 14px;
-  backdrop-filter: blur(10px);
-  animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-}
-
-.text-success {
+/* Mensajes */
+.mensaje-success {
   color: #27ae60;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   padding: 16px 20px;
   background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(39, 174, 96, 0.05) 100%);
   border-radius: 16px;
@@ -173,6 +126,7 @@ h1 {
   font-weight: 600;
   font-size: 14px;
   backdrop-filter: blur(10px);
+  text-align: left;
   animation: slideInDown 0.6s ease-out;
 }
 
@@ -187,13 +141,34 @@ h1 {
   }
 }
 
-.login-form .input-group {
+.mensaje-error {
+  color: #e74c3c;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.05) 100%);
+  border-radius: 16px;
+  border-left: 4px solid #e74c3c;
+  font-weight: 600;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  text-align: left;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Formulario */
+.recuperar-form .input-group {
   margin-bottom: 28px;
   text-align: left;
   position: relative;
 }
 
-.login-form label {
+.recuperar-form label {
   display: block;
   margin-bottom: 10px;
   color: #2c3e50;
@@ -204,7 +179,7 @@ h1 {
   transition: all 0.3s ease;
 }
 
-.login-form input {
+.recuperar-form input {
   width: 100%;
   padding: 20px 24px;
   border: 2px solid #e8ecf4;
@@ -219,7 +194,7 @@ h1 {
     0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.login-form input:focus {
+.recuperar-form input:focus {
   border-color: #4e54c8;
   outline: none;
   background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
@@ -231,61 +206,24 @@ h1 {
     inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.login-form input::placeholder {
+.recuperar-form input::placeholder {
   color: #94a3b8;
   font-weight: 400;
   transition: all 0.3s ease;
 }
 
-.login-form input:focus::placeholder {
+.recuperar-form input:focus::placeholder {
   opacity: 0.6;
   transform: translateX(4px);
 }
 
-.login-form .input-group:focus-within label {
+.recuperar-form .input-group:focus-within label {
   color: #4e54c8;
   transform: translateY(-3px) scale(1.02);
 }
 
-/* Estilos para el enlace de recuperar contraseña */
-.forgot-password {
-  text-align: right;
-  margin-top: -16px;
-  margin-bottom: 24px;
-}
-
-.forgot-password a {
-  color: #4e54c8;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-  position: relative;
-  display: inline-block;
-  padding: 4px 0;
-}
-
-.forgot-password a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(90deg, #4e54c8, #8f94fb);
-  transition: width 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-  border-radius: 1px;
-}
-
-.forgot-password a:hover {
-  color: #3b40a4;
-}
-
-.forgot-password a:hover::after {
-  width: 100%;
-}
-
-.btn-login {
+/* Botón enviar */
+.btn-enviar {
   width: 100%;
   padding: 20px 32px;
   background: linear-gradient(135deg, #4e54c8 0%, #6366f1 50%, #8f94fb 100%);
@@ -306,7 +244,7 @@ h1 {
     0 4px 12px rgba(78, 84, 200, 0.15);
 }
 
-.btn-login::before {
+.btn-enviar::before {
   content: '';
   position: absolute;
   top: 0;
@@ -320,7 +258,7 @@ h1 {
   transition: left 0.6s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-.btn-login::after {
+.btn-enviar::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -333,7 +271,7 @@ h1 {
   transition: all 0.6s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-.btn-login:hover {
+.btn-enviar:hover {
   background: linear-gradient(135deg, #3b40a4 0%, #4f46e5 50%, #6366f1 100%);
   transform: translateY(-6px) scale(1.02);
   box-shadow: 
@@ -342,43 +280,119 @@ h1 {
     0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.btn-login:hover::before {
+.btn-enviar:hover::before {
   left: 100%;
 }
 
-.btn-login:hover::after {
+.btn-enviar:hover::after {
   width: 100px;
   height: 100px;
 }
 
-.btn-login:active {
+.btn-enviar:active {
   transform: translateY(-2px) scale(0.98);
 }
 
-.signup-link {
-  margin-top: 36px;
+/* Botón código alternativo */
+.btn-codigo {
+  display: block;
+  width: 100%;
+  padding: 18px 32px;
+  background: linear-gradient(135deg, rgba(78, 84, 200, 0.1) 0%, rgba(143, 148, 251, 0.1) 100%);
+  border: 2px solid #e8ecf4;
+  border-radius: 16px;
+  color: #4e54c8;
+  font-weight: 700;
   font-size: 15px;
-  color: #64748b;
-  font-weight: 500;
-  line-height: 1.6;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(78, 84, 200, 0.08);
+  position: relative;
+  overflow: hidden;
+  margin-top: 16px;
 }
 
-.signup-link a {
+.btn-codigo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(78, 84, 200, 0.1) 50%, 
+    transparent 100%);
+  transition: left 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.btn-codigo:hover {
+  background: linear-gradient(135deg, rgba(78, 84, 200, 0.15) 0%, rgba(143, 148, 251, 0.15) 100%);
+  border-color: #4e54c8;
+  color: #3b40a4;
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 32px rgba(78, 84, 200, 0.15),
+    0 6px 16px rgba(78, 84, 200, 0.1);
+}
+
+.btn-codigo:hover::before {
+  left: 100%;
+}
+
+.btn-codigo:active {
+  transform: translateY(-2px);
+}
+
+/* Input hint (texto de ayuda) */
+.input-hint {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Input especial para código de verificación */
+.codigo-input {
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.5rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+/* Enlaces footer */
+.enlaces-footer {
+  margin-top: 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-secundario {
   color: #4e54c8;
   text-decoration: none;
-  font-weight: 800;
-  position: relative;
+  font-weight: 600;
+  font-size: 15px;
   transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-  padding: 4px 8px;
-  border-radius: 8px;
+  position: relative;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 10px;
 }
 
-.signup-link a::before {
+.link-secundario::before {
   content: '';
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: 0;
+  bottom: 6px;
   left: 50%;
   background: linear-gradient(90deg, #4e54c8, #8f94fb);
   transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
@@ -386,7 +400,7 @@ h1 {
   border-radius: 1px;
 }
 
-.signup-link a::after {
+.link-secundario::after {
   content: '';
   position: absolute;
   top: 0;
@@ -396,40 +410,91 @@ h1 {
   background: linear-gradient(135deg, rgba(78, 84, 200, 0.1), rgba(143, 148, 251, 0.1));
   opacity: 0;
   transition: opacity 0.3s ease;
-  border-radius: 8px;
+  border-radius: 10px;
   z-index: -1;
 }
 
-.signup-link a:hover {
+.link-secundario:hover {
   color: #3b40a4;
   transform: translateY(-2px);
 }
 
-.signup-link a:hover::before {
-  width: 100%;
+.link-secundario:hover::before {
+  width: calc(100% - 32px);
 }
 
-.signup-link a:hover::after {
+.link-secundario:hover::after {
+  opacity: 1;
+}
+
+/* Enlace volver (compatibilidad con recuperar.html) */
+.volver-link {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.volver-link a {
+  color: #4e54c8;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+  position: relative;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 10px;
+}
+
+.volver-link a::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 6px;
+  left: 50%;
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+.volver-link a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(78, 84, 200, 0.1), rgba(143, 148, 251, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 10px;
+  z-index: -1;
+}
+
+.volver-link a:hover {
+  color: #3b40a4;
+  transform: translateY(-2px);
+}
+
+.volver-link a:hover::before {
+  width: calc(100% - 32px);
+}
+
+.volver-link a:hover::after {
   opacity: 1;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .login-card {
+  .recuperar-card {
     padding: 40px 32px;
-    margin: 20px;
     border-radius: 24px;
-    max-width: 100%;
   }
   
   h1 {
     font-size: 28px;
-    margin-bottom: 32px;
-  }
-  
-  .logo img {
-    width: 70px;
-    height: 70px;
+    margin-bottom: 28px;
   }
 }
 
@@ -438,7 +503,7 @@ h1 {
     padding: 16px;
   }
   
-  .login-card {
+  .recuperar-card {
     padding: 32px 24px;
     border-radius: 20px;
   }
@@ -448,50 +513,43 @@ h1 {
     margin-bottom: 24px;
   }
   
-  .login-form input {
+  .recuperar-form input {
     padding: 16px 20px;
     font-size: 16px;
   }
   
-  .btn-login {
+  .btn-enviar,
+  .btn-codigo {
     padding: 16px 24px;
-    font-size: 15px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .recuperar-card {
+    padding: 28px 20px;
   }
   
-  .logo img {
-    width: 60px;
-    height: 60px;
+  h1 {
+    font-size: 22px;
   }
   
-  .forgot-password {
-    text-align: center;
-    margin-top: -12px;
+  .recuperar-form label {
+    font-size: 12px;
   }
-}
-
-/* Loading state for form submission */
-.login-form.loading .btn-login {
-  pointer-events: none;
-  opacity: 0.8;
-  position: relative;
-}
-
-.login-form.loading .btn-login::after {
-  content: '';
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  margin: auto;
-  border: 3px solid transparent;
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-@keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+  
+  .btn-enviar,
+  .btn-codigo {
+    font-size: 13px;
+    padding: 14px 20px;
+  }
+  
+  .codigo-input {
+    font-size: 1.2rem;
+    letter-spacing: 0.3rem;
+  }
+  
+  .input-hint {
+    font-size: 11px;
+  }
 }

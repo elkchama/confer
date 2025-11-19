@@ -63,4 +63,20 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void enviarCorreo(String destinatario, String asunto, String cuerpo) {
+    try {
+        MimeMessage mensaje = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+
+        helper.setTo(destinatario);
+        helper.setSubject(asunto);
+        helper.setText(cuerpo, true); // true permite contenido HTML
+
+        mailSender.send(mensaje);
+    } catch (MessagingException e) {
+        e.printStackTrace();
+    }
+}
+
 }

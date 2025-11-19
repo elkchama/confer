@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.confer.model.Usuario;
 import com.example.confer.service.EmailService;
@@ -213,6 +214,63 @@ public class UsuarioController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(bis));
     }
+
+    // ===================== PERFIL ======================
+
+// Vista del perfil
+@GetMapping("/perfil")
+public String verPerfil(HttpSession session, Model model) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+    model.addAttribute("usuario", usuario);
+    return "perfil";
+}
+
+
+// Actualizar datos del perfil (excepto contraseña y foto)
+@PostMapping("/perfil/actualizar")
+public String actualizarPerfil(@ModelAttribute Usuario datos, HttpSession session) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+
+    usuarioService.actualizarPerfil(usuario.getId(), datos);
+
+    // actualizar usuario en sesión
+    Usuario actualizado = usuarioService.obtenerPorId(usuario.getId());
+    session.setAttribute("usuario", actualizado);
+
+    return "redirect:/perfil?ok";
+}
+
+// Subir foto de perfil
+@PostMapping("/perfil/foto")
+public String subirFotoPerfil(@RequestParam("foto") MultipartFile archivo,
+                              HttpSession session, Model model) {
+
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+
+    try {
+        String nombreArchivo = usuarioService.guardarImagen(usuario.getId(), archivo);
+
+        usuario.setFotoPerfil(nombreArchivo);
+        session.setAttribute("usuario", usuario);
+
+        return "redirect:/perfil?foto=ok";
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        model.addAttribute("errorImagen", "Error al subir imagen: " + e.getMessage());
+        return "perfil";
+    }
+}
+
 }
 
 

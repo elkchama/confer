@@ -38,6 +38,11 @@
                 <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
             </div>
 
+            <!-- 🔗 Enlace para recuperar contraseña -->
+            <div class="forgot-password">
+                <a th:href="@{/auth/recuperar}">¿Olvidaste tu contraseña?</a>
+            </div>
+
             <!-- Botón de Ingresar -->
             <button type="submit" class="btn-login">Ingresar</button>
         </form>
