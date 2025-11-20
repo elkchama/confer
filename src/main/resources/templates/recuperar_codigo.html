@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar código - Cónfer</title>
+    <link rel="stylesheet" th:href="@{/recuperar.css}">
+</head>
+<body>
+
+<div class="recuperar-container">
+    <div class="recuperar-card">
+
+        <!-- Título -->
+        <h1>Restablecer Contraseña</h1>
+
+        <!-- Mensajes -->
+        <div th:if="${exito}" class="mensaje-success" th:text="${mensaje}"></div>
+        <div th:if="${exito == false}" class="mensaje-error" th:text="${mensaje}"></div>
+
+        <!-- Formulario -->
+        <form th:action="@{/auth/recuperar/codigo}" method="post" class="recuperar-form" id="formCodigo">
+            
+            <!-- Campo de correo -->
+            <div class="input-group">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" 
+                       id="correo" 
+                       name="correo" 
+                       placeholder="usuario@ejemplo.com" 
+                       required 
+                       autofocus>
+                <small class="input-hint">El mismo correo donde recibiste el código</small>
+            </div>
+
+            <!-- Campo de código -->
+            <div class="input-group">
+                <label for="codigo">Código de verificación</label>
+                <input type="text" 
+                       id="codigo" 
+                       name="codigo" 
+                       class="codigo-input"
+                       placeholder="123456" 
+                       maxlength="6" 
+                       pattern="[0-9]{6}" 
+                       required>
+                <small class="input-hint">Ingresa el código de 6 dígitos que recibiste</small>
+            </div>
+
+            <!-- Campo de nueva contraseña -->
+            <div class="input-group">
+                <label for="nuevaContrasena">Nueva contraseña</label>
+                <input type="password" 
+                       id="nuevaContrasena" 
+                       name="nuevaContrasena" 
+                       placeholder="Mínimo 6 caracteres" 
+                       minlength="6" 
+                       required>
+            </div>
+
+            <!-- Campo de confirmar contraseña -->
+            <div class="input-group">
+                <label for="confirmarContrasena">Confirmar contraseña</label>
+                <input type="password" 
+                       id="confirmarContrasena" 
+                       placeholder="Repite tu contraseña" 
+                       minlength="6" 
+                       required>
+            </div>
+
+            <button type="submit" class="btn-enviar">Cambiar contraseña</button>
+        </form>
+
+        <!-- Enlaces -->
+        <div class="enlaces-footer">
+            <a th:href="@{/auth/recuperar}" class="link-secundario">← Solicitar nuevo código</a>
+            <a th:href="@{/}" class="link-secundario">Volver al inicio</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validación para que las contraseñas coincidan
+    document.getElementById('formCodigo').addEventListener('submit', function(e) {
+        const password = document.getElementById('nuevaContrasena').value;
+        const confirm = document.getElementById('confirmarContrasena').value;
+        
+        if (password !== confirm) {
+            e.preventDefault();
+            alert('⚠️ Las contraseñas no coinciden. Por favor, verifica.');
+            return false;
+        }
+    });
+
+    // Formatear el input del código para que solo acepte números
+    document.getElementById('codigo').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+</script>
+
+</body>
+</html>
