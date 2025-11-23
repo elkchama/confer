@@ -44,7 +44,6 @@ public class Producto {
     @JoinColumn(name = "vendedor_id")
     private Usuario vendedor;
     
-    // Nuevos campos para destacar y descuento
     @Column(name = "destacado", nullable = false)
     private boolean destacado = false;
 
@@ -67,7 +66,7 @@ public class Producto {
         this.imagenUrl = imagenUrl;
     }
     
-    // Getters y Setters
+    // Getters y Setters básicos
     public Long getId() {
         return id;
     }
@@ -132,7 +131,7 @@ public class Producto {
         this.vendedor = vendedor;
     }
 
-    // Getters/Setters nuevos
+    // Getters/Setters para destacado y descuento
     public boolean isDestacado() {
         return destacado;
     }
@@ -149,17 +148,42 @@ public class Producto {
         this.porcentajeDescuento = porcentajeDescuento != null ? porcentajeDescuento : BigDecimal.ZERO;
     }
 
-    // Precio con descuento calculado (no persistido)
+    /**
+     * Calcula el precio con descuento aplicado (campo calculado, no persistido en BD)
+     * @return precio con descuento aplicado, o precio original si no hay descuento
+     */
     @Transient
     public BigDecimal getPrecioConDescuento() {
         if (porcentajeDescuento == null || porcentajeDescuento.compareTo(BigDecimal.ZERO) <= 0) {
             return precio;
         }
-        BigDecimal factor = BigDecimal.ONE.subtract(porcentajeDescuento.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+        BigDecimal factor = BigDecimal.ONE.subtract(
+            porcentajeDescuento.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+        );
         return precio.multiply(factor).setScale(2, RoundingMode.HALF_UP);
     }
 
-    // toString (actualizar para incluir nuevos campos opcionalmente)
+    /**
+     * Calcula el monto de ahorro por el descuento
+     * @return cantidad ahorrada, o cero si no hay descuento
+     */
+    @Transient
+    public BigDecimal getMontoDescuento() {
+        if (porcentajeDescuento == null || porcentajeDescuento.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return precio.subtract(getPrecioConDescuento()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Verifica si el producto tiene descuento activo
+     * @return true si el descuento es mayor a 0
+     */
+    @Transient
+    public boolean tieneDescuento() {
+        return porcentajeDescuento != null && porcentajeDescuento.compareTo(BigDecimal.ZERO) > 0;
+    }
+
     @Override
     public String toString() {
         return "Producto{" +

@@ -14,7 +14,6 @@ def test_usuario_controller():
     time.sleep(25)  # esperar a que el servidor esté listo
 
     try:
-        # Paso 2: Probar endpoint /login
         r_login = requests.get("http://localhost:8070/login")
         assert r_login.status_code == 200, " El endpoint /login no respondió correctamente"
 
@@ -34,5 +33,6 @@ def test_usuario_controller():
     finally:
         # Paso 5: Detener el servidor
         print(" Deteniendo servidor...")
-        proceso.terminate()
-        proceso.wait()
+
+    # Esperar unos segundos para que el servidor arranque
+    time.sleep(20)
