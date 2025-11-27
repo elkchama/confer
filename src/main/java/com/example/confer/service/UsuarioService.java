@@ -134,9 +134,32 @@ public class UsuarioService {
 
     // Obtener ID del usuario desde el request
     public Long getIdFromToken(HttpServletRequest req) {
+        // First prefer the request attribute set by any token-based filter
         Object id = req.getAttribute("idUsuario");
-        if (id == null) return null;
-        return Long.parseLong(id.toString());
+        if (id != null) {
+            if (id instanceof Number) return ((Number) id).longValue();
+            if (id instanceof String) return Long.valueOf((String) id);
+            try {
+                return Long.valueOf(id.toString());
+            } catch (NumberFormatException ex) {
+                // ignore and continue
+            }
+        }
+
+        // Fallback to session attribute (used by session-based login in UsuarioController)
+        try {
+            if (req.getSession(false) != null) {
+                Object usuarioSesion = req.getSession(false).getAttribute("usuario");
+                if (usuarioSesion != null && usuarioSesion instanceof com.example.confer.model.Usuario) {
+                    com.example.confer.model.Usuario u = (com.example.confer.model.Usuario) usuarioSesion;
+                    return u.getId();
+                }
+            }
+        } catch (IllegalStateException e) {
+            // session invalidated or unavailable, ignore and return null below
+        }
+
+        return null;
     }
 
     // Actualizar perfil (solo datos permitidos, no contraseña)
@@ -150,9 +173,12 @@ public class UsuarioService {
         if (datos.getNombre() != null) u.setNombre(datos.getNombre());
         if (datos.getCorreo() != null) u.setCorreo(datos.getCorreo());
         if (datos.getTelefono() != null) u.setTelefono(datos.getTelefono());
-        if (datos.getDireccion() != null) u.setDireccion(datos.getDireccion());
-        if (datos.getEmpresa() != null) u.setEmpresa(datos.getEmpresa());
-        if (datos.getNit() != null) u.setNit(datos.getNit());
+        // Sólo aplicar campos de vendedor (empresa, nit, direccion) si el usuario es vendedor (idRol == 3)
+        if (u.getIdRol() != null && u.getIdRol() == 3) {
+            if (datos.getDireccion() != null) u.setDireccion(datos.getDireccion());
+            if (datos.getEmpresa() != null) u.setEmpresa(datos.getEmpresa());
+            if (datos.getNit() != null) u.setNit(datos.getNit());
+        }
 
         usuarioRepository.save(u);
     }

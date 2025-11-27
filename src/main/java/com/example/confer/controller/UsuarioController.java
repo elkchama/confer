@@ -228,6 +228,22 @@ public String verPerfil(HttpSession session, Model model) {
     return "perfil";
 }
 
+// Vista del perfil del vendedor (solo para rol vendedor)
+@GetMapping("/perfilVendedor")
+public String verPerfilVendedor(HttpSession session, Model model) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+    // Si no es vendedor, redirigir al perfil genérico
+    Integer rol = usuario.getIdRol();
+    if (rol == null || rol != 3) {
+        return "redirect:/perfil";
+    }
+    model.addAttribute("usuario", usuario);
+    return "perfilVendedor";
+}
+
 
 // Actualizar datos del perfil (excepto contraseña y foto)
 @PostMapping("/perfil/actualizar")

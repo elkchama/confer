@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.confer.dto.UsuarioPerfilDTO;
 import com.example.confer.model.Usuario;
 import com.example.confer.service.UsuarioService;
 
@@ -26,7 +27,7 @@ public class UsuarioPerfilController {
 
     // ===================== OBTENER PERFIL =====================
     @GetMapping("/perfil")
-    public ResponseEntity<Usuario> obtenerPerfil(HttpServletRequest req) {
+    public ResponseEntity<UsuarioPerfilDTO> obtenerPerfil(HttpServletRequest req) {
 
         Long idUsuario = usuarioService.getIdFromToken(req);
         if (idUsuario == null) {
@@ -38,7 +39,22 @@ public class UsuarioPerfilController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(usuario);
+        // Map to DTO and expose vendor-only fields only if user is vendor
+        UsuarioPerfilDTO dto = new UsuarioPerfilDTO();
+        dto.setId(usuario.getId());
+        dto.setNombre(usuario.getNombre());
+        dto.setCorreo(usuario.getCorreo());
+        dto.setTelefono(usuario.getTelefono());
+        dto.setIdRol(usuario.getIdRol());
+        dto.setFotoPerfil(usuario.getFotoPerfil());
+
+        if (usuario.getIdRol() != null && usuario.getIdRol() == 3) {
+            dto.setEmpresa(usuario.getEmpresa());
+            dto.setNit(usuario.getNit());
+            dto.setDireccion(usuario.getDireccion());
+        }
+
+        return ResponseEntity.ok(dto);
     }
 
     // ===================== ACTUALIZAR PERFIL =====================
@@ -53,7 +69,26 @@ public class UsuarioPerfilController {
             return ResponseEntity.status(401).body("No autenticado");
         }
 
+        // Prevent clients from updating vendor-only fields
+        Usuario existente = usuarioService.obtenerPorId(idUsuario);
+        if (existente == null) {
+            return ResponseEntity.notFound().build();
+        }
+        boolean intentandoActualizarCamposVendedor = (datosPerfil.getEmpresa() != null || datosPerfil.getNit() != null || datosPerfil.getDireccion() != null);
+        if (intentandoActualizarCamposVendedor && (existente.getIdRol() == null || existente.getIdRol() != 3)) {
+            return ResponseEntity.status(403).body("No autorizado para editar campos de vendedor");
+        }
+
         usuarioService.actualizarPerfil(idUsuario, datosPerfil);
+        // Actualizar la sesión si existe
+        try {
+            if (req.getSession(false) != null) {
+                Usuario actualizado = usuarioService.obtenerPorId(idUsuario);
+                req.getSession(false).setAttribute("usuario", actualizado);
+            }
+        } catch (IllegalStateException e) {
+            // session not available or invalidated
+        }
         return ResponseEntity.ok("Perfil actualizado correctamente");
     }
 
@@ -70,6 +105,15 @@ public class UsuarioPerfilController {
             }
 
             String ruta = usuarioService.guardarImagen(idUsuario, imagen);
+            // Actualizar la sesión con la ruta nueva si existe
+            try {
+                if (req.getSession(false) != null) {
+                    Usuario u = usuarioService.obtenerPorId(idUsuario);
+                    req.getSession(false).setAttribute("usuario", u);
+                }
+            } catch (IllegalStateException e) {
+                // ignore
+            }
             return ResponseEntity.ok("Foto actualizada: " + ruta);
 
         } catch (Exception e) {
@@ -87,6 +131,14 @@ public class UsuarioPerfilController {
         }
 
         usuarioService.eliminar(idUsuario);
+        // Invalidar sesión si existe
+        try {
+            if (req.getSession(false) != null) {
+                req.getSession(false).invalidate();
+            }
+        } catch (IllegalStateException e) {
+            // ignore
+        }
         return ResponseEntity.ok("Cuenta eliminada correctamente");
     }
 }

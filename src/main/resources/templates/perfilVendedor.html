@@ -416,7 +416,26 @@
                         <input type="tel" id="telefono" name="telefono" class="input-box" placeholder="+57 300 000 0000">
                     </div>
 
+                    <div class="input-group span-2">
+                        <label class="input-label">
+                            <span>📍</span> Dirección
+                        </label>
+                        <input type="text" id="direccion" name="direccion" class="input-box" placeholder="Tu dirección">
+                    </div>
 
+                    <div class="input-group" id="empresaGroup" style="display: none;">
+                        <label class="input-label">
+                            <span>🏢</span> Empresa
+                        </label>
+                        <input type="text" id="empresa" name="empresa" class="input-box" placeholder="Nombre de la empresa">
+                    </div>
+
+                    <div class="input-group" id="nitGroup" style="display: none;">
+                        <label class="input-label">
+                            <span>📄</span> NIT
+                        </label>
+                        <input type="text" id="nit" name="nit" class="input-box" placeholder="NIT de la empresa">
+                    </div>
                 </div>
 
                 <div class="button-group">
@@ -436,7 +455,7 @@
 
             <!-- Enlace para volver -->
             <div class="volver-link">
-                <a href="/bienvenida" onclick="volverInicio(event)">← Volver al inicio</a>
+                <a href="/vendedor/inicio" onclick="volverInicio(event)">← Volver al inicio</a>
             </div>
         </div>
     </div>
@@ -461,102 +480,104 @@
                     mostrarMensaje('error', 'No se pudo obtener la información del perfil');
                     return;
                 }
-
                 usuario = await resp.json();
-                // Poblamos el formulario
                 document.getElementById('nombre').value = usuario.nombre || '';
                 document.getElementById('correo').value = usuario.correo || '';
                 document.getElementById('telefono').value = usuario.telefono || '';
-                // Si tienes otros campos visibles, configúralos aquí
+                document.getElementById('direccion').value = usuario.direccion || '';
 
-                // Cargar foto de perfil si existe
+                if (usuario.idRol === 3) {
+                    document.getElementById('empresaGroup').style.display = 'flex';
+                    document.getElementById('nitGroup').style.display = 'flex';
+                    document.getElementById('empresa').value = usuario.empresa || '';
+                    document.getElementById('nit').value = usuario.nit || '';
+                } else {
+                    document.getElementById('empresaGroup').style.display = 'none';
+                    document.getElementById('nitGroup').style.display = 'none';
+                }
+
                 if (usuario.fotoPerfil) {
                     document.getElementById('avatarImg').src = usuario.fotoPerfil;
                     document.getElementById('avatarImg').style.display = 'block';
-                    document.getElementById('avatarIcon').style.display = 'none';
+                    const icon = document.getElementById('avatarIcon'); if (icon) icon.style.display = 'none';
                 }
-
             } catch (err) {
                 mostrarMensaje('error', 'Error al obtener perfil: ' + err.message);
             }
         }
 
-        function updateAvatar(event) {
+        async function updateAvatar(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatarImg').src = e.target.result;
-                    document.getElementById('avatarImg').style.display = 'block';
-                    document.getElementById('avatarIcon').style.display = 'none';
-                    // Guardamos temporalmente la imagen para previsualización
-                    if (!usuario) usuario = {};
-                    usuario.fotoPerfil = e.target.result;
-                }
-                reader.readAsDataURL(file);
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarImg').src = e.target.result;
+                document.getElementById('avatarImg').style.display = 'block';
+                const icon = document.getElementById('avatarIcon'); if (icon) icon.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
 
-                // Enviar al backend la imagen
-                const formData = new FormData();
-                formData.append('file', file);
-                fetch('/api/usuarios/perfil/foto', {
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await fetch('/api/usuarios/perfil/foto', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
-                }).then(async res => {
-                    if (!res.ok) {
-                        const text = await res.text();
-                        mostrarMensaje('error', 'Error al subir foto: ' + text);
-                        return;
-                    }
+                });
+                if (!res.ok) {
                     const text = await res.text();
-                    // La API responde con un mensaje y la ruta, por ejemplo: "Foto actualizada: /uploads/.."
-                    // extraemos la ruta si viene acompañada
-                    const match = text.match(/(\/uploads\/.*)$/);
-                    if (match) {
-                        const ruta = match[1];
-                        usuario.fotoPerfil = ruta;
-                        document.getElementById('avatarImg').src = ruta;
-                        mostrarMensaje('success', 'Foto actualizada correctamente.');
-                    } else {
-                        mostrarMensaje('success', 'Foto actualizada.');
-                    }
-                }).catch(err => mostrarMensaje('error', 'Error al subir foto: ' + err.message));
+                    mostrarMensaje('error', 'Error al subir foto: ' + text);
+                    return;
+                }
+                const text = await res.text();
+                const match = text.match(/(\/uploads\/.*)$/);
+                if (match) {
+                    usuario.fotoPerfil = match[1];
+                    document.getElementById('avatarImg').src = match[1];
+                }
+                mostrarMensaje('success', 'Foto actualizada correctamente.');
+            } catch (err) {
+                mostrarMensaje('error', 'Error al subir foto: ' + err.message);
             }
         }
 
         async function handleSubmit(event) {
             event.preventDefault();
-
-            // Construir objeto con campos editables
             const payload = {
                 nombre: document.getElementById('nombre').value,
                 correo: document.getElementById('correo').value,
-                telefono: document.getElementById('telefono').value
+                telefono: document.getElementById('telefono').value,
+                direccion: document.getElementById('direccion').value
             };
+            if (usuario && (usuario.idRol === 3 || usuario.id_rol === 3)) {
+                payload.empresa = document.getElementById('empresa') ? document.getElementById('empresa').value : null;
+                payload.nit = document.getElementById('nit') ? document.getElementById('nit').value : null;
+            }
 
             try {
                 const resp = await fetch('/api/usuarios/perfil', {
                     method: 'PUT',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (resp.status === 401) {
                     mostrarMensaje('error', 'No autenticado. Por favor inicia sesión.');
                     return;
                 }
-
+                if (resp.status === 403) {
+                    const text = await resp.text();
+                    mostrarMensaje('error', text || 'No autorizado para actualizar campos.');
+                    return;
+                }
                 if (!resp.ok) {
                     const text = await resp.text();
                     mostrarMensaje('error', 'Error al actualizar perfil: ' + text);
                     return;
                 }
-
                 mostrarMensaje('success', '✓ Datos actualizados correctamente.');
-                // Actualizar el objeto local
+                // Update local object
                 usuario = { ...usuario, ...payload };
             } catch (err) {
                 mostrarMensaje('error', 'Error al actualizar perfil: ' + err.message);
@@ -565,47 +586,34 @@
 
         function resetForm() {
             // Restaurar valores originales
-            document.getElementById('nombre').value = usuario.nombre;
-            document.getElementById('correo').value = usuario.correo;
-            document.getElementById('telefono').value = usuario.telefono;
+            if (!usuario) return;
+            document.getElementById('nombre').value = usuario.nombre || '';
+            document.getElementById('correo').value = usuario.correo || '';
+            document.getElementById('telefono').value = usuario.telefono || '';
+            document.getElementById('direccion').value = usuario.direccion || '';
+            if (usuario.idRol === 3 || usuario.id_rol === 3) {
+                if (document.getElementById('empresa')) document.getElementById('empresa').value = usuario.empresa || '';
+                if (document.getElementById('nit')) document.getElementById('nit').value = usuario.nit || '';
+            }
         }
 
         async function eliminarCuenta() {
             if (!confirm('¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) return;
-
             try {
-                const resp = await fetch('/api/usuarios/perfil', {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (resp.status === 401) {
-                    mostrarMensaje('error', 'No autenticado.');
-                    return;
-                }
-                if (!resp.ok) {
-                    const text = await resp.text();
-                    mostrarMensaje('error', 'No se pudo eliminar la cuenta: ' + text);
-                    return;
-                }
+                const resp = await fetch('/api/usuarios/perfil', { method: 'DELETE', credentials: 'include' });
+                if (resp.status === 401) { mostrarMensaje('error','No autenticado.'); return; }
+                if (!resp.ok) { const text = await resp.text(); mostrarMensaje('error', 'No se pudo eliminar la cuenta: ' + text); return; }
                 mostrarMensaje('success', 'Cuenta eliminada correctamente.');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1500);
+                setTimeout(() => window.location.href = '/vendedor/inicio', 1500);
             } catch (err) {
                 mostrarMensaje('error', 'Error al eliminar cuenta: ' + err.message);
             }
         }
 
         function volverInicio(event) {
-            // Evitamos la navegación por defecto y redirigimos según el estado de sesión
             event.preventDefault();
-            // Si usuario está cargado y tiene id, redirigimos a la vista de bienvenida
-            if (usuario && usuario.id) {
-                window.location.href = '/bienvenida';
-                return;
-            }
-            // Si no hay usuario autenticado, redirigimos al login por seguridad
-            window.location.href = '/login';
+            // vendor back to vendor index
+            window.location.href = '/vendedor/inicio';
         }
 
         function mostrarMensaje(tipo, mensaje) {

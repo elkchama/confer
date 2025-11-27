@@ -2,6 +2,8 @@ package com.example.confer.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,9 +28,11 @@ public class Usuario {
     private String telefono;
     
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     
     @Transient
+    @JsonIgnore
     private String confirmarPassword;
     
     private String empresa;      
@@ -46,9 +50,11 @@ public class Usuario {
 
     // ===== Recuperación de contraseña =====
     @Column(name = "codigo_recuperacion")
+    @JsonIgnore
     private String codigoRecuperacion;
     
     @Column(name = "fecha_codigo_expira")
+    @JsonIgnore
     private LocalDateTime fechaCodigoExpira;
 
     // ===== Getters y Setters =====
