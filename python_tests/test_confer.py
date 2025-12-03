@@ -10,6 +10,7 @@ def test_contacto_controller():
         shell=True
     )
 
+
     # Paso 2: Esperar unos segundos para que el servidor arranque
     import time
     time.sleep(30)

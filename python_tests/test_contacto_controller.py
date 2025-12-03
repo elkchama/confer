@@ -10,6 +10,7 @@ def test_contacto_controller():
         stderr=subprocess.PIPE
     )
 
+
     # Paso 2: Esperar unos segundos para que el servidor arranque
     print("Iniciando servidor Spring Boot...")
     time.sleep(25)  # puedes ajustar este tiempo si tu servidor tarda más o menos

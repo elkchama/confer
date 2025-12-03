@@ -6,6 +6,7 @@ from producto_controller_for_testing import (
     calcular_porcentaje_destacado
 )
 
+
 # -------------------------------
 # TEST 1: getFileExtension
 # -------------------------------

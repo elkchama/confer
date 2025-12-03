@@ -1,6 +1,7 @@
 from decimal import Decimal
 import json
 
+
 # -------------------------------
 # getFileExtension (igual al de tu controlador)
 # -------------------------------
