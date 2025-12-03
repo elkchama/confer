@@ -446,6 +446,8 @@ public class ProductoController {
 
 }
 
+// prueba git
+
 @Controller
 class IndexProductosController {
 
