@@ -6,3 +6,4 @@ import org.springframework.stereotype.Controller;
 public class RedireccionController {
     // Puedes agregar aquí otras redirecciones si lo necesitas, pero /bienvenida ya no redirige.
 }
+

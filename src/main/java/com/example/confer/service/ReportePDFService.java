@@ -177,3 +177,4 @@ public class ReportePDFService {
         return Image.getInstance(baos.toByteArray());
     }
 }
+

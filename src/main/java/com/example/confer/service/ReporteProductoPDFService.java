@@ -126,3 +126,4 @@ public class ReporteProductoPDFService {
         return Image.getInstance(baos.toByteArray());
     }
 }
+

@@ -22,3 +22,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     default List<Usuario> findClientes() { return findByIdRol(2); }
 }
+

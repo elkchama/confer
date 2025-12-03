@@ -11,3 +11,4 @@ package com.example.confer.service;
 class JavaMailSender {
     
 }
+

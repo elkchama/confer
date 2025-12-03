@@ -142,3 +142,4 @@ public class UsuarioPerfilController {
         return ResponseEntity.ok("Cuenta eliminada correctamente");
     }
 }
+

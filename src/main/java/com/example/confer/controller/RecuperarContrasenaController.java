@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.confer.service.RecuperarContrasenaService;
  
+
 @Controller
 @RequestMapping("/auth")
 public class RecuperarContrasenaController {

@@ -9,5 +9,4 @@ public class ConferApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ConferApplication.class, args);
 	}
-
 }
