@@ -1,19 +1,26 @@
 package com.example.confer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
+
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.url}")
+    private String appUrl;
+
+    @Async
     public void enviarCorreoRegistroExitoso(String destinatario, String nombreUsuario) {
         try {
             MimeMessage mensaje = mailSender.createMimeMessage();
@@ -23,7 +30,9 @@ public class EmailService {
             helper.setSubject("🎉 Registro exitoso en Cónfer");
 
             // URL pública del banner (asegúrate que el nombre de archivo sea conferbanner.jpg)
-            String bannerUrl = "http://localhost:8070/img/conferbanner.jpg";
+            // URL pública del banner
+            String bannerUrl = appUrl + "/img/conferbanner.jpg";
+
             // En pruebas locales podrías usar:
             // String bannerUrl = "http://localhost:8070/img/conferbanner.jpg";
 
@@ -64,6 +73,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void enviarCorreo(String destinatario, String asunto, String cuerpo) {
     try {
         MimeMessage mensaje = mailSender.createMimeMessage();
