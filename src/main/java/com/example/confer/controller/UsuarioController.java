@@ -8,6 +8,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,37 +28,49 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UsuarioController {
-
-    private final UsuarioService usuarioService;
-    private final ProductoService productoService;
-    private final ReportePDFService reportePDFService;
-    private final EmailService emailService;
-
-    @Autowired
-    public UsuarioController(UsuarioService usuarioService,
-                             ProductoService productoService,
-                             ReportePDFService reportePDFService,
-                             EmailService emailService) {
-        this.usuarioService = usuarioService;
-        this.productoService = productoService;
-        this.reportePDFService = reportePDFService;
-        this.emailService = emailService;
-    }
-
-    // ===================== LOGOUT Y BIENVENIDA ======================
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/bienvenida";
     }
-
-    @GetMapping({"/", "/bienvenida"})
+    @GetMapping("/bienvenida")
     public String mostrarBienvenida(HttpSession session, Model model) {
-        model.addAttribute("usuario", session.getAttribute("usuario"));
+        Object usuario = session.getAttribute("usuario");
+        if (usuario != null) {
+            model.addAttribute("usuario", usuario);
+        } else {
+            model.addAttribute("usuario", null);
+        }
         return "bienvenida";
     }
 
-    // ===================== LOGIN ======================
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private ProductoService productoService;
+
+    @Autowired
+    private ReportePDFService reportePDFService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private EmailService emailService;
+
+
+    @GetMapping("/")
+    public String mostrarPaginaInicio(HttpSession session, Model model) {
+        Object usuario = session.getAttribute("usuario");
+        if (usuario != null) {
+            model.addAttribute("usuario", usuario);
+        } else {
+            model.addAttribute("usuario", null);
+        }
+        return "bienvenida";
+    }
+
     @GetMapping("/login")
     public String mostrarFormularioLogin(@RequestParam(value = "registrado", required = false) String registrado,
                                          Model model) {
@@ -69,21 +82,31 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String correo,
-                                @RequestParam String password,
-                                Model model,
-                                HttpSession session) {
+                                 @RequestParam String password,
+                                 Model model,
+                                 HttpSession session) {
         try {
             return usuarioService.autenticar(correo, password)
-                    .map(usuario -> {
-
-                        if (usuario.getIdRol() == null) {
+                    .map(usuarios -> {
+                        Integer rol = usuarios.getIdRol();
+                        if (rol == null) {
                             model.addAttribute("error", "Tu cuenta no tiene un rol asignado.");
                             return "login";
                         }
 
-                        session.setAttribute("usuario", usuario);
+                        session.setAttribute("usuario", usuarios);
 
-                        return redirigirSegunRol(usuario.getIdRol(), model, usuario);
+                        if (rol == 3) {
+                            // Vendedor: redirige a /vendedor/index
+                            return "redirect:/vendedor/index";
+                        } else if (rol == 2) {
+                            // Cliente: bienvenida
+                            model.addAttribute("usuario", usuarios);
+                            return "bienvenida";
+                        } else {
+                            // Otros roles (ejemplo: admin)
+                            return "redirect:/admin";
+                        }
                     })
                     .orElseGet(() -> {
                         model.addAttribute("error", "Credenciales inválidas. Intenta nuevamente.");
@@ -91,24 +114,12 @@ public class UsuarioController {
                     });
 
         } catch (Exception e) {
-            model.addAttribute("error", "Ocurrió un error inesperado.");
+            e.printStackTrace();
+            model.addAttribute("error", "Ocurrió un error inesperado: " + e.getMessage());
             return "login";
         }
     }
 
-    private String redirigirSegunRol(Integer rol, Model model, Usuario usuario) {
-        return switch (rol) {
-            case 1 -> "redirect:/admin";
-            case 2 -> {
-                model.addAttribute("usuario", usuario);
-                yield "bienvenida";
-            }
-            case 3 -> "redirect:/vendedor/index";
-            default -> "redirect:/bienvenida";
-        };
-    }
-
-    // ===================== REGISTRO ======================
     @GetMapping("/registro")
     public String mostrarFormularioRegistro(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -133,161 +144,155 @@ public class UsuarioController {
             }
 
             usuarioService.guardar(usuario);
-
+            
+            // Enviar notificación al correo del usuario
             emailService.enviarCorreoRegistroExitoso(usuario.getCorreo(), usuario.getNombre());
 
             return "redirect:/login?registrado";
 
+        } catch (NumberFormatException e) {
+            model.addAttribute("error", "Tipo de usuario inválido");
+            return "registro";
         } catch (Exception e) {
-            model.addAttribute("error", "Error al registrar usuario.");
+            model.addAttribute("error", "Error al registrar usuario: " + e.getMessage());
             return "registro";
         }
     }
 
-    // ===================== VISTAS PRINCIPALES ======================
-    @GetMapping("/vendedor/index")
+    @GetMapping("/vendedor/inicio")
     public String vistaVendedor(HttpSession session, Model model) {
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) return "redirect:/login";
-
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
         model.addAttribute("usuario", usuario);
+        // Cargar productos del vendedor autenticado
         model.addAttribute("productos", productoService.listarProductosPorVendedor(usuario));
         model.addAttribute("nuevoProducto", new com.example.confer.model.Producto());
-
         return "indexVendedor";
     }
 
     @GetMapping("/admin")
-    public String vistaAdmin(HttpSession session, Model model) {
-        if (!validarSesion(session)) return "redirect:/login";
-
-        model.addAttribute("usuario", session.getAttribute("usuario"));
+    public String vistaAdmin() {
         return "admin";
     }
 
-    // ===================== ADMIN USUARIOS ======================
     @GetMapping("/admin/usuarios")
-    public String listarUsuarios(HttpSession session, Model model) {
-        if (!validarSesion(session)) return "redirect:/login";
-
+    public String listarUsuarios(Model model) {
         model.addAttribute("usuarios", usuarioService.listarTodos());
         return "admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/nuevo")
-    public String mostrarFormularioNuevoUsuario(HttpSession session, Model model) {
-        if (!validarSesion(session)) return "redirect:/login";
-
+    public String mostrarFormularioNuevoUsuario(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "admin/usuario-form";
     }
 
     @PostMapping("/admin/usuarios/guardar")
-    public String guardarUsuario(@ModelAttribute Usuario usuario, HttpSession session) {
-        if (!validarSesion(session)) return "redirect:/login";
-
+    public String guardarUsuario(@ModelAttribute Usuario usuario) {
         usuarioService.guardar(usuario);
         return "redirect:/admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/editar/{id}")
-    public String editarUsuario(@PathVariable Long id,
-                                HttpSession session,
-                                Model model) {
-        if (!validarSesion(session)) return "redirect:/login";
-
-        model.addAttribute("usuario", usuarioService.obtenerPorId(id));
+    public String editarUsuario(@PathVariable Long id, Model model) {
+        Usuario usuario = usuarioService.obtenerPorId(id);
+        model.addAttribute("usuario", usuario);
         return "admin/usuario-form";
     }
 
     @GetMapping("/admin/usuarios/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id,
-                                  HttpSession session) {
-        if (!validarSesion(session)) return "redirect:/login";
-
+    public String eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminar(id);
         return "redirect:/admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/reporte")
-    public ResponseEntity<InputStreamResource> generarReportePDF(@RequestParam(required = false) String rol,
-                                                                 HttpSession session) {
-        if (!validarSesion(session)) return ResponseEntity.status(401).build();
-
+    public ResponseEntity<InputStreamResource> generarReportePDF(@RequestParam(value = "rol", required = false) String rol) {
         List<Usuario> usuarios = usuarioService.listarTodos();
         ByteArrayInputStream bis = reportePDFService.generarReporteUsuarios(usuarios, rol);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=usuarios.pdf");
 
-        return ResponseEntity.ok()
+        return ResponseEntity
+                .ok()
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(bis));
     }
 
     // ===================== PERFIL ======================
-    @GetMapping("/perfil")
-    public String verPerfil(HttpSession session, Model model) {
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) return "redirect:/login";
 
-        model.addAttribute("usuario", usuario);
+// Vista del perfil
+@GetMapping("/perfil")
+public String verPerfil(HttpSession session, Model model) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+    model.addAttribute("usuario", usuario);
+    return "perfil";
+}
+
+// Vista del perfil del vendedor (solo para rol vendedor)
+@GetMapping("/perfilVendedor")
+public String verPerfilVendedor(HttpSession session, Model model) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+    // Si no es vendedor, redirigir al perfil genérico
+    Integer rol = usuario.getIdRol();
+    if (rol == null || rol != 3) {
+        return "redirect:/perfil";
+    }
+    model.addAttribute("usuario", usuario);
+    return "perfilVendedor";
+}
+
+
+// Actualizar datos del perfil (excepto contraseña y foto)
+@PostMapping("/perfil/actualizar")
+public String actualizarPerfil(@ModelAttribute Usuario datos, HttpSession session) {
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+
+    usuarioService.actualizarPerfil(usuario.getId(), datos);
+
+    // actualizar usuario en sesión
+    Usuario actualizado = usuarioService.obtenerPorId(usuario.getId());
+    session.setAttribute("usuario", actualizado);
+
+    return "redirect:/perfil?ok";
+}
+
+// Subir foto de perfil
+@PostMapping("/perfil/foto")
+public String subirFotoPerfil(@RequestParam("foto") MultipartFile archivo,
+                              HttpSession session, Model model) {
+
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        return "redirect:/login";
+    }
+
+    try {
+        String nombreArchivo = usuarioService.guardarImagen(usuario.getId(), archivo);
+
+        usuario.setFotoPerfil(nombreArchivo);
+        session.setAttribute("usuario", usuario);
+
+        return "redirect:/perfil?foto=ok";
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        model.addAttribute("errorImagen", "Error al subir imagen: " + e.getMessage());
         return "perfil";
     }
+}
 
-    @GetMapping("/perfilVendedor")
-    public String verPerfilVendedor(HttpSession session, Model model) {
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) return "redirect:/login";
-
-        if (usuario.getIdRol() != 3) return "redirect:/perfil";
-
-        model.addAttribute("usuario", usuario);
-        return "perfilVendedor";
-    }
-
-    @PostMapping("/perfil/actualizar")
-    public String actualizarPerfil(@ModelAttribute Usuario datos,
-                                   HttpSession session) {
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) return "redirect:/login";
-
-        usuarioService.actualizarPerfil(usuario.getId(), datos);
-
-        // actualizar sesión
-        session.setAttribute("usuario", usuarioService.obtenerPorId(usuario.getId()));
-
-        return "redirect:/perfil?ok";
-    }
-
-    @PostMapping("/perfil/foto")
-    public String subirFotoPerfil(@RequestParam("foto") MultipartFile archivo,
-                                  HttpSession session,
-                                  Model model) {
-
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) return "redirect:/login";
-
-        try {
-            String nombreArchivo = usuarioService.guardarImagen(usuario.getId(), archivo);
-            usuario.setFotoPerfil(nombreArchivo);
-            session.setAttribute("usuario", usuario);
-
-            return "redirect:/perfil?foto=ok";
-
-        } catch (Exception e) {
-            model.addAttribute("errorImagen", "Error al subir imagen.");
-            return "perfil";
-        }
-    }
-
-    // ===================== MÉTODOS AUXILIARES ======================
-    private boolean validarSesion(HttpSession session) {
-        return session.getAttribute("usuario") != null;
-    }
-
-    private Usuario obtenerUsuarioSesion(HttpSession session) {
-        return (Usuario) session.getAttribute("usuario");
-    }
 }
