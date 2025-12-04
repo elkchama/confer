@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.confer.model.Usuario;
 import com.example.confer.service.EmailService;
@@ -35,10 +34,10 @@ public class UsuarioController {
     private final EmailService emailService;
 
     @Autowired
-    public UsuarioController(UsuarioService usuarioService, 
-                            ProductoService productoService,
-                            ReportePDFService reportePDFService, 
-                            EmailService emailService) {
+    public UsuarioController(UsuarioService usuarioService,
+                             ProductoService productoService,
+                             ReportePDFService reportePDFService,
+                             EmailService emailService) {
         this.usuarioService = usuarioService;
         this.productoService = productoService;
         this.reportePDFService = reportePDFService;
@@ -76,36 +75,37 @@ public class UsuarioController {
         try {
             return usuarioService.autenticar(correo, password)
                     .map(usuario -> {
+
                         if (usuario.getIdRol() == null) {
                             model.addAttribute("error", "Tu cuenta no tiene un rol asignado.");
                             return "login";
                         }
 
                         session.setAttribute("usuario", usuario);
+
                         return redirigirSegunRol(usuario.getIdRol(), model, usuario);
                     })
                     .orElseGet(() -> {
                         model.addAttribute("error", "Credenciales inválidas. Intenta nuevamente.");
                         return "login";
                     });
+
         } catch (Exception e) {
-            model.addAttribute("error", "Ocurrió un error inesperado. Por favor, intenta de nuevo.");
+            model.addAttribute("error", "Ocurrió un error inesperado.");
             return "login";
         }
     }
 
     private String redirigirSegunRol(Integer rol, Model model, Usuario usuario) {
-        switch (rol) {
-            case 1:
-                return "redirect:/admin";
-            case 2:
+        return switch (rol) {
+            case 1 -> "redirect:/admin";
+            case 2 -> {
                 model.addAttribute("usuario", usuario);
-                return "bienvenida";
-            case 3:
-                return "redirect:/vendedor/inicio";
-            default:
-                return "redirect:/bienvenida";
-        }
+                yield "bienvenida";
+            }
+            case 3 -> "redirect:/vendedor/index";
+            default -> "redirect:/bienvenida";
+        };
     }
 
     // ===================== REGISTRO ======================
@@ -121,7 +121,6 @@ public class UsuarioController {
                                    @RequestParam(required = false) String empresa,
                                    @RequestParam(required = false) String nit,
                                    @RequestParam(required = false) String direccion,
-                                   RedirectAttributes redirectAttributes,
                                    Model model) {
         try {
             int rol = Integer.parseInt(tipoUsuario);
@@ -134,33 +133,34 @@ public class UsuarioController {
             }
 
             usuarioService.guardar(usuario);
+
             emailService.enviarCorreoRegistroExitoso(usuario.getCorreo(), usuario.getNombre());
 
             return "redirect:/login?registrado";
-        } catch (NumberFormatException e) {
-            model.addAttribute("error", "Tipo de usuario inválido.");
-            return "registro";
+
         } catch (Exception e) {
-            model.addAttribute("error", "Error al registrar usuario. Por favor, intenta de nuevo.");
+            model.addAttribute("error", "Error al registrar usuario.");
             return "registro";
         }
     }
 
     // ===================== VISTAS PRINCIPALES ======================
-    @GetMapping("/vendedor/inicio")
+    @GetMapping("/vendedor/index")
     public String vistaVendedor(HttpSession session, Model model) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
-        model.addAttribute("usuario", session.getAttribute("usuario"));
+        Usuario usuario = obtenerUsuarioSesion(session);
+        if (usuario == null) return "redirect:/login";
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("productos", productoService.listarProductosPorVendedor(usuario));
+        model.addAttribute("nuevoProducto", new com.example.confer.model.Producto());
+
         return "indexVendedor";
     }
 
     @GetMapping("/admin")
     public String vistaAdmin(HttpSession session, Model model) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
+        if (!validarSesion(session)) return "redirect:/login";
+
         model.addAttribute("usuario", session.getAttribute("usuario"));
         return "admin";
     }
@@ -168,76 +168,51 @@ public class UsuarioController {
     // ===================== ADMIN USUARIOS ======================
     @GetMapping("/admin/usuarios")
     public String listarUsuarios(HttpSession session, Model model) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
+        if (!validarSesion(session)) return "redirect:/login";
+
         model.addAttribute("usuarios", usuarioService.listarTodos());
         return "admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/nuevo")
     public String mostrarFormularioNuevoUsuario(HttpSession session, Model model) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
+        if (!validarSesion(session)) return "redirect:/login";
+
         model.addAttribute("usuario", new Usuario());
         return "admin/usuario-form";
     }
 
     @PostMapping("/admin/usuarios/guardar")
-    public String guardarUsuario(@ModelAttribute Usuario usuario, 
-                                HttpSession session,
-                                RedirectAttributes redirectAttributes) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
-        try {
-            usuarioService.guardar(usuario);
-            redirectAttributes.addFlashAttribute("msgSuccess", "Usuario guardado exitosamente.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al guardar usuario.");
-        }
+    public String guardarUsuario(@ModelAttribute Usuario usuario, HttpSession session) {
+        if (!validarSesion(session)) return "redirect:/login";
+
+        usuarioService.guardar(usuario);
         return "redirect:/admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/editar/{id}")
-    public String editarUsuario(@PathVariable Long id, 
-                               HttpSession session, 
-                               Model model) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
-        Usuario usuario = usuarioService.obtenerPorId(id);
-        if (usuario == null) {
-            return "redirect:/admin/usuarios";
-        }
-        model.addAttribute("usuario", usuario);
+    public String editarUsuario(@PathVariable Long id,
+                                HttpSession session,
+                                Model model) {
+        if (!validarSesion(session)) return "redirect:/login";
+
+        model.addAttribute("usuario", usuarioService.obtenerPorId(id));
         return "admin/usuario-form";
     }
 
     @GetMapping("/admin/usuarios/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id, 
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
-        if (!validarSesion(session)) {
-            return "redirect:/login";
-        }
-        try {
-            usuarioService.eliminar(id);
-            redirectAttributes.addFlashAttribute("msgSuccess", "Usuario eliminado exitosamente.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar usuario.");
-        }
+    public String eliminarUsuario(@PathVariable Long id,
+                                  HttpSession session) {
+        if (!validarSesion(session)) return "redirect:/login";
+
+        usuarioService.eliminar(id);
         return "redirect:/admin/usuarios";
     }
 
     @GetMapping("/admin/usuarios/reporte")
-    public ResponseEntity<InputStreamResource> generarReportePDF(
-            @RequestParam(value = "rol", required = false) String rol,
-            HttpSession session) {
-        if (!validarSesion(session)) {
-            return ResponseEntity.status(401).build();
-        }
+    public ResponseEntity<InputStreamResource> generarReportePDF(@RequestParam(required = false) String rol,
+                                                                 HttpSession session) {
+        if (!validarSesion(session)) return ResponseEntity.status(401).build();
 
         List<Usuario> usuarios = usuarioService.listarTodos();
         ByteArrayInputStream bis = reportePDFService.generarReporteUsuarios(usuarios, rol);
@@ -255,58 +230,56 @@ public class UsuarioController {
     @GetMapping("/perfil")
     public String verPerfil(HttpSession session, Model model) {
         Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) {
-            return "redirect:/login";
-        }
+        if (usuario == null) return "redirect:/login";
+
         model.addAttribute("usuario", usuario);
         return "perfil";
     }
 
-    @PostMapping("/perfil/actualizar")
-    public String actualizarPerfil(@ModelAttribute Usuario datos, 
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
+    @GetMapping("/perfilVendedor")
+    public String verPerfilVendedor(HttpSession session, Model model) {
         Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) {
-            return "redirect:/login";
-        }
+        if (usuario == null) return "redirect:/login";
 
-        try {
-            usuarioService.actualizarPerfil(usuario.getId(), datos);
-            Usuario actualizado = usuarioService.obtenerPorId(usuario.getId());
-            session.setAttribute("usuario", actualizado);
-            redirectAttributes.addFlashAttribute("msgSuccess", "Perfil actualizado exitosamente.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al actualizar perfil.");
-        }
+        if (usuario.getIdRol() != 3) return "redirect:/perfil";
 
-        return "redirect:/perfil";
+        model.addAttribute("usuario", usuario);
+        return "perfilVendedor";
+    }
+
+    @PostMapping("/perfil/actualizar")
+    public String actualizarPerfil(@ModelAttribute Usuario datos,
+                                   HttpSession session) {
+        Usuario usuario = obtenerUsuarioSesion(session);
+        if (usuario == null) return "redirect:/login";
+
+        usuarioService.actualizarPerfil(usuario.getId(), datos);
+
+        // actualizar sesión
+        session.setAttribute("usuario", usuarioService.obtenerPorId(usuario.getId()));
+
+        return "redirect:/perfil?ok";
     }
 
     @PostMapping("/perfil/foto")
     public String subirFotoPerfil(@RequestParam("foto") MultipartFile archivo,
-                                  HttpSession session, 
-                                  RedirectAttributes redirectAttributes) {
-        Usuario usuario = obtenerUsuarioSesion(session);
-        if (usuario == null) {
-            return "redirect:/login";
-        }
+                                  HttpSession session,
+                                  Model model) {
 
-        if (archivo.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Por favor selecciona una imagen.");
-            return "redirect:/perfil";
-        }
+        Usuario usuario = obtenerUsuarioSesion(session);
+        if (usuario == null) return "redirect:/login";
 
         try {
             String nombreArchivo = usuarioService.guardarImagen(usuario.getId(), archivo);
             usuario.setFotoPerfil(nombreArchivo);
             session.setAttribute("usuario", usuario);
-            redirectAttributes.addFlashAttribute("msgSuccess", "Foto actualizada exitosamente.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al subir imagen.");
-        }
 
-        return "redirect:/perfil";
+            return "redirect:/perfil?foto=ok";
+
+        } catch (Exception e) {
+            model.addAttribute("errorImagen", "Error al subir imagen.");
+            return "perfil";
+        }
     }
 
     // ===================== MÉTODOS AUXILIARES ======================

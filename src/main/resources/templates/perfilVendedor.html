@@ -11,7 +11,6 @@
             box-sizing: border-box;
         }
 
-        
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background: #0f172a;
@@ -586,16 +585,9 @@
         }
 
         function resetForm() {
-            // Restaurar valores originales
-            if (!usuario) return;
-            document.getElementById('nombre').value = usuario.nombre || '';
-            document.getElementById('correo').value = usuario.correo || '';
-            document.getElementById('telefono').value = usuario.telefono || '';
-            document.getElementById('direccion').value = usuario.direccion || '';
-            if (usuario.idRol === 3 || usuario.id_rol === 3) {
-                if (document.getElementById('empresa')) document.getElementById('empresa').value = usuario.empresa || '';
-                if (document.getElementById('nit')) document.getElementById('nit').value = usuario.nit || '';
-            }
+            // En lugar de solo restaurar el formulario, volver a la página de inicio
+            // para que se carguen todos los datos nuevamente
+            window.location.href = '/vendedor/inicio';
         }
 
         async function eliminarCuenta() {
@@ -613,7 +605,7 @@
 
         function volverInicio(event) {
             event.preventDefault();
-            // vendor back to vendor index
+            // Regresar a la página de inicio del vendedor - se recargará automáticamente
             window.location.href = '/vendedor/inicio';
         }
 
