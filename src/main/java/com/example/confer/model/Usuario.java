@@ -1,6 +1,7 @@
 package com.example.confer.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -56,6 +58,11 @@ public class Usuario {
     @Column(name = "fecha_codigo_expira")
     @JsonIgnore
     private LocalDateTime fechaCodigoExpira;
+
+        // ===== RELACIÓN CON PRODUCTOS (AGREGAR ESTO) =====
+    @OneToMany(mappedBy = "vendedor")
+    @JsonIgnore
+    private List<Producto> productos;
 
     // ===== Getters y Setters =====
     
