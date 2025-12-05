@@ -1,21 +1,36 @@
 package com.example.confer.service;
 
-import com.example.confer.model.Producto;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.common.BitMatrix;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-
-import org.springframework.stereotype.Service;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import org.springframework.stereotype.Service;
+
+import com.example.confer.model.Producto;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
 public class ReporteProductoPDFService {
@@ -29,10 +44,14 @@ public class ReporteProductoPDFService {
             documento.open();
 
             // Logo
-            Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
-            logo.scaleToFit(100, 100);
-            logo.setAlignment(Image.ALIGN_CENTER);
-            documento.add(logo);
+            try {
+                Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
+                logo.scaleToFit(100, 100);
+                logo.setAlignment(Image.ALIGN_CENTER);
+                documento.add(logo);
+            } catch (Exception e) {
+                System.out.println("Advertencia: No se pudo cargar el logo");
+            }
 
             // Título
             Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);

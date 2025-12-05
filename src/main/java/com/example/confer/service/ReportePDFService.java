@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -45,11 +46,20 @@ public class ReportePDFService {
             PdfWriter.getInstance(documento, out);
             documento.open();
 
-            // 👉 Logo
-            Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
-            logo.scaleToFit(100, 100);
-            logo.setAlignment(Image.ALIGN_CENTER);
-            documento.add(logo);
+            // 👉 Logo (cargar desde classpath)
+            try (InputStream is = getClass().getResourceAsStream("/static/img/logo.png")) {
+                if (is != null) {
+                    byte[] logoBytes = is.readAllBytes();
+                    Image logo = Image.getInstance(logoBytes);
+                    logo.scaleToFit(100, 100);
+                    logo.setAlignment(Image.ALIGN_CENTER);
+                    documento.add(logo);
+                } else {
+                    System.out.println("Advertencia: logo no encontrado en classpath");
+                }
+            } catch (Exception e) {
+                System.out.println("Advertencia: No se pudo cargar el logo");
+            }
 
             // 👉 Título
             Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
@@ -94,10 +104,12 @@ public class ReportePDFService {
             qr.scaleToFit(100, 100);
             documento.add(qr);
 
-            documento.close();
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (documento.isOpen()) {
+                documento.close();
+            }
         }
 
         return new ByteArrayInputStream(out.toByteArray());
