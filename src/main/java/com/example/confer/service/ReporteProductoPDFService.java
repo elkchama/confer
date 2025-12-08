@@ -22,6 +22,8 @@ import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.confer.model.Producto;
@@ -33,6 +35,7 @@ import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
@@ -47,7 +50,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 @Service
 public class ReporteProductoPDFService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReporteProductoPDFService.class);
     private static final DecimalFormat PRICE_FORMAT = new DecimalFormat("#,##0.00");
+    private static final String SIN_IMAGEN = "Sin imagen";
 
     public ByteArrayInputStream generarReporteProductos(List<Producto> productos) {
         Document documento = new Document(PageSize.A4.rotate(), 40, 40, 40, 40);
@@ -60,7 +65,7 @@ public class ReporteProductoPDFService {
             // Logo
             Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
             logo.scaleToFit(100, 100);
-            logo.setAlignment(Image.ALIGN_CENTER);
+            logo.setAlignment(Element.ALIGN_CENTER);
             documento.add(logo);
 
             // Título
@@ -110,7 +115,7 @@ public class ReporteProductoPDFService {
             Image graficoCategorias = generarGraficoCategorias(productos);
             if (graficoCategorias != null) {
                 graficoCategorias.scaleToFit(520, 320);
-                graficoCategorias.setAlignment(Image.ALIGN_CENTER);
+                graficoCategorias.setAlignment(Element.ALIGN_CENTER);
                 documento.add(Chunk.NEWLINE);
                 documento.add(graficoCategorias);
             }
@@ -126,9 +131,8 @@ public class ReporteProductoPDFService {
             documento.add(qr);
 
             documento.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | WriterException | DocumentException e) {
+            logger.error("Error al generar reporte", e);
         }
 
         return new ByteArrayInputStream(out.toByteArray());
@@ -156,13 +160,13 @@ public class ReporteProductoPDFService {
     private PdfPCell crearCeldaImagenProducto(String imagenUrl) {
         final float maxLado = 70f;
         if (imagenUrl == null || imagenUrl.isBlank()) {
-            return celdaTextoImagen("Sin imagen");
+            return celdaTextoImagen(SIN_IMAGEN);
         }
 
         try {
             Image imagen = cargarImagen(imagenUrl);
             if (imagen == null) {
-                return celdaTextoImagen("Sin imagen");
+                return celdaTextoImagen(SIN_IMAGEN);
             }
             imagen.scaleToFit(maxLado, maxLado);
             PdfPCell celda = new PdfPCell(imagen, true);
@@ -172,7 +176,7 @@ public class ReporteProductoPDFService {
             celda.setPadding(4f);
             return celda;
         } catch (Exception e) {
-            return celdaTextoImagen("Sin imagen");
+            return celdaTextoImagen(SIN_IMAGEN);
         }
     }
 
@@ -191,7 +195,9 @@ public class ReporteProductoPDFService {
             if (Files.exists(rutaFs)) {
                 return Image.getInstance(rutaFs.toAbsolutePath().toString());
             }
-        } catch (Exception ignored) {}
+        } catch (BadElementException | IOException e) {
+            // Imagen no encontrada en sistema de archivos
+        }
 
         // 2) Ruta en recursos estáticos dentro del jar (por si se despliega así)
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("static/uploads/" + imagenUrl)) {
@@ -199,7 +205,9 @@ public class ReporteProductoPDFService {
                 byte[] bytes = is.readAllBytes();
                 return Image.getInstance(bytes);
             }
-        } catch (Exception ignored) {}
+        } catch (BadElementException | IOException | NullPointerException e) {
+            // Imagen no encontrada en recursos del jar
+        }
 
         return null;
     }
@@ -247,7 +255,7 @@ public class ReporteProductoPDFService {
             ByteArrayOutputStream chartOut = new ByteArrayOutputStream();
             ChartUtils.writeChartAsPNG(chartOut, chart, 640, 360);
             return Image.getInstance(chartOut.toByteArray());
-        } catch (Exception e) {
+        } catch (IOException | DocumentException e) {
             return null;
         }
     }
