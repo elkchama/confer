@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CONFER - MARKETPLACE</title>
-  <link rel="stylesheet" th:href="@{/css/styles.css}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
   
   * {
     margin: 0;
@@ -17,14 +16,272 @@
   }
 
   body {
-    background: linear-gradient(135deg, #f0f4f8 0%, #e8f0fe 100%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
     line-height: 1.6;
-    color: #1f2937;
+    color: #2d3748;
     overflow-x: hidden;
   }
 
-  /* Animaciones */
+  /* Navbar Elegante */
+  .navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px 0;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .navbar-brand {
+    font-weight: 800;
+    color: white !important;
+    font-size: 32px;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .nav-btn {
+    padding: 10px 24px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 25px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.7);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .nav-btn.profile {
+    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
+    border: none;
+    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.3);
+  }
+
+  .nav-btn.profile:hover {
+    box-shadow: 0 10px 30px rgba(255, 111, 97, 0.4);
+    transform: translateY(-3px);
+  }
+
+  .nav-btn.logout {
+    background: rgba(255,255,255,0.95);
+    color: #667eea;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    font-weight: 600;
+  }
+
+  .nav-btn.logout:hover {
+    background: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+
+  .nav-btn.login {
+    background: linear-gradient(135deg, #ff8a00 0%, #ff6f00 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 138, 0, 0.3);
+  }
+
+  .nav-btn.login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 138, 0, 0.4);
+  }
+
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Banner con Slider de Imágenes */
+  .hero-slider {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .slider-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .slide.active {
+    opacity: 1;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6) blur(3px);
+  }
+
+  .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 10;
+    width: 90%;
+    max-width: 800px;
+    background: rgba(0,0,0,0.35);
+    padding: 26px 28px;
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+  }
+
+  .hero-content h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+    animation: fadeInDown 1s ease;
+  }
+
+  .hero-welcome {
+    font-size: 1.25rem;
+    margin-top: 8px;
+    color: #ffeccf;
+    font-weight: 500;
+    animation: fadeInUp 1s ease 0.3s both;
+  }
+
+  .hero-content .brand-highlight {
+    background: linear-gradient(45deg, #ff6f61, #ff8a65);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-content p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    animation: fadeInUp 1s ease 0.3s both;
+  }
+
+  .hero-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 30px rgba(255, 111, 97, 0.4);
+    transition: all 0.3s ease;
+    animation: fadeInUp 1s ease 0.6s both;
+  }
+
+  .hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(255, 111, 97, 0.6);
+    color: white;
+  }
+
+  .slider-dots {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .dot.active {
+    background: white;
+    width: 40px;
+    border-radius: 6px;
+  }
+
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.3);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+
+  .slider-arrow:hover {
+    background: rgba(255,255,255,0.5);
+  }
+
+  .slider-arrow.prev {
+    left: 30px;
+  }
+
+  .slider-arrow.next {
+    right: 30px;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -36,294 +293,98 @@
     }
   }
 
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-  }
-
-  /* Navbar mejorada */
-  .navbar {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(106, 17, 203, 0.3);
-    padding: 18px 0;
-    border-radius: 0 0 24px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .navbar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-    animation: shimmer 3s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  .navbar-brand {
-    font-weight: 800;
-    color: white !important;
-    font-size: 28px;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 2;
-  }
-
-  .navbar-brand::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #ff6f61, #ff8a65);
-    border-radius: 2px;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  .navbar-brand:hover::after {
-    transform: scaleX(1);
-  }
-
-  .header-buttons {
-    display: flex;
-    gap: 12px;
-    position: relative;
-    z-index: 2;
-  }
-
-  /* Botones del header mejorados */
-  .header-btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.3px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .header-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255,255,255,0.3);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.6s ease;
-  }
-
-  .header-btn:hover::before {
-    width: 300px;
-    height: 300px;
-  }
-
-  .header-btn:hover {
-    background: linear-gradient(135deg, #e85c50 0%, #ff7043 100%);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(255, 111, 97, 0.6);
-  }
-
-  .header-btn:active {
-    transform: translateY(-1px) scale(0.98);
-  }
-
-  .header-btn i {
-    font-size: 16px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .header-btn span {
-    position: relative;
-    z-index: 1;
-  }
-
-  .header-btn.logout {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-    color: #dc3545;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
-  }
-
-  .header-btn.logout:hover {
-    background: linear-gradient(135deg, #f1b0b7 0%, #e8a1aa 100%);
-    color: #a71e2a;
-  }
-
-  .user-menu {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .navbar-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-  }
-
-  /* Sección de bienvenida mejorada */
-  .welcome-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 100px 0;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    margin-top: 0;
-  }
-
-  .welcome-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.1;
-  }
-
-  .welcome-content {
-    position: relative;
-    z-index: 2;
-    animation: fadeInUp 1s ease-out;
-  }
-
-  .welcome-section h1 {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 20px;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    letter-spacing: -1px;
-  }
-
-  .welcome-section .brand-highlight {
-    background: linear-gradient(45deg, #ff6f61, #ff8a65);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
-    animation: pulse 2s infinite;
-  }
-
-  .welcome-section .lead {
-    font-size: 1.4rem;
-    margin-bottom: 40px;
+  .hero-welcome {
+    font-size: 1.2rem;
     opacity: 0.9;
-    font-weight: 400;
+    margin-bottom: 30px;
   }
 
-  /* Botones principales mejorados */
-  .btn-primary {
-    background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 100%);
-    border: none;
-    color: white;
+  .hero-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+  }
+
+  .cta-btn {
     padding: 16px 40px;
-    font-size: 1.1rem;
-    font-weight: 600;
     border-radius: 50px;
-    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255,255,255,0.3);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.6s ease;
-  }
-
-  .btn-primary:hover::before {
-    width: 300px;
-    height: 300px;
-  }
-
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #e85c50 0%, #ff7043 100%);
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 12px 30px rgba(255, 111, 97, 0.6);
-  }
-
-  /* Secciones mejoradas */
-  .section {
-    padding: 80px 0;
-    position: relative;
-  }
-
-  .section h2 {
-    font-size: 2.5rem;
     font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 60px;
-    text-align: center;
-    position: relative;
+    font-size: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
   }
 
-  .section h2::after {
+  .cta-btn.primary {
+    background: linear-gradient(135deg, #ff9a56 0%, #ff6f61 100%);
+    color: white;
+    box-shadow: 0 12px 40px rgba(255, 111, 97, 0.4);
+  }
+
+  .cta-btn.primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 50px rgba(255, 111, 97, 0.6);
+  }
+
+  .cta-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+  }
+
+  .cta-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Secciones */
+  .section {
+    padding: 90px 0;
+  }
+
+  .section-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 60px;
+    color: #1a202c;
+    position: relative;
+    padding-bottom: 20px;
+  }
+
+  .section-title::after {
     content: '';
     position: absolute;
-    bottom: -15px;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
+    width: 100px;
     height: 4px;
     background: linear-gradient(90deg, #ff6f61, #ff8a65);
     border-radius: 2px;
   }
 
-  /* Cards de características mejoradas */
+  /* Cards de Características Elegantes */
   .feature-card {
     background: white;
-    border-radius: 24px;
-    padding: 40px 30px;
+    border-radius: 20px;
+    padding: 50px 35px;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    border: 2px solid #e9ecef;
     position: relative;
     overflow: hidden;
   }
@@ -331,179 +392,267 @@
   .feature-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ff6f61, #ff8a65);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-  }
-
-  .feature-card:hover::before {
-    transform: scaleX(1);
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: all 0.5s ease;
+    pointer-events: none;
   }
 
   .feature-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .feature-card:hover::before {
+    opacity: 1;
   }
 
   .feature-icon {
     width: 80px;
     height: 80px;
     margin: 0 auto 25px;
-    background: linear-gradient(135deg, #ff6f61, #ff8a65);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: float 3s ease-in-out infinite;
+    font-size: 2.2rem;
+    color: white;
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    transition: all 0.4s ease;
   }
 
-  .feature-icon img {
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 16px 40px rgba(102, 126, 234, 0.5);
+  }
+
+  .feature-card h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #1a202c;
+    position: relative;
+  }
+
+  .feature-card h5::after {
+    content: '';
+    display: block;
     width: 40px;
-    filter: brightness(0) invert(1);
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 12px auto 0;
+    border-radius: 2px;
+    transition: width 0.3s ease;
   }
 
-  /* Cards de productos mejoradas */
+  .feature-card:hover h5::after {
+    width: 60px;
+  }
+
+  .feature-card p {
+    color: #718096;
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  /* Cards de Productos Elegantes Premium */
   .product-card {
     background: white;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #e9ecef;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     position: relative;
-  }
-
-  .product-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,111,97,0.1), rgba(255,138,101,0.1));
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  .product-card:hover::before {
-    opacity: 1;
   }
 
   .product-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    transform: translateY(-12px);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25);
+    border-color: #667eea;
   }
 
-  .product-card .card-img-top {
-    height: 220px;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-
-  .product-card:hover .card-img-top {
-    transform: scale(1.1);
-  }
-
-  .product-card .card-body {
-    padding: 25px;
+  .product-image {
     position: relative;
-    z-index: 2;
+    height: 280px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   }
 
-  .product-card .card-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 10px;
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .product-card .card-text {
-    font-size: 1.1rem;
-    color: #ff6f61;
-    font-weight: 600;
-    margin-bottom: 20px;
+  .product-card:hover .product-image img {
+    transform: scale(1.15);
   }
 
-  .btn-outline-primary {
-    color: #ff6f61;
-    border: 2px solid #ff6f61;
-    border-radius: 25px;
-    padding: 10px 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    background: transparent;
-  }
-
-  .btn-outline-primary:hover {
+  .product-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     background: linear-gradient(135deg, #ff6f61, #ff8a65);
     color: white;
-    transform: translateY(-2px);
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
     box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  /* Testimonios mejorados */
+  .product-body {
+    padding: 28px 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    min-height: 60px;
+  }
+
+  .product-price {
+    font-size: 1.8rem;
+    color: #ff6f61;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .product-price::before {
+    content: '💰';
+    font-size: 1.5rem;
+  }
+
+  .product-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    margin-top: auto;
+  }
+
+  .product-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    color: white;
+  }
+
+  .product-btn:active {
+    transform: translateY(-1px);
+  }
+
+  /* Testimonios Elegantes */
   .testimonial-card {
     background: white;
-    border-radius: 24px;
-    padding: 35px;
+    border-radius: 20px;
+    padding: 45px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    transition: all 0.4s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
     position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.8);
-  }
-
-  .testimonial-card::before {
-    content: '"';
-    position: absolute;
-    top: 20px;
-    left: 25px;
-    font-size: 4rem;
-    color: #ff6f61;
-    font-family: serif;
-    opacity: 0.3;
+    border: 2px solid #e9ecef;
   }
 
   .testimonial-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
   }
 
-  .blockquote {
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .blockquote p {
-    font-style: italic;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #374151;
-  }
-
-  .blockquote-footer {
-    color: #6b7280;
-    font-weight: 600;
-    margin-top: 15px;
-    position: relative;
-  }
-
-  .blockquote-footer::before {
-    content: '— ';
+  .quote-icon {
+    font-size: 3rem;
     color: #ff6f61;
+    opacity: 0.3;
+    margin-bottom: 20px;
   }
 
-  /* Footer mejorado */
-  footer {
-    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  .testimonial-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 25px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .author-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    padding: 50px 0 30px;
-    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .testimonial-card:hover .author-avatar {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .author-info h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #1a202c;
+  }
+
+  .author-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #718096;
+  }
+
+  /* Footer Elegante Premium */
+  footer {
+    background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
+    color: white;
+    padding: 80px 0 30px;
+    margin-top: 100px;
+    border-top: 2px solid rgba(102, 126, 234, 0.2);
     position: relative;
     overflow: hidden;
   }
@@ -514,318 +663,473 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ff6f61, #ff8a65);
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="0.5" fill="rgba(102,126,234,0.05)"/></svg>');
+    opacity: 0.5;
+    z-index: 0;
+  }
+    padding: 60px 0 30px;
   }
 
-  footer p {
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-section h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
     margin-bottom: 20px;
-    font-size: 1rem;
+    color: white;
   }
 
-  footer a {
-    color: #e5e7eb;
+  .footer-section p,
+  .footer-section a {
+    color: #cbd5e0;
     text-decoration: none;
-    margin: 0 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    display: block;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
   }
 
-  footer a:hover {
+  .footer-section a:hover {
     color: #ff6f61;
-    text-decoration: underline;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .social-link:hover {
+    background: linear-gradient(135deg, #ff6f61, #ff8a65);
+    transform: translateY(-3px);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 30px;
+    text-align: center;
+    color: #cbd5e0;
   }
 
   /* Responsive */
   @media (max-width: 768px) {
-    .welcome-section h1 {
+    .hero-content h1 {
       font-size: 2.5rem;
     }
     
-    .header-buttons {
-      flex-direction: column;
-      gap: 8px;
+    .hero-content p {
+      font-size: 1.2rem;
     }
-    
-    .header-btn {
-      padding: 10px 20px;
-      font-size: 13px;
+
+    .nav-links {
+      flex-wrap: wrap;
+      justify-content: center;
     }
-    
+
     .navbar-container {
       flex-direction: column;
       gap: 20px;
     }
-    
-    .section h2 {
+
+    .section-title {
       font-size: 2rem;
     }
-  }
 
-  /* Scroll suave */
-  html {
-    scroll-behavior: smooth;
-  }
+    .hero-slider {
+      height: 450px;
+    }
 
-  /* Elementos que aparecen al hacer scroll */
-  .fade-in {
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
+    .slider-arrow {
+      width: 40px;
+      height: 40px;
+      font-size: 16px;
+    }
 
-  .fade-in.delay-1 {
-    animation-delay: 0.2s;
-  }
+    .slider-arrow.prev {
+      left: 15px;
+    }
 
-  .fade-in.delay-2 {
-    animation-delay: 0.4s;
-  }
-
-  .fade-in.delay-3 {
-    animation-delay: 0.6s;
+    .slider-arrow.next {
+      right: 15px;
+    }
   }
 </style>
 </head>
 <body>
-<!-- Navbar mejorada -->
-<nav class="navbar navbar-expand-lg">
+<!-- Navbar -->
+<nav class="navbar">
   <div class="container navbar-container">
     <a class="navbar-brand" href="/">CONFER</a>
-    <div class="header-buttons">
-      <a href="/contactos" class="header-btn">
-        <i class="fas fa-users"></i>
-        <span>Contactos</span>
-      </a>
-      <a href="/indexProductos" class="header-btn">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Productos</span>
-      </a>
-      <a href="/categorias" class="header-btn">
-        <i class="fas fa-tags"></i>
-        <span>Categorías</span>
-      </a>
-    </div>
-    <div class="user-menu">
+    <div class="nav-links">
       <th:block th:if="${usuario != null}">
-
-      <!-- Botón nuevo: ir al perfil -->
-      <a href="/perfil" class="header-btn">
+        <a href="/contactos" class="nav-btn" title="Ver contactos">
+          <i class="fas fa-users"></i>
+          <span>Contactos</span>
+        </a>
+      </th:block>
+      <th:block th:unless="${usuario != null}">
+        <a href="#" class="nav-btn" title="Ver contactos" onclick="showLoginNotice(event)">
+          <i class="fas fa-users"></i>
+          <span>Contactos</span>
+        </a>
+      </th:block>
+      <a href="/login" class="nav-btn login" th:if="${usuario == null}">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Iniciar sesión</span>
+      </a>
+      <a href="/perfil" class="nav-btn profile" th:if="${usuario != null}">
         <i class="fas fa-user-circle"></i>
         <span>Mi Perfil</span>
       </a>
-      
-        <a href="/logout" class="header-btn logout" onclick="return cerrarSesion(event)">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Cerrar sesión</span>
-        </a>
-      </th:block>
+      <a href="#" class="nav-btn logout" th:if="${usuario != null}" onclick="return cerrarSesion(event)">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar sesión</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Banner con Slider -->
+<div class="hero-slider">
+  <div class="slider-container">
+    <div class="slide active">
+      <img src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Tecnología 1">
+    </div>
+    <div class="slide">
+      <img src="https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Tecnología 2">
+    </div>
+    <div class="slide">
+      <img src="https://images.pexels.com/photos/1309766/pexels-photo-1309766.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Tecnología 3">
+    </div>
+    <div class="slide">
+      <img src="https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Tecnología 4">
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <h1 th:if="${usuario == null}">Bienvenido a <span class="brand-highlight">CONFER</span></h1>
+
+    <h1 th:if="${usuario != null}">Bienvenido a <span class="brand-highlight">CONFER</span>, <span th:text="${usuario.nombre}"></span></h1>
+    <p class="hero-welcome" th:if="${usuario != null}">Nos alegra verte de nuevo, <span th:text="${usuario.nombre}"></span>!</p>
+
+    <p th:if="${usuario == null}">Descubre la tecnología más avanzada a los mejores precios</p>
+    <div class="hero-buttons">
+      <a href="/indexProductos" class="cta-btn primary">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Explorar Productos</span>
+      </a>
+      <a href="#" class="cta-btn secondary" onclick="scrollToSection(event)">
+        <i class="fas fa-info-circle"></i>
+        <span>Conoce más</span>
+      </a>
+    </div>
+  </div>
+
+  <button class="slider-arrow prev" onclick="changeSlide(-1)">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <button class="slider-arrow next" onclick="changeSlide(1)">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+
+  <div class="slider-dots">
+    <span class="dot active" onclick="currentSlide(0)"></span>
+    <span class="dot" onclick="currentSlide(1)"></span>
+    <span class="dot" onclick="currentSlide(2)"></span>
+    <span class="dot" onclick="currentSlide(3)"></span>
+  </div>
+</div>
+
+<!-- Características -->
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title">¿Por qué elegirnos?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <h5>Mejores Precios</h5>
+          <p>Compara precios de múltiples tiendas y encuentra las ofertas más competitivas del mercado tecnológico.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-boxes"></i>
+          </div>
+          <h5>Gran Variedad</h5>
+          <p>Accede a un catálogo extenso de productos tecnológicos de las marcas más reconocidas del sector.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h5>Compra Segura</h5>
+          <p>Conectamos con vendedores verificados que garantizan transacciones seguras y productos auténticos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonios -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Mensajes de los desarrolladores</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="quote-icon">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <p class="testimonial-text">Espero que puedas disfrutar de confer, te deseo la mejor experiencia.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">FC</div>
+            <div class="author-info">
+              <h6>Felipe Cespedes</h6>
+              <p>Scrum Master</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="quote-icon">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <p class="testimonial-text">¿No quieres ser cliente? tranquil@ pueden iniciar sesion con tu cuenta de vendedor.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">JQ</div>
+            <div class="author-info">
+              <h6>Jonny Quiroga</h6>
+              <p>Produc Owner</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="quote-icon">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <p class="testimonial-text">Espero que encuentres el producto que estes buscando al precio de deseas.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">AR</div>
+            <div class="author-info">
+              <h6>Angel Rodriguez</h6>
+              <p>Desarrollador</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>CONFER</h5>
+        <p>Tu marketplace de confianza para encontrar la mejor tecnología a los mejores precios.</p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h5>Enlaces Rápidos</h5>
+        <a href="/productos">Productos</a>
+        <th:block th:if="${usuario != null}">
+          <a href="/contactos">Contactos</a>
+        </th:block>
+        <th:block th:unless="${usuario != null}">
+          <a href="#" onclick="showLoginNotice(event)">Contactos</a>
+        </th:block>
+        <a href="/perfil">Mi Perfil</a>
+      </div>
+      <div class="footer-section">
+        <h5>Información</h5>
+        <a href="/contacto">Contacto</a>
+        <a href="/terminos">Términos y Condiciones</a>
+        <a href="/privacidad">Política de Privacidad</a>
+        <a href="/ayuda">Centro de Ayuda</a>
+      </div>
+      <div class="footer-section">
+        <h5>Contacto</h5>
+        <p><i class="fas fa-envelope me-2"></i> confersisten@gmail.com</p>
+        <p><i class="fas fa-phone me-2"></i> +57 3153477802</p>
+        <p><i class="fas fa-map-marker-alt me-2"></i> Bogotá, Colombia</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 CONFER - Todos los derechos reservados</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal / Aviso de iniciar sesión -->
+<div id="login-notice" class="login-notice" style="display:none;">
+  <div class="login-notice-card">
+    <h3>Inicia sesión para ver Contactos</h3>
+    <p>Debes iniciar sesión para acceder a la lista de contactos de vendedores.</p>
+    <div class="login-notice-actions">
+      <button type="button" onclick="location.href='/login'" class="btn-primary">Iniciar sesión</button>
+      <button type="button" onclick="hideLoginNotice()" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .login-notice {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.45);
+    z-index: 2000;
+  }
+  .login-notice-card {
+    background: #fff;
+    padding: 20px 24px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    max-width: 420px;
+    text-align: center;
+  }
+  .login-notice-card h3 { margin-top:0; }
+  .login-notice-actions { margin-top:16px; display:flex; gap:8px; justify-content:center; }
+  .btn-primary { background:#0d6efd; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+  .btn-secondary { background:#e9ecef; color:#000; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Función para scroll suave a secciones
+function scrollToSection(event) {
+  event.preventDefault();
+  const featuresSection = document.getElementById('features');
+  if (featuresSection) {
+    featuresSection.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+}
+
+// Slider functionality
+let currentSlideIndex = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.dot');
+
+function showSlide(index) {
+  if (!slides.length) return;
+  if (index >= slides.length) index = 0;
+  if (index < 0) index = slides.length - 1;
+  currentSlideIndex = index;
+
+  slides.forEach(slide => slide.classList.remove('active'));
+  dots.forEach(dot => dot.classList.remove('active'));
+
+  slides[currentSlideIndex].classList.add('active');
+  if (dots[currentSlideIndex]) dots[currentSlideIndex].classList.add('active');
+}
+
+function changeSlide(direction) {
+  showSlide(currentSlideIndex + direction);
+}
+
+function currentSlide(index) {
+  showSlide(index);
+}
+
+// Auto-play
+let slideInterval = null;
+function startAutoPlay() {
+  stopAutoPlay();
+  slideInterval = setInterval(() => changeSlide(1), 5000);
+}
+
+function stopAutoPlay() {
+  if (slideInterval) {
+    clearInterval(slideInterval);
+    slideInterval = null;
+  }
+}
+
+// Initialize
+showSlide(currentSlideIndex);
+startAutoPlay();
+
+// Pause on hover
+const sliderEl = document.querySelector('.hero-slider');
+if (sliderEl) {
+  sliderEl.addEventListener('mouseenter', stopAutoPlay);
+  sliderEl.addEventListener('mouseleave', startAutoPlay);
+}
+
+// Función para cerrar sesión con confirmación (usa SweetAlert2)
 function cerrarSesion(event) {
   event.preventDefault();
+  if (typeof Swal === 'undefined') {
+    // Si SweetAlert no está disponible, redirige directamente
+    window.location.href = '/logout';
+    return false;
+  }
   Swal.fire({
     title: '¿Cerrar sesión?',
-    text: '¿Estás seguro que deseas salir?',
+    text: '¿Estás seguro que deseas salir de tu cuenta?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
     confirmButtonText: 'Sí, cerrar sesión',
-    cancelButtonText: 'Cancelar'
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ff6f61'
   }).then((result) => {
     if (result.isConfirmed) {
+      // Enviar al endpoint de logout
       window.location.href = '/logout';
     }
   });
   return false;
 }
+
+// Mostrar aviso de iniciar sesión cuando el usuario no está autenticado
+function showLoginNotice(event) {
+  if (event) event.preventDefault();
+  const modal = document.getElementById('login-notice');
+  if (modal) modal.style.display = 'flex';
+}
+
+function hideLoginNotice() {
+  const modal = document.getElementById('login-notice');
+  if (modal) modal.style.display = 'none';
+}
 </script>
-      <th:block th:unless="${usuario != null}">
-        <a href="/login" class="header-btn logout"> 
-          <i class="fas fa-sign-in-alt"></i>
-          <span>Iniciar sesión</span>
-        </a>
-      </th:block>
-    </div>
-  </div>
-</nav>
-
-<!-- Sección de bienvenida mejorada -->
-<section class="welcome-section">
-  <div class="container welcome-content">
-    <h1>Bienvenido a <span class="brand-highlight">CONFER</span></h1>
-    <th:block th:if="${usuario != null}">
-      <p class="lead text-success">¡Hola <span th:text="${usuario.nombre}"></span>! Has iniciado sesión correctamente. Ahora puedes contactar a los vendedores.</p>
-    </th:block>
-    <th:block th:unless="${usuario != null}">
-      <p class="lead">Descubre y compara los mejores precios en tecnología de última generación</p>
-    </th:block>
-    <a href="/productos" class="btn btn-primary">
-      <i class="fas fa-search me-2"></i>
-      Explorar Productos
-    </a>
-  </div>
-</section>
-
-<!-- Sección de características mejorada -->
-<section class="section">
-  <div class="container">
-    <h2>¿Por qué elegirnos?</h2>
-    <div class="row">
-      <div class="col-md-4 mb-4 fade-in">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <img src="https://cdn-icons-png.flaticon.com/512/1002/1002011.png" alt="Ahorro">
-          </div>
-          <h5>Ahorra Dinero</h5>
-          <p>Compara entre cientos de productos y encuentra las mejores ofertas del mercado con descuentos exclusivos.</p>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4 fade-in delay-1">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <img src="https://cdn-icons-png.flaticon.com/512/1674/1674291.png" alt="Variedad">
-          </div>
-          <h5>Gran Variedad</h5>
-          <p>Explora una amplia gama de productos tecnológicos de las mejores marcas y diferentes rangos de precios.</p>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4 fade-in delay-2">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" alt="Seguridad">
-          </div>
-          <h5>Compra Segura</h5>
-          <p>Conectamos directamente con tiendas verificadas y confiables que garantizan la seguridad de tu compra.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Productos destacados mejorados -->
-<section class="section" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-  <div class="container">
-    <h2>Productos Destacados</h2>
-    <div class="row justify-content-center">
-      <div class="col-md-4 mb-4 fade-in">
-        <div class="card product-card">
-          <img src="https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Laptop Lenovo">
-          <div class="card-body">
-            <h5 class="card-title">Laptop Lenovo</h5>
-            <p class="card-text">Desde $1.500.000 COP</p>
-            <a href="/productos" class="btn btn-outline-primary">
-              <i class="fas fa-eye me-2"></i>Ver detalles
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4 fade-in delay-1">
-        <div class="card product-card">
-          <img src="https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Smartphone Samsung">
-          <div class="card-body">
-            <h5 class="card-title">Smartphone Samsung</h5>
-            <p class="card-text">Desde $900.000 COP</p>
-            <a href="/productos" class="btn btn-outline-primary">
-              <i class="fas fa-eye me-2"></i>Ver detalles
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4 fade-in delay-2">
-        <div class="card product-card">
-          <img src="https://images.pexels.com/photos/3394651/pexels-photo-3394651.jpeg?auto=compress&cs=tinysrgb&h=600" class="card-img-top" alt="Audífonos Bluetooth">
-          <div class="card-body">
-            <h5 class="card-title">Audífonos Bluetooth</h5>
-            <p class="card-text">Desde $120.000 COP</p>
-            <a href="/productos" class="btn btn-outline-primary">
-              <i class="fas fa-eye me-2"></i>Ver detalles
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Testimonios mejorados -->
-<section class="section">
-  <div class="container">
-    <h2>Lo que dicen nuestros usuarios</h2>
-    <div class="row">
-      <div class="col-md-4 mb-4 fade-in">
-        <div class="testimonial-card">
-          <blockquote class="blockquote">
-            <p>Gracias a CONFER encontré la laptop perfecta a un precio increíble. El proceso fue muy fácil y confiable.</p>
-            <footer class="blockquote-footer">Laura Gómez</footer>
-          </blockquote>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4 fade-in delay-1">
-        <div class="testimonial-card">
-          <blockquote class="blockquote">
-            <p>Muy fácil de usar y con productos de excelente calidad. Definitivamente mi primera opción para compras tech.</p>
-            <footer class="blockquote-footer">Carlos Martínez</footer>
-          </blockquote>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4 fade-in delay-2">
-        <div class="testimonial-card">
-          <blockquote class="blockquote">
-            <p>Recomiendo esta plataforma a todos los que quieran ahorrar dinero sin sacrificar calidad en tecnología.</p>
-            <footer class="blockquote-footer">Diana Ruiz</footer>
-          </blockquote>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Footer mejorado -->
-<footer>
-  <div class="container">
-    <p>&copy; 2025 CONFER - Todos los derechos reservados</p>
-    <div>
-      <a href="/contacto"><i class="fas fa-envelope me-1"></i>Contacto</a>
-      <a href="/terminos"><i class="fas fa-file-contract me-1"></i>Términos y Condiciones</a>
-      <a href="/privacidad"><i class="fas fa-shield-alt me-1"></i>Política de Privacidad</a>
-    </div>
-  </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// Animaciones al hacer scroll
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-    }
-  });
-}, observerOptions);
-
-// Observar elementos con animación
-document.querySelectorAll('.fade-in').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(30px)';
-  el.style.transition = 'all 0.8s ease-out';
-  observer.observe(el);
-});
-
-// Efecto parallax suave en el hero
-window.addEventListener('scroll', () => {
-  const scrolled = window.pageYOffset;
-  const parallax = document.querySelector('.welcome-section');
-  if (parallax) {
-    const speed = scrolled * 0.5;
-    parallax.style.transform = translateY(${speed}px);
-  }
-});
+</body>
+</html>

@@ -495,3 +495,74 @@ h1 {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+/* Estilos para el enlace 'Volver al inicio' - Similar a signup-link */
+.back-home {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 15px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.back-home a {
+  color: #4e54c8;
+  text-decoration: none;
+  font-weight: 800;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.back-home a::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+.back-home a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(78, 84, 200, 0.1), rgba(143, 148, 251, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
+  z-index: -1;
+}
+
+.back-home a:hover {
+  color: #3b40a4;
+  transform: translateY(-2px);
+}
+
+.back-home a:hover::before {
+  width: 100%;
+}
+
+.back-home a:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .back-home {
+    font-size: 14px;
+  }
+  
+  .back-home a {
+    padding: 4px 6px;
+  }
+}

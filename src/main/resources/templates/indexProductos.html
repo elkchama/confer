@@ -1,225 +1,277 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <!-- SweetAlert2 para alertas modernas -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CONFER - Catálogo de Productos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* ESTILOS DEL HEADER (COPIADO LITERAL) */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      /* Fondo más oscuro y elegante para el índice de productos */
+      background: linear-gradient(135deg, #0f1724 0%, #111827 60%, #0b1220 100%);
+      min-height: 100vh;
+      color: #e6edf3;
+    }
+
+    /* Navbar Elegante */
     .navbar {
-      background: linear-gradient(to right, #6a11cb, #2575fc);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-      padding: 15px 20px;
-      border-radius: 0 0 10px 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px 0;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
     .navbar-brand {
-      font-weight: bold;
+      font-weight: 800;
       color: white !important;
-      font-size: 24px;
+      font-size: 32px;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
 
-    .header-buttons {
+    .nav-links {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
 
-    .header-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s;
-      background-color: #ff6f61;
+    .nav-btn {
+      padding: 10px 24px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
       color: white;
-      box-shadow: 0 4px 12px rgba(255, 111, 97, 0.4);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       gap: 8px;
-      text-decoration: none;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
     }
 
-    .header-btn:hover {
-      background-color: #e85c50;
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+      color: white;
       transform: translateY(-2px);
-      color: white;
     }
 
-    .header-btn i {
-      font-size: 14px;
-    }
-
-    .header-btn.logout {
-      background-color: #f8d7da;
-      color: #dc3545;
-      box-shadow: none;
-    }
-
-    .header-btn.logout:hover {
-      background-color: #f1b0b7;
-      color: #dc3545;
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .user-info {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-
-    .user-name {
-      font-weight: 600;
-      color: white;
-    }
-
-    .user-role {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.8);
+    .nav-btn.logout {
+      background: rgba(255,255,255,0.95);
+      color: #667eea;
+      border: none;
     }
 
     .navbar-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
     }
 
-    /* ESTILOS PARA EL CONTENIDO PRINCIPAL */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-    }
-
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .page-header {
+    /* Hero Section con Gradiente */
+    .hero-section {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 0;
       color: white;
-      padding: 30px;
-      border-radius: 15px;
-      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.1)"/></svg>');
+      opacity: 0.1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
-    .page-header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
+    .hero-content h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
     }
 
-    .page-header .subtitle {
-      font-size: 1.1rem;
-      opacity: 0.9;
+    .hero-content p {
+      font-size: 1.3rem;
+      opacity: 0.95;
+      margin-bottom: 30px;
     }
 
-    .stats-bar {
+    /* Stats Bar */
+    .stats-container {
       background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin: -40px auto 40px;
+      max-width: 1200px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      text-align: center;
+    }
+
+    .stat-card {
       padding: 20px;
       border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      transition: all 0.3s ease;
     }
 
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
     }
 
-    .stat-item i {
-      font-size: 1.5rem;
-      color: #667eea;
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
     }
 
     .stat-number {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #333;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #667eea;
+      margin-bottom: 5px;
     }
 
     .stat-label {
-      color: #666;
-      font-size: 0.9rem;
+      color: #6c757d;
+      font-size: 0.95rem;
+      font-weight: 500;
     }
 
+    /* Search Section Mejorada */
     .search-section {
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
     }
 
-    .search-form {
+    .search-container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    .search-wrapper {
       display: flex;
       gap: 15px;
-      align-items: center;
+      align-items: stretch;
       flex-wrap: wrap;
     }
 
-    .search-input {
+    .search-input-group {
       flex: 1;
       min-width: 300px;
-      padding: 12px 20px;
-      border: 2px solid #e1e5e9;
-      border-radius: 25px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 50px 16px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
       font-size: 1rem;
       transition: all 0.3s ease;
+      background: #f8f9fa;
     }
 
     .search-input:focus {
       outline: none;
       border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
 
-    .search-btn {
-      padding: 12px 25px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 25px;
+    .search-icon {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #667eea;
+      font-size: 18px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 16px 30px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 50px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
+      font-family: 'Poppins', sans-serif;
     }
 
-    .search-btn:hover {
+    .filter-btn:hover {
+      background: #667eea;
+      color: white;
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
     }
 
     .clear-btn {
-      padding: 12px 20px;
+      padding: 16px 30px;
       background: #6c757d;
       color: white;
       border: none;
-      border-radius: 25px;
-      font-weight: 500;
+      border-radius: 50px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       text-decoration: none;
@@ -231,129 +283,490 @@
     .clear-btn:hover {
       background: #5a6268;
       color: white;
-      text-decoration: none;
+      transform: translateY(-2px);
+    }
+
+    /* Products Grid Mejorado */
+    .products-section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 0 6px;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #e6edf3;
+      margin: 0;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 10px;
+      background: white;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .view-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn:hover, .view-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
     }
 
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 25px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      align-items: start;
+      padding: 0 6px;
+      margin: 0;
     }
 
+    .products-grid > .product-card {
+      margin: 0;
+    }
+
+    .products-grid.list-view {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    /* Contenedor principal de productos (panel translúcido sobre fondo oscuro) */
+    .products-section {
+      max-width: 1280px;
+      margin: 40px auto;
+      padding: 28px 24px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 12px 50px rgba(2,6,23,0.55);
+    }
+
+    /* Estilos para la lightbox mejorada (SweetAlert2 custom) */
+    .swal-custom {
+      background: linear-gradient(180deg, #0b1220, #0f1724);
+      color: #e6edf3;
+      border-radius: 14px !important;
+      padding: 18px !important;
+      box-shadow: 0 30px 80px rgba(2,6,23,0.75) !important;
+      max-width: 90vw !important;
+    }
+
+    .swal-custom .img-zoom-container {
+      position: relative;
+      width: 100%;
+      max-height: 70vh;
+      overflow: hidden;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+
+    .swal-custom img.product-zoom {
+      max-width: 100%;
+      max-height: 70vh;
+      transform-origin: center center;
+      transition: transform 0.12s ease-out;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .swal-zoom-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .swal-zoom-controls button {
+      background: rgba(255,255,255,0.06);
+      color: #e6edf3;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Product Card Premium */
     .product-card {
       background: white;
-      border-radius: 15px;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0,0,0,0.05);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid #e2e8f0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    }
+
+    .product-card.destacado {
+      border: 2px solid #ff6f61;
+      background: linear-gradient(180deg, #fff9f7 0%, white 50%);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(135deg, #ff6f61, #ff8a65);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+
+    .ribbon {
+      position: absolute;
+      top: 15px;
+      left: -8px;
+      background: linear-gradient(135deg, #ff6f61, #ff8a65);
+      color: white;
+      padding: 8px 20px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 50%);
     }
 
     .product-image-container {
       position: relative;
-      height: 200px;
+      height: 280px;
       overflow: hidden;
-      background: #f8f9fa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 16px 16px 0 0;
+      cursor: zoom-in;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Asegurar que la imagen no desborde la tarjeta */
+    .product-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .product-image-container:hover {
+      box-shadow: inset 0 0 20px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .products-section { max-width: 1000px; padding: 24px 20px; margin: 30px auto; }
+      .products-grid { gap: 18px; }
+      .product-image-container { height: 240px; }
+    }
+
+    @media (max-width: 992px) {
+      .products-section { padding: 20px 16px; margin: 24px auto; }
+      .products-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; padding: 0 4px; }
+      .product-image-container { height: 220px; }
+      .product-card { border-radius: 14px; }
+      .section-title { font-size: 1.5rem; }
+      .product-info { padding: 14px; }
+    }
+
+    @media (max-width: 576px) {
+      .products-section { padding: 16px 12px; margin: 16px 8px; }
+      .products-grid { grid-template-columns: 1fr; gap: 12px; padding: 0; }
+      .product-image-container { height: 180px; }
+      .product-info { padding: 12px; }
+      .product-name { font-size: 1.05rem; }
+      .section-title { font-size: 1.4rem; }
+      .swal-custom { width: 95vw !important; padding: 12px !important; }
+      .swal-custom .img-zoom-container { max-height: 50vh; }
+      .swal-zoom-controls button { padding: 6px 10px; }
     }
 
     .product-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s ease;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
+      display: block;
     }
 
-    .product-image:hover {
-      transform: scale(1.05);
+    .product-card:hover .product-image {
+      transform: scale(1.25) rotate(1deg);
+      filter: brightness(1.05);
     }
 
-    .no-image-placeholder {
-      color: #6c757d;
-      font-size: 3rem;
-      opacity: 0.3;
+    .product-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.3), transparent);
+      padding: 30px 20px 20px;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
     }
+
+    .product-card:hover .product-overlay {
+      opacity: 1;
+    }
+
+    .zoom-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      color: #667eea;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .product-image-container:hover .zoom-hint {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    /* quick-view removed: UI now opens on image click */
 
     .product-info {
-      padding: 20px;
+      padding: 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      gap: 8px;
+    }
+
+    .product-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .product-category {
+      display: inline-block;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #e1f5fe 100%);
+      color: #667eea;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .product-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #fff7e6 0%, #ffe8c7 100%);
+      color: #b45309;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
     }
 
     .product-name {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-
-    .product-description {
-      color: #666;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 15px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 12px;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
+    .product-description {
+      color: #718096;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
     .product-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #f1f3f4;
+      padding-top: 12px;
+      border-top: 1px solid #e9ecef;
+      margin-top: auto;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .price-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+      max-width: 100%;
+    }
+
+    .original-price, .discount-badge, .product-price {
+      max-width: 100%;
+      overflow-wrap: break-word;
     }
 
     .product-price {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #28a745;
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0b1220;
+      line-height: 1;
     }
 
-    .vendor-info {
+    .original-price {
+      font-size: 1.2rem;
+      color: #adb5bd;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    .discount-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, #ff6f61, #ff8a65);
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .vendor-btn {
+      padding: 8px 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: #666;
-      font-size: 0.85rem;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      font-size: 0.9rem;
+      min-width: 36px;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
     }
 
-    .vendor-info i {
-      color: #667eea;
+    .vendor-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     }
 
+    .vendor-btn.locked {
+      background: #e9ecef;
+      color: #6c757d;
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 80px 20px;
+      padding: 100px 20px;
       background: white;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
     }
 
-    .empty-state i {
-      font-size: 4rem;
-      color: #dee2e6;
-      margin-bottom: 20px;
+    .empty-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon i {
+      font-size: 3.5rem;
+      color: #adb5bd;
     }
 
     .empty-state h3 {
+      font-size: 1.8rem;
       color: #495057;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     .empty-state p {
@@ -361,633 +774,1154 @@
       font-size: 1.1rem;
     }
 
-    /* Modal para imagen ampliada */
-    .image-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(5px);
-    }
-
+    /* Modal Mejorado */
     .modal-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 90%;
-      max-height: 90%;
+      border-radius: 20px;
+      border: none;
+      overflow: hidden;
     }
 
-    .modal-image {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .close-modal {
-      position: absolute;
-      top: -40px;
-      right: 0;
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      font-size: 2rem;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
+      padding: 25px 30px;
+      border: none;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-body {
+      padding: 40px 30px;
+    }
+
+    .vendor-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .vendor-avatar {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 25px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s ease;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
 
-    .close-modal:hover {
-      background: rgba(0, 0, 0, 0.7);
+    .vendor-avatar i {
+      font-size: 3rem;
+      color: white;
     }
 
-    .search-results-header {
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
+    .vendor-info-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .vendor-info-item i {
+      color: #667eea;
+      font-size: 1.2rem;
+    }
+
+    .vendor-info-item strong {
+      color: #667eea;
+      margin-right: 8px;
+    }
+
+    .modal-footer {
+      padding: 20px 30px;
+      border: none;
+      background: #f8f9fa;
+    }
+
+    .contact-btn {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
     }
 
-    /* Animaciones */
-    .product-card {
-      animation: fadeInUp 0.6s ease forwards;
-      opacity: 0;
-      transform: translateY(20px);
+    .contact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      color: white;
     }
 
-    .product-card:nth-child(1) { animation-delay: 0.1s; }
-    .product-card:nth-child(2) { animation-delay: 0.2s; }
-    .product-card:nth-child(3) { animation-delay: 0.3s; }
-    .product-card:nth-child(4) { animation-delay: 0.4s; }
-    .product-card:nth-child(5) { animation-delay: 0.5s; }
-    .product-card:nth-child(6) { animation-delay: 0.6s; }
-
+    /* Animations */
     @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
+    .product-card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .main-container {
-        padding: 10px;
-      }
-
-      .page-header {
-        padding: 20px;
-      }
-
-      .page-header h1 {
+      .hero-content h1 {
         font-size: 2rem;
       }
 
-      .stats-bar {
-        flex-direction: column;
-        text-align: center;
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
-      .search-form {
+      .navbar-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .search-wrapper {
         flex-direction: column;
       }
 
-      .search-input {
+      .search-input-group {
         min-width: 100%;
+      }
+
+      .filter-buttons {
+        flex-wrap: wrap;
       }
 
       .products-grid {
         grid-template-columns: 1fr;
       }
 
-      .header-buttons {
-        display: none;
+      .section-header {
+        flex-direction: column;
+        gap: 20px;
       }
-
-      .navbar-container {
-        justify-content: center;
-      }
-    }
-
-    /* Estilos personalizados para el modal del vendedor */
-    #vendedorModal .modal-content {
-      background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
-      border-radius: 18px;
-      box-shadow: 0 8px 32px rgba(106,17,203,0.18);
-      border: 2px solid #6a11cb33;
-    }
-    #vendedorModal .modal-header {
-      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-      border-bottom: none;
-    }
-    #vendedorModal .modal-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    #vendedorModal .modal-title i {
-      font-size: 2rem;
-      color: #ffd700;
-      text-shadow: 0 2px 8px #6a11cb55;
-    }
-    #vendedorModal .modal-body {
-      padding: 30px 24px 18px 24px;
-      text-align: center;
-    }
-    #vendedorModal .vendedor-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(40,40,80,0.10);
-      padding: 24px 18px 18px 18px;
-      margin: 0 auto;
-      max-width: 350px;
-      display: inline-block;
-    }
-    #vendedorModal .vendedor-avatar {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 18px auto;
-      box-shadow: 0 4px 16px #6a11cb22;
-    }
-    #vendedorModal .vendedor-avatar i {
-      color: #fff;
-      font-size: 2.5rem;
-    }
-    #vendedorModal .modal-body p {
-      font-size: 1.1rem;
-      color: #333;
-      margin-bottom: 10px;
-      font-weight: 500;
-    }
-    #vendedorModal .modal-body span {
-      color: #2575fc;
-      font-weight: 600;
-    }
-    #vendedorModal .modal-footer {
-      border-top: none;
-      padding-bottom: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    #contactarBtn {
-      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-      border: none;
-      font-weight: 600;
-      border-radius: 25px;
-      box-shadow: 0 4px 16px #6a11cb22;
-      padding: 10px 28px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.2s, transform 0.2s;
-    }
-
-    #contactarBtn:hover {
-      background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
-      color: #fff;
-      transform: translateY(-2px) scale(1.04);
-      text-decoration: none;
-    }
-
-    /* ===== Nuevos estilos para productos destacados ===== */
-    .product-card.destacado {
-      background: linear-gradient(180deg, #fffef0 0%, #fff8e5 40%);
-      border: 2px solid rgba(255, 170, 0, 0.18);
-      box-shadow: 0 18px 40px rgba(255,165,0,0.12), 0 6px 18px rgba(0,0,0,0.08);
-      transform: translateY(-6px);
-      position: relative;
-      overflow: visible;
-    }
-
-    .product-card .ribbon {
-      position: absolute;
-      top: 12px;
-      left: -42px;
-      width: 170px;
-      height: 36px;
-      background: linear-gradient(90deg, #ff7a18 0%, #ff5722 100%);
-      color: white;
-      transform: rotate(-25deg);
-      text-align: center;
-      line-height: 36px;
-      font-weight: 700;
-      box-shadow: 0 8px 18px rgba(255,87,34,0.18);
-      z-index: 5;
-      font-size: 0.95rem;
-      letter-spacing: 0.6px;
-    }
-
-    .product-card .ribbon .star {
-      margin-right: 8px;
-      color: #fff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.18);
-    }
-
-    /* ===== Ajustes finales: precios centrados y en negro ===== */
-    /* Reset visual que asegura que el texto sea visible (anula gradientes y -webkit-text-fill-color: transparent) */
-    .product-card .product-price,
-    .product-card .original-price,
-    .product-card .original-price.struck,
-    .product-card .discounted-price,
-    .product-card .percent-pill {
-      background: none !important;
-      -webkit-background-clip: initial !important;
-      background-clip: initial !important;
-      -webkit-text-fill-color: initial !important;
-      color: #000 !important;
-    }
-
-    /* Badge simple (cuando se usa) también en negro y sin fondo */
-    .product-card .product-price.badge,
-    .product-card .price-badge {
-      background: none !important;
-      color: #000 !important;
-      -webkit-text-fill-color: initial !important;
-    }
-
-    .product-card .original-price.struck {
-      text-decoration: line-through;
-      text-decoration-thickness: 2px;
-      text-decoration-color: #000;
-      opacity: 0.95;
     }
   </style>
 </head>
 <body>
-  <!-- HEADER ORIGINAL -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid navbar-container">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
       <a class="navbar-brand" href="/">CONFER</a>
-      <div class="header-buttons">
-        <a href="#" class="header-btn" onclick="return mostrarAlertaContactos(event)">
-          <i class="fas fa-users"></i> Contactos
+      <div class="nav-links">
+        <a href="/contactos" class="nav-btn" th:if="${usuario != null}">
+          <i class="fas fa-users"></i>
+          <span>Contactos</span>
         </a>
-        <a href="/productos/index" class="header-btn">
-          <i class="fas fa-shopping-bag"></i> Productos
         </a>
-        <a href="/categorias" class="header-btn">
-          <i class="fas fa-tags"></i> Categorías
+        <a href="/perfil" class="nav-btn" th:if="${usuario != null}">
+          <i class="fas fa-user-circle"></i>
+          <span>Mi Perfil</span>
         </a>
-      </div>
-      <div class="user-menu">
-        <th:block th:if="${usuario != null}">
-          <a href="/logout" class="header-btn logout" onclick="return confirmarCerrarSesion(event)">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar sesión</span>
-          </a>
-        </th:block>
-<script>
-function confirmarCerrarSesion(event) {
-  event.preventDefault();
-  Swal.fire({
-    title: '¿Cerrar sesión?',
-    text: '¿Estás seguro que deseas salir?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sí, cerrar sesión',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = '/logout';
-    }
-  });
-  return false;
-}
-</script>
-        <th:block th:unless="${usuario != null}">
-          <a href="/login" class="header-btn logout"> 
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Iniciar sesión</span>
-          </a>
-        </th:block>
+        <a href="#" class="nav-btn logout" th:if="${usuario != null}" onclick="return confirmarCerrarSesion(event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar sesión</span>
+        </a>
+        <a href="/login" class="nav-btn login" th:if="${usuario == null}" style="background: linear-gradient(135deg, #ff9a56 0%, #ff7e5f 100%); border-color: rgba(255,158,86,0.5);">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Iniciar sesión</span>
+        </a>
+        <a href="/bienvenida" class="nav-btn" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4);">
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver</span>
+        </a>
       </div>
     </div>
   </nav>
 
-  <!-- Botón Volver -->
-<div style="margin: 20px 0 0 20px;">
-  <a href="/bienvenida" 
-     style="padding:8px 22px; 
-            border:none; 
-            border-radius:25px; 
-            background:#6a11cb; 
-            color:white; 
-            font-weight:600; 
-            box-shadow:0 2px 8px rgba(106,17,203,0.15); 
-            cursor:pointer; 
-            text-decoration:none; 
-            display:inline-block;">
-      ← Volver
-  </a>
-</div>
-
-
-  <div class="main-container">
-    <!-- Header de la página -->
-    <div class="page-header">
-      <h1><i class="fas fa-shopping-bag"></i> Catálogo de Productos</h1>
-      <p class="subtitle">Descubre todos los productos disponibles en nuestra plataforma</p>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <h1><i class="fas fa-shopping-cart"></i> Catálogo de Productos</h1>
+      <p>Descubre los mejores productos tecnológicos al mejor precio</p>
     </div>
+  </section>
 
-    <!-- Barra de estadísticas -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <i class="fas fa-box"></i>
-        <div>
+  <!-- Stats Container -->
+  <div class="container">
+    <div class="stats-container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-box"></i>
+          </div>
           <div class="stat-number" th:text="${totalProductos}">0</div>
           <div class="stat-label">Productos Disponibles</div>
         </div>
-      </div>
-      <div class="stat-item" th:if="${terminoBusqueda}">
-        <i class="fas fa-search"></i>
-        <div>
-          <div class="stat-label">Búsqueda activa:</div>
-          <div class="search-term" th:text="'&quot;' + ${terminoBusqueda} + '&quot;'"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección de búsqueda -->
-    <div class="search-section">
-      <form class="search-form" th:action="@{/indexProductos}" method="get">
-        <input type="text" 
-               id="searchInput"
-               name="buscar" 
-               class="search-input" 
-               placeholder="Buscar productos por nombre o descripción..."
-               th:value="${terminoBusqueda}">
-        <a href="/indexProductos" class="clear-btn" th:if="${terminoBusqueda}">
-          <i class="fas fa-times"></i>
-          Limpiar
-        </a>
-      </form>
-    </div>
-
-    <!-- Resultados de búsqueda -->
-    <div class="search-results-header" th:if="${terminoBusqueda}">
-      <i class="fas fa-info-circle"></i>
-      <span>Mostrando <strong th:text="${totalProductos}">0</strong> resultado(s) para "<strong th:text="${terminoBusqueda}"></strong>"</span>
-    </div>
-
-    <!-- Grid de productos -->
-    <div class="products-grid" th:if="${productos != null and !productos.empty}">
-      <div class="product-card" th:each="producto : ${productos}"
-           th:classappend="${producto.destacado} ? ' destacado' : ''"
-           style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px;min-height:320px;">
-        <!-- Ribbon visible solo si está destacado -->
-        <div th:if="${producto.destacado}" class="ribbon">
-          <i class="fas fa-star star"></i> DESTACADO
-        </div>
-
-        <div class="product-image" style="width:100%;height:180px;">
-          <img th:if="${producto.imagenUrl != null}" th:src="@{'/uploads/' + ${producto.imagenUrl}}" alt="Imagen del producto" style="width:100%;height:180px;object-fit:cover;border-radius:10px;">
-          <div th:if="${producto.imagenUrl == null}" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;border-radius:10px;">
-            <i class="fas fa-image fa-3x" style="color:#bbb;"></i>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-star"></i>
           </div>
+          <div class="stat-number" th:text="${productosDestacados ?: 0}">0</div>
+          <div class="stat-label">Productos Destacados</div>
         </div>
-
-        <div class="product-info" style="width:100%;padding:10px 0 0 0;text-align:center;">
-          <h5 th:text="${producto.nombre}" style="margin-bottom:6px;">Nombre del producto</h5>
-          <p th:if="${producto.descripcion != null}" th:text="${producto.descripcion}" class="product-description">Descripción del producto</p>
-
-          <!-- Mejora visual de precios -->
-          <div class="product-price price-wrapper" style="font-weight:bold;">
-            <!-- Siempre mostrar precio original -->
-            <span th:attr="class=${producto.destacado} ? 'original-price struck' : 'original-price'" th:text="'$' + ${producto.precio}">$0.00</span>
-
-            <!-- Si está destacado, mostrar precio con descuento debajo -->
-            <div th:if="${producto.destacado}">
-              <span class="discounted-price" th:text="'$' + ${producto.precioConDescuento}">$0.00</span>
-              <span class="percent-pill"
-                    th:if="${producto.porcentajeDescuento != null and producto.porcentajeDescuento.doubleValue() > 0}"
-                    th:text="${producto.porcentajeDescuento} + ' % OFF'">0% OFF</span>
-            </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-tags"></i>
           </div>
-
-          <!-- Botón para ver información del vendedor -->
-            <button class="btn btn-info mt-2" type="button"
-              th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},
-                       data-vendedor-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'},
-                       data-vendedor-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'}"
-              th:if="${usuario != null}"
-              onclick="mostrarVendedor(this)">
-              <i class="fas fa-user"></i> Ver Vendedor
-            </button>
-            <button class="btn btn-warning mt-2" type="button" th:unless="${usuario != null}" onclick="mostrarAlertaLoginVendedor()">
-              <i class="fas fa-user-lock"></i> Ver Vendedor
-            </button>
-<script>
-function mostrarAlertaContactos(e) {
-  e.preventDefault();
-  if (/*[[${usuario != null}]]*/ true) {
-    window.location.href = '/contactos';
-  } else {
-    Swal.fire({
-      icon: 'info',
-      title: 'Acceso a contactos',
-      text: 'Debes iniciar sesión para ver los contactos.',
-      confirmButtonText: 'Iniciar sesión',
-      confirmButtonColor: '#6a11cb',
-      showCancelButton: true,
-      cancelButtonText: 'Cancelar',
-      cancelButtonColor: '#aaa',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = '/login';
-      }
-    });
-  }
-}
-
-function cerrarSesion(e) {
-  e.preventDefault();
-  Swal.fire({
-    icon: 'success',
-    title: 'Sesión cerrada',
-    text: 'Has cerrado sesión correctamente.',
-    confirmButtonText: 'Ir a inicio',
-    confirmButtonColor: '#6a11cb',
-  }).then(() => {
-    window.location.href = '/bienvenida';
-  });
-  // No hacer submit del enlace
-  return false;
-}
-function mostrarAlertaLoginVendedor() {
-  Swal.fire({
-    icon: 'warning',
-    title: 'Acceso restringido',
-    text: 'Debes iniciar sesión para ver la información del vendedor.',
-    confirmButtonText: 'Iniciar sesión',
-    confirmButtonColor: '#6a11cb',
-    showCancelButton: true,
-    cancelButtonText: 'Cancelar',
-    cancelButtonColor: '#aaa',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = '/login';
-    }
-  });
-}
-</script>
+          <div class="stat-number" th:text="${totalCategorias ?: 0}">0</div>
+          <div class="stat-label">Categorías</div>
         </div>
       </div>
-    </div>
-    <div class="empty-state" th:if="${productos == null or productos.empty}">
-      <i class="fas fa-box-open"></i>
-      <h3>No hay productos registrados</h3>
     </div>
   </div>
 
-  <!-- Modal para imagen ampliada -->
-  <div id="imageModal" class="image-modal" onclick="closeImageModal()">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeImageModal()">
-        <i class="fas fa-times"></i>
-      </span>
-      <img id="modalImage" src="" alt="Imagen ampliada" class="modal-image">
-    </div>
-  </div>
-
-  <!-- Modal para información del vendedor -->
-  <div class="modal fade" id="vendedorModal" tabindex="-1" aria-labelledby="vendedorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="vendedorModalLabel"><i class="fas fa-user-circle"></i> Información del Vendedor</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+  <!-- Search Section -->
+  <section class="search-section">
+    <div class="search-container">
+      <form class="search-wrapper" th:action="@{/indexProductos}" method="get" id="searchForm">
+        <div class="search-input-group">
+          <input 
+            type="text" 
+            name="buscar" 
+            class="search-input" 
+            placeholder="Buscar productos por nombre, descripción o categoría..."
+            th:value="${terminoBusqueda}"
+            id="searchInput">
+          <i class="fas fa-search search-icon"></i>
         </div>
-        <div class="modal-body">
-          <th:block th:if="${usuario == null}">
-            <div class="alert alert-warning text-center">
-              <i class="fas fa-exclamation-triangle"></i> Debes iniciar sesión para ver la información del vendedor.
-            </div>
-          </th:block>
-          <th:block th:if="${usuario != null}">
-            <div class="vendedor-card">
-              <div class="vendedor-avatar"><i class="fas fa-user"></i></div>
-              <p><strong>Nombre:</strong> <span id="vendedorNombre"></span></p>
-              <p><strong>Correo:</strong> <span id="vendedorCorreo"></span></p>
-              <p><strong>Teléfono:</strong> <span id="vendedorTelefono"></span></p>
-            </div>
-          </th:block>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: center; gap: 12px;">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <a id="contactarBtn" href="#" target="_blank" class="btn btn-primary" style="background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%); border: none; font-weight: 600; border-radius: 25px; box-shadow: 0 4px 16px #6a11cb22; padding: 10px 28px; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.2s;">
-            <i class="fas fa-envelope"></i> Contactar ahora
+        <input type="hidden" name="filtro" id="filterInput" th:value="${filtro}">
+        <input type="hidden" name="categoria" id="categoriaInput" th:value="${categoriaSeleccionada}">
+        <div class="filter-buttons">
+          <button type="button" class="filter-btn" onclick="applyFilter('all', this)">
+            <i class="fas fa-th"></i> Todos
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('destacados', this)">
+            <i class="fas fa-star"></i> Destacados
+          </button>
+          <select id="categoriaSelect" class="filter-btn">
+            <option value="">🏷️ Filtrar por categoría</option>
+            <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}" th:selected="${cat == categoriaSeleccionada}"></option>
+          </select>
+          <button type="button" class="filter-btn" id="toggleFiltersBtn" onclick="toggleFilterPanel()">
+            <i class="fas fa-filter"></i> Filtros
+          </button>
+          <a href="/indexProductos" class="clear-btn" th:if="${terminoBusqueda}">
+            <i class="fas fa-times"></i> Limpiar
           </a>
         </div>
+
+        <!-- Panel dinámico de filtros (marca y rango de precio) - versión mejorada visualmente -->
+        <div id="filterPanel" class="filter-panel" style="display:none;">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label for="marcaInput" class="form-label small mb-1 text-muted">Marca</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-tag"></i></span>
+                <input type="text" name="marca" id="marcaInput" class="form-control filter-input rounded-pill" th:value="${marcaSeleccionada}" placeholder="Ej: Samsung">
+              </div>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label small mb-1 text-muted">Precio</label>
+              <div class="input-group">
+                <input type="number" step="0.01" name="minPrecio" id="minPrecioInput" class="form-control filter-input rounded-pill" th:value="${minPrecio}" placeholder="Min">
+                <span class="input-group-text border-0 bg-transparent text-muted">—</span>
+                <input type="number" step="0.01" name="maxPrecio" id="maxPrecioInput" class="form-control filter-input rounded-pill" th:value="${maxPrecio}" placeholder="Max">
+              </div>
+            </div>
+
+            <div class="col-md-1"></div>
+
+            <div class="col-md-2 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-gradient filter-apply" onclick="document.getElementById('searchForm').submit()">
+                <i class="fas fa-check me-1"></i> Aplicar
+              </button>
+              <button type="button" class="btn btn-outline-light filter-clear" onclick="clearFilterPanel()">
+                <i class="fas fa-eraser me-1"></i> Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span th:if="${terminoBusqueda}">Resultados para "<span th:text="${terminoBusqueda}"></span>"</span>
+        <span th:unless="${terminoBusqueda}">Todos los Productos</span>
+      </h2>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="toggleView('grid')">
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button class="view-btn" onclick="toggleView('list')">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid" th:if="${productos != null and !productos.empty}">
+      <div class="product-card" th:each="producto : ${productos}" th:classappend="${producto.destacado} ? 'destacado' : ''">
+        <!-- Ribbon para destacados -->
+        <div th:if="${producto.destacado}" class="ribbon">
+          <i class="fas fa-star"></i> DESTACADO
+        </div>
+
+        <!-- Imagen del producto -->
+        <div class="product-image-container">
+          <img th:if="${producto.imagenUrl != null}" 
+               th:src="@{'/uploads/' + ${producto.imagenUrl}}" 
+               th:attr="data-image=@{'/uploads/' + ${producto.imagenUrl}}, data-nombre=${producto.nombre}, data-precio=${producto.precio}, data-descripcion=${producto.descripcion}, data-vendedor=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'}, data-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'}, data-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'}"
+               alt="Producto" 
+               class="product-image"
+               onclick="verProducto(this)" 
+               style="cursor: pointer;">
+          <div class="zoom-hint">
+            <i class="fas fa-search-plus"></i>
+            <span>Ver detalle</span>
+          </div>
+          <div th:if="${producto.imagenUrl == null}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-image" style="font-size:4rem;color:#adb5bd;"></i>
+          </div>
+          
+          <!-- Overlay eliminado: la vista rápida se abre al hacer clic sobre la imagen -->
+        </div>
+
+        <!-- Información del producto -->
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="product-category" th:text="${producto.categoria ?: 'Sin categoría'}">
+              <i class="fas fa-tag"></i> Categoría
+            </span>
+            <span class="product-brand" th:text="${producto.marca ?: 'Sin marca'}">
+              <i class="fas fa-industry"></i> Marca
+            </span>
+          </div>
+
+          <h3 class="product-name" th:text="${producto.nombre}">Nombre del Producto</h3>
+          
+          <p class="product-description" th:if="${producto.descripcion != null}" th:text="${producto.descripcion}">
+            Descripción del producto
+          </p>
+
+          <!-- Footer del producto -->
+          <div class="product-footer">
+            <div class="price-container">
+              <div th:if="${producto.destacado}">
+                <span class="original-price" th:text="'$' + ${producto.precio}">$0.00</span>
+                <span class="discount-badge" th:if="${producto.porcentajeDescuento != null}" 
+                      th:text="${producto.porcentajeDescuento} + '% OFF'">20% OFF</span>
+                <div class="product-price" th:text="'$' + ${producto.precioConDescuento}">$0.00</div>
+              </div>
+              <div th:unless="${producto.destacado}">
+                <div class="product-price" th:text="'$' + ${producto.precio}">$0.00</div>
+              </div>
+            </div>
+
+            <!-- Botón de vendedor -->
+            <button class="vendor-btn" 
+                    th:if="${usuario != null}"
+                    th:attr="data-vendedor-nombre=${producto.vendedor != null ? producto.vendedor.nombre : 'No disponible'},
+                             data-vendedor-correo=${producto.vendedor != null ? producto.vendedor.correo : 'No disponible'},
+                             data-vendedor-telefono=${producto.vendedor != null ? producto.vendedor.telefono : 'No disponible'},
+                             data-producto-nombre=${producto.nombre}"
+                    onclick="mostrarVendedor(this)"
+                    type="button"
+                    title="Contactar al vendedor">
+              <i class="fas fa-envelope"></i>
+            </button>
+            <button class="vendor-btn locked" 
+                    th:if="${usuario == null}"
+                    type="button"
+                    title="Inicia sesión para contactar vendedores">
+              <i class="fas fa-lock"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" th:if="${productos == null or productos.empty}">
+      <div class="empty-icon">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <h3>No hay productos disponibles</h3>
+      <p>Lo sentimos, en este momento no hay productos que coincidan con tu búsqueda. ¡Intenta de nuevo más tarde!</p>
+    </div>
+  </section>
+
+  <!-- Modal para ver Vendedor -->
+  <div class="modal fade" id="vendorModal" tabindex="-1" role="dialog" aria-labelledby="vendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="vendorModalLabel">
+            <i class="fas fa-store"></i>
+            Información del Vendedor
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="vendor-card">
+            <div class="vendor-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h4 id="vendorName" style="margin-bottom: 25px; font-weight: 700; color: #1a202c;"></h4>
+            <p id="productNameDisplay" style="color: #718096; margin-bottom: 20px; font-size: 0.95rem;">
+              <strong>Producto:</strong> <span id="productName"></span>
+            </p>
+            <div class="vendor-info-item">
+              <i class="fas fa-envelope"></i>
+              <div>
+                <strong>Correo:</strong>
+                <p id="vendorEmail" style="margin: 0; color: #495057;"></p>
+              </div>
+            </div>
+            <div class="vendor-info-item">
+              <i class="fas fa-phone"></i>
+              <div>
+                <strong>Teléfono:</strong>
+                <p id="vendorPhone" style="margin: 0; color: #495057;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary contact-btn" onclick="contactarVendedor()">
+            <i class="fas fa-envelope"></i> Contactar
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Debounce para el search (permite escribir varios caracteres y filtra tras dejar de escribir)
-    let debounceTimeout;
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', function() {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-          this.form.submit();
-        }, 350);
+    // Aplicar filtro
+    function applyFilter(filter, element) {
+      document.getElementById('filterInput').value = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById('searchForm').submit();
+    }
+
+    // Cambiar vista (grid/list)
+    function toggleView(view) {
+      const grid = document.getElementById('productsGrid');
+      const btns = document.querySelectorAll('.view-btn');
+      
+      btns.forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.view-btn').classList.add('active');
+      
+      if (view === 'list') {
+        grid.classList.add('list-view');
+      } else {
+        grid.classList.remove('list-view');
+      }
+    }
+
+    // Mostrar información del vendedor en modal
+    function mostrarVendedor(button) {
+      const nombre = button.getAttribute('data-vendedor-nombre');
+      const correo = button.getAttribute('data-vendedor-correo');
+      const telefono = button.getAttribute('data-vendedor-telefono');
+      const productoNombre = button.getAttribute('data-producto-nombre');
+      
+      document.getElementById('vendorName').textContent = nombre;
+      document.getElementById('vendorEmail').textContent = correo;
+      document.getElementById('vendorPhone').textContent = telefono;
+      document.getElementById('productName').textContent = productoNombre;
+      
+      // Guardar el correo del vendedor en un atributo global para usarlo después
+      window.currentVendorEmail = correo;
+      window.currentProductName = productoNombre;
+      
+      const modal = new bootstrap.Modal(document.getElementById('vendorModal'));
+      modal.show();
+    }
+
+    // Función para contactar al vendedor abriendo Gmail
+    function contactarVendedor() {
+      const correo = window.currentVendorEmail;
+      const producto = window.currentProductName;
+      
+      if (correo && correo !== 'No disponible') {
+        const asunto = encodeURIComponent(`Consulta sobre el producto: ${producto}`);
+        const cuerpo = encodeURIComponent(`Hola,\n\nMe gustaría obtener más información sobre el producto: ${producto}\n\nQuedo atento a tu respuesta.\n\nSaludos`);
+        // Abrir Gmail con el correo del vendedor pre-rellenado
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${correo}&su=${asunto}&body=${cuerpo}`, '_blank');
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Correo no disponible',
+          text: 'El vendedor no tiene un correo registrado. Intenta contactarlo por teléfono.',
+          confirmButtonColor: '#667eea'
+        });
+      }
+    }
+
+    // Ver detalles del producto (modal de imagen ampliada profesional con zoom)
+function verProducto(img) {
+  const nombre = img.getAttribute('data-nombre');
+  const precio = img.getAttribute('data-precio');
+  const descripcion = img.getAttribute('data-descripcion');
+  const imagen = img.getAttribute('data-image');
+
+  Swal.fire({
+    title: `<div style="color: #e6edf3; font-weight: 700; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${nombre}</div>`,
+    html: `
+      <div style="padding: 4px 12px;">
+        <div class="img-zoom-container" style="
+          position: relative;
+          overflow: hidden;
+          border-radius: 12px;
+          background: linear-gradient(145deg, #1a1a2e, #16213e);
+          padding: 3px;
+          box-shadow: 
+            inset 0 0 0 1px rgba(255,255,255,0.08),
+            0 6px 24px rgba(0,0,0,0.35);
+          max-width: 500px;
+          margin: 0 auto;
+        ">
+          <div style="
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+          ">
+            <!-- Borde degradado animado -->
+            <div style="
+              position: absolute;
+              inset: -1.5px;
+              background: linear-gradient(
+                135deg,
+                #667eea 0%,
+                #764ba2 25%,
+                #f093fb 50%,
+                #667eea 75%,
+                #764ba2 100%
+              );
+              background-size: 300% 300%;
+              animation: gradientShift 4s ease infinite;
+              border-radius: 10px;
+              z-index: 0;
+            "></div>
+            
+            <!-- Contenedor de imagen con borde negro degradado -->
+            <div style="
+              position: relative;
+              background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.25) 0%,
+                rgba(0,0,0,0.08) 15%,
+                rgba(0,0,0,0.08) 85%,
+                rgba(0,0,0,0.35) 100%
+              );
+              border-radius: 9px;
+              z-index: 1;
+              margin: 1.5px;
+            ">
+              <img id="swalProductImage" 
+                class="product-zoom" 
+                src="${imagen}" 
+                alt="${nombre}"
+                style="
+                  display: block;
+                  width: 100%;
+                  height: auto;
+                  max-height: 60vh;
+                  object-fit: contain;
+                  cursor: grab;
+                  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                  border-radius: 8px;
+                  box-shadow: 
+                    0 0 15px rgba(0,0,0,0.5) inset,
+                    0 3px 12px rgba(0,0,0,0.3);
+                "
+              >
+              
+              <!-- Efecto de brillo dinámico -->
+              <div style="
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                  45deg,
+                  transparent 30%,
+                  rgba(255,255,255,0.025) 50%,
+                  transparent 70%
+                );
+                animation: shimmer 3s infinite;
+                pointer-events: none;
+                border-radius: 8px;
+              "></div>
+            </div>
+          </div>
+        </div>
+        
+        <p style="
+          color: #cbd5e1;
+          margin: 16px 8px 12px;
+          font-size: 0.95rem;
+          line-height: 1.5;
+          text-align: center;
+          font-weight: 300;
+        ">${descripcion || 'Sin descripción disponible'}</p>
+        
+        <div style="text-align: center; margin: 10px 0;">
+          <div style="
+            background: linear-gradient(135deg, #ff6f61 0%, #ff8a65 50%, #ffab91 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: inline-block;
+            box-shadow: 
+              0 3px 12px rgba(255, 111, 97, 0.35),
+              inset 0 1px 0 rgba(255,255,255,0.25);
+          ">${precio} COP</div>
+        </div>
+        
+        <div class="swal-zoom-controls" style="
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 16px;
+          margin-bottom: 8px;
+        ">
+          <button type="button" id="zoomOutBtn" style="
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.35);
+          ">−</button>
+          <button type="button" id="resetZoomBtn" style="
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 0 14px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.35);
+          ">Reset</button>
+          <button type="button" id="zoomInBtn" style="
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.35);
+          ">+</button>
+        </div>
+      </div>
+      
+      <style>
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes shimmer {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(50%, 50%) rotate(360deg); }
+        }
+        
+        .swal-zoom-controls button:hover {
+          transform: translateY(-1px) scale(1.03);
+          box-shadow: 0 5px 16px rgba(102, 126, 234, 0.5);
+        }
+        
+        .swal-zoom-controls button:active {
+          transform: translateY(0) scale(0.98);
+        }
+        
+        #swalProductImage:active {
+          cursor: grabbing !important;
+        }
+      </style>
+    `,
+    customClass: { popup: 'swal-custom' },
+    showCloseButton: true,
+    confirmButtonText: 'Cerrar',
+    confirmButtonColor: '#667eea',
+    width: '90%',
+    maxWidth: '650px',
+    backdrop: 'rgba(2,6,23,0.9)',
+    didOpen: (modal) => {
+      // Ajustes visuales del modal
+      modal.style.borderRadius = '14px';
+      modal.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+      const content = modal.querySelector('.swal2-html-container');
+      if (content) content.style.padding = '0';
+
+      // Lógica de zoom/pan profesional mejorada
+      const imgEl = modal.querySelector('#swalProductImage');
+      const container = modal.querySelector('.img-zoom-container');
+      if (!imgEl || !container) return;
+      
+      let scale = 1, minScale = 1, maxScale = 4;
+      let translateX = 0, translateY = 0;
+      let isPanning = false, startX = 0, startY = 0;
+      let isAnimating = false;
+
+      function constrainTransform() {
+        if (scale <= 1) {
+          translateX = 0;
+          translateY = 0;
+          return;
+        }
+
+        const rect = imgEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        const scaledWidth = rect.width / scale;
+        const scaledHeight = rect.height / scale;
+        const maxX = Math.max(0, (scaledWidth * scale - containerRect.width) / 2);
+        const maxY = Math.max(0, (scaledHeight * scale - containerRect.height) / 2);
+
+        translateX = Math.max(-maxX, Math.min(maxX, translateX));
+        translateY = Math.max(-maxY, Math.min(maxY, translateY));
+      }
+
+      function updateTransform(smooth = false) {
+        constrainTransform();
+        
+        if (smooth && !isAnimating) {
+          imgEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          isAnimating = true;
+          setTimeout(() => {
+            imgEl.style.transition = 'none';
+            isAnimating = false;
+          }, 400);
+        } else if (!isPanning) {
+          imgEl.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        }
+        
+        imgEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        imgEl.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+      }
+
+      // Wheel zoom con animación suave y centrado en cursor
+      modal.addEventListener('wheel', (e) => {
+        if (!e.deltaY) return;
+        e.preventDefault();
+        
+        const rect = imgEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        // Posición del mouse relativa al contenedor
+        const mouseX = e.clientX - containerRect.left;
+        const mouseY = e.clientY - containerRect.top;
+        
+        // Posición del mouse en la imagen sin transformar
+        const imgX = (mouseX - translateX) / scale;
+        const imgY = (mouseY - translateY) / scale;
+        
+        const prevScale = scale;
+        const delta = -e.deltaY / 500;
+        scale = Math.min(maxScale, Math.max(minScale, scale + delta));
+        
+        // Calcular nuevo translate para mantener el punto bajo el cursor
+        translateX = mouseX - imgX * scale;
+        translateY = mouseY - imgY * scale;
+        
+        updateTransform(true);
+      }, { passive: false });
+
+      // Drag to pan profesional con límites
+      imgEl.addEventListener('mousedown', (e) => {
+        if (scale <= 1) return;
+        isPanning = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        imgEl.style.cursor = 'grabbing';
+        imgEl.style.transition = 'none';
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isPanning) return;
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateTransform(false);
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isPanning) {
+          isPanning = false;
+          imgEl.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+          updateTransform(true);
+        }
+      });
+
+      // Double click para zoom inteligente con animación suave
+      let lastTap = 0;
+      imgEl.addEventListener('dblclick', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) return;
+        lastTap = now;
+
+        if (scale > 1.1) {
+          scale = 1;
+          translateX = 0;
+          translateY = 0;
+        } else {
+          const rect = imgEl.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          
+          const mouseX = e.clientX - containerRect.left;
+          const mouseY = e.clientY - containerRect.top;
+          
+          const imgX = (mouseX - translateX) / scale;
+          const imgY = (mouseY - translateY) / scale;
+          
+          scale = 2.5;
+          
+          translateX = mouseX - imgX * scale;
+          translateY = mouseY - imgY * scale;
+        }
+        updateTransform(true);
+      });
+
+      // Botones con zoom profesional centrado
+      const zIn = modal.querySelector('#zoomInBtn');
+      const zOut = modal.querySelector('#zoomOutBtn');
+      const zReset = modal.querySelector('#resetZoomBtn');
+
+      if (zIn) zIn.addEventListener('click', () => {
+        const prevScale = scale;
+        scale = Math.min(maxScale, scale + 0.4);
+        
+        // Zoom hacia el centro
+        const containerRect = container.getBoundingClientRect();
+        const centerX = containerRect.width / 2;
+        const centerY = containerRect.height / 2;
+        
+        const imgX = (centerX - translateX) / prevScale;
+        const imgY = (centerY - translateY) / prevScale;
+        
+        translateX = centerX - imgX * scale;
+        translateY = centerY - imgY * scale;
+        
+        updateTransform(true);
+      });
+
+      if (zOut) zOut.addEventListener('click', () => {
+        const prevScale = scale;
+        scale = Math.max(minScale, scale - 0.4);
+        
+        if (scale <= 1) {
+          translateX = 0;
+          translateY = 0;
+        } else {
+          // Mantener centro al hacer zoom out
+          const containerRect = container.getBoundingClientRect();
+          const centerX = containerRect.width / 2;
+          const centerY = containerRect.height / 2;
+          
+          const imgX = (centerX - translateX) / prevScale;
+          const imgY = (centerY - translateY) / prevScale;
+          
+          translateX = centerX - imgX * scale;
+          translateY = centerY - imgY * scale;
+        }
+        
+        updateTransform(true);
+      });
+
+      if (zReset) zReset.addEventListener('click', () => {
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+        updateTransform(true);
+      });
+
+      // Touch pinch profesional con límites y suavidad
+      let lastDistance = null;
+      let touchStartScale = scale;
+      let touchStartX = 0, touchStartY = 0;
+      let initialTranslateX = 0, initialTranslateY = 0;
+
+      modal.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          lastDistance = Math.hypot(dx, dy);
+          touchStartScale = scale;
+          
+          // Centro entre los dos dedos
+          touchStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          touchStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          
+          initialTranslateX = translateX;
+          initialTranslateY = translateY;
+        }
+      });
+
+      modal.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches.length === 2) {
+          e.preventDefault();
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          const dist = Math.hypot(dx, dy);
+          
+          if (lastDistance) {
+            const ratio = dist / lastDistance;
+            const newScale = Math.min(maxScale, Math.max(minScale, touchStartScale * ratio));
+            
+            // Centro actual entre dedos
+            const currentCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const currentCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            
+            const containerRect = container.getBoundingClientRect();
+            const imgX = (touchStartX - containerRect.left - initialTranslateX) / touchStartScale;
+            const imgY = (touchStartY - containerRect.top - initialTranslateY) / touchStartScale;
+            
+            scale = newScale;
+            translateX = (currentCenterX - containerRect.left) - imgX * scale;
+            translateY = (currentCenterY - containerRect.top) - imgY * scale;
+            
+            updateTransform(false);
+          }
+        }
+      }, { passive: false });
+
+      modal.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+          lastDistance = null;
+          if (scale <= 1) {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+          }
+          updateTransform(true);
+        }
       });
     }
+  });
+}
 
-    // Función para abrir el modal de imagen
-    function openImageModal(imageSrc) {
-      const modal = document.getElementById('imageModal');
-      const modalImage = document.getElementById('modalImage');
+    // Confirmar cerrar sesión
+    function confirmarCerrarSesion(event) {
+      event.preventDefault();
+      Swal.fire({
+        title: '¿Cerrar sesión?',
+        text: '¿Estás seguro de que deseas cerrar sesión?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#667eea',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, cerrar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/logout';
+        }
+      });
+      return false;
+    }
+
+    // Filtrar por categoría
+    document.getElementById('categoriaSelect').addEventListener('change', function() {
+      document.getElementById('categoriaInput').value = this.value;
+      document.getElementById('searchForm').submit();
+    });
+
+    // Establecer categoría seleccionada en el select
+    window.addEventListener('load', function() {
+      const categoriaSeleccionada = document.getElementById('categoriaInput').value;
+      if (categoriaSeleccionada) {
+        document.getElementById('categoriaSelect').value = categoriaSeleccionada;
+      }
       
-      modalImage.src = imageSrc;
-      modal.style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }
-
-    // Función para cerrar el modal de imagen
-    function closeImageModal() {
-      const modal = document.getElementById('imageModal');
-      modal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-
-    // Cerrar modal con tecla Escape
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeImageModal();
+      // Establecer botón activo según el filtro
+      const filtroActual = document.getElementById('filterInput').value;
+      if (filtroActual === 'destacados') {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          if (btn.textContent.includes('Destacados')) {
+            btn.classList.add('active');
+          } else if (btn.textContent.includes('Todos')) {
+            btn.classList.remove('active');
+          }
+        });
+      } else {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          if (btn.textContent.includes('Todos')) {
+            btn.classList.add('active');
+          }
+        });
       }
     });
 
-    // Prevenir que el modal se cierre al hacer clic en la imagen
-    document.querySelector('.modal-content').addEventListener('click', function(e) {
-      e.stopPropagation();
+    // Toggle panel de filtros
+    function toggleFilterPanel() {
+      const panel = document.getElementById('filterPanel');
+      const btn = document.getElementById('toggleFiltersBtn');
+      if (!panel) return;
+      if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+        panel.style.animation = 'slideIn 220ms ease-out';
+        if (btn) btn.classList.add('active');
+      } else {
+        panel.style.animation = 'slideOut 180ms ease-in';
+        setTimeout(() => panel.style.display = 'none', 180);
+        if (btn) btn.classList.remove('active');
+      }
+    }
+
+    function clearFilterPanel() {
+      document.getElementById('marcaInput').value = '';
+      document.getElementById('minPrecioInput').value = '';
+      document.getElementById('maxPrecioInput').value = '';
+      document.getElementById('categoriaInput').value = '';
+      document.getElementById('filterInput').value = '';
+      document.getElementById('searchForm').submit();
+    }
+
+    // Establecer valores iniciales y listeners para inputs de filtros
+    window.addEventListener('load', function() {
+      const marca = /*[[${marcaSeleccionada}]]*/ '';
+      const minPrecio = document.getElementById('minPrecioInput');
+      const maxPrecio = document.getElementById('maxPrecioInput');
+      const marcaInput = document.getElementById('marcaInput');
+      const searchInput = document.getElementById('searchInput');
+      if (marcaInput && /*[[${marcaSeleccionada != null}]]*/ false) {
+        // Thymeleaf ya setea el value con th:value, así no es necesario aquí
+      }
+
+      // Enviar formulario al pulsar Enter en campos de precio o marca
+      [marcaInput, minPrecio, maxPrecio].forEach(el => {
+        if (!el) return;
+        el.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('searchForm').submit();
+          }
+        });
+      });
+
+      // Enviar búsqueda al pulsar Enter en el campo principal
+      if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('searchForm').submit();
+          }
+        });
+      }
     });
 
-    // Animación de entrada escalonada para las tarjetas
+    // Animaciones CSS para panel
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes slideIn { from { transform: translateY(-6px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+      @keyframes slideOut { from { transform: translateY(0); opacity: 1 } to { transform: translateY(-6px); opacity: 0 } }
+
+      .filter-panel {
+        background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+        padding: 14px;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(2,6,23,0.18);
+        margin-top: 8px;
+        transition: transform 220ms ease, opacity 220ms ease;
+      }
+
+      .filter-panel .form-label { display:block; font-size:12px; color:#6b7280; margin-bottom:6px; font-weight:600; }
+
+      .filter-input {
+        padding: 10px 30px;
+        border-radius: 50px;
+        border: 1px solid #e6eef8;
+        width: 180px;
+        background: #ffffff;
+        transition: box-shadow 180ms ease, border-color 180ms ease;
+      }
+
+      .filter-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 8px 20px rgba(102,126,234,0.12);
+        background: #fff;
+      }
+
+      .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 50px;
+        font-weight: 700;
+        box-shadow: 0 8px 24px rgba(102,126,234,0.18);
+      }
+
+      .btn-outline-light {
+        background: transparent;
+        border: 1px solid rgba(15,23,42,0.06);
+        color: #0b1220;
+        padding: 10px 14px;
+        border-radius: 50px;
+      }
+
+      @media (max-width: 768px) {
+        .filter-panel { padding: 12px; }
+        .col-md-2 { justify-content: flex-start !important; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Animación de entrada para las tarjetas
     document.addEventListener('DOMContentLoaded', function() {
       const cards = document.querySelectorAll('.product-card');
       cards.forEach((card, index) => {
-        setTimeout(() => {
-          card.style.animationDelay = (index * 0.1) + 's';
-        }, 100);
+        card.style.animationDelay = (index * 0.05) + 's';
       });
     });
-
-    function mostrarVendedor(btn) {
-      var nombre = btn.getAttribute('data-vendedor-nombre');
-      var correo = btn.getAttribute('data-vendedor-correo');
-      var telefono = btn.getAttribute('data-vendedor-telefono');
-      document.getElementById('vendedorNombre').textContent = nombre;
-      document.getElementById('vendedorCorreo').textContent = correo;
-      document.getElementById('vendedorTelefono').textContent = telefono;
-      var contactarBtn = document.getElementById('contactarBtn');
-      // Validación de sesión usando Thymeleaf
-      var usuarioAutenticado = /*[[${usuario != null}]]*/ true;
-      if (!usuarioAutenticado) {
-        mostrarAlertaLoginVendedor();
-        return;
-      }
-      if (correo && correo !== 'No disponible') {
-        contactarBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(correo)}`;
-        contactarBtn.style.display = '';
-        contactarBtn.innerHTML = '<i class="fas fa-envelope"></i> Contactar ahora';
-      } else {
-        contactarBtn.href = '#';
-        contactarBtn.style.display = 'none';
-      }
-      var modal = new bootstrap.Modal(document.getElementById('vendedorModal'));
-      modal.show();
-    }
   </script>
 </body>
 </html>

@@ -228,6 +228,14 @@
             background: #1e293b;
         }
 
+        /* Estilo para inputs en solo lectura */
+        .input-box[readonly], .input-box[aria-readonly="true"] {
+            background: #0b1220;
+            border-color: #24303a;
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
         .input-box::placeholder {
             color: #64748b;
         }
@@ -406,7 +414,7 @@
                         <label class="input-label">
                             <span>📧</span> Correo Electrónico
                         </label>
-                        <input type="email" id="correo" name="correo" class="input-box" placeholder="correo@ejemplo.com" required>
+                        <input type="email" id="correo" name="correo" class="input-box" placeholder="correo@ejemplo.com" required readonly title="El correo no se puede editar desde aquí">
                     </div>
 
                     <div class="input-group">

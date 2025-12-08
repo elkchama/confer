@@ -11,6 +11,10 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
 
 import com.example.confer.model.Usuario;
@@ -85,6 +89,15 @@ public class ReportePDFService {
 
             documento.add(Chunk.NEWLINE);
 
+            // 👉 Gráfico de usuarios por rol
+            Image graficoRoles = generarGraficoRoles(usuarios);
+            if (graficoRoles != null) {
+                graficoRoles.scaleToFit(420, 280);
+                graficoRoles.setAlignment(Image.ALIGN_CENTER);
+                documento.add(graficoRoles);
+                documento.add(Chunk.NEWLINE);
+            }
+
             // 👉 Código QR
             Paragraph textoQR = new Paragraph("Código QR de verificación:", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
             textoQR.setSpacingBefore(20f);
@@ -124,6 +137,8 @@ public class ReportePDFService {
             tabla.setWidths(new float[]{2, 4, 3, 2});
         }
         tabla.setWidthPercentage(110);
+        tabla.setSpacingBefore(8f);
+        tabla.setHeaderRows(1);
 
         // Encabezados
         if (rol == 3) {
@@ -135,15 +150,15 @@ public class ReportePDFService {
         }
 
         for (Usuario u : filtrados) {
-            tabla.addCell(u.getNombre());
-            tabla.addCell(u.getCorreo());
-            tabla.addCell(u.getTelefono() != null ? u.getTelefono() : "");
+            agregarCeldaDato(tabla, u.getNombre());
+            agregarCeldaDato(tabla, u.getCorreo());
+            agregarCeldaDato(tabla, u.getTelefono() != null ? u.getTelefono() : "");
             if (rol == 3) {
-                tabla.addCell(u.getEmpresa() != null ? u.getEmpresa() : "");
-                tabla.addCell(u.getNit() != null ? u.getNit() : "");
-                tabla.addCell(u.getDireccion() != null ? u.getDireccion() : "");
+                agregarCeldaDato(tabla, u.getEmpresa() != null ? u.getEmpresa() : "");
+                agregarCeldaDato(tabla, u.getNit() != null ? u.getNit() : "");
+                agregarCeldaDato(tabla, u.getDireccion() != null ? u.getDireccion() : "");
             }
-            tabla.addCell(tituloRol); // Rol explícito
+            agregarCeldaDato(tabla, tituloRol); // Rol explícito
         }
 
         doc.add(tabla);
@@ -154,8 +169,16 @@ public class ReportePDFService {
     }
 
     private void agregarCeldaEncabezado(PdfPTable tabla, String texto) {
-        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10)));
         celda.setBackgroundColor(BaseColor.LIGHT_GRAY);
+        celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        celda.setPadding(6f);
+        tabla.addCell(celda);
+    }
+
+    private void agregarCeldaDato(PdfPTable tabla, String texto) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto != null ? texto : "", FontFactory.getFont(FontFactory.HELVETICA, 10)));
+        celda.setPadding(6f);
         tabla.addCell(celda);
     }
 
@@ -175,5 +198,27 @@ public class ReportePDFService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "png", baos);
         return Image.getInstance(baos.toByteArray());
+    }
+
+    private Image generarGraficoRoles(List<Usuario> usuarios) {
+        DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+        long admins = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 1).count();
+        long clientes = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 2).count();
+        long vendedores = usuarios.stream().filter(u -> u.getIdRol() != null && u.getIdRol() == 3).count();
+
+        if (admins == 0 && clientes == 0 && vendedores == 0) return null;
+
+        if (admins > 0) dataset.setValue("Admin", admins);
+        if (clientes > 0) dataset.setValue("Usuario", clientes);
+        if (vendedores > 0) dataset.setValue("Vendedor", vendedores);
+
+        JFreeChart chart = ChartFactory.createPieChart("Usuarios por rol", dataset, true, false, false);
+        try {
+            ByteArrayOutputStream chartOut = new ByteArrayOutputStream();
+            ChartUtils.writeChartAsPNG(chartOut, chart, 520, 320);
+            return Image.getInstance(chartOut.toByteArray());
+        } catch (Exception e) {
+            return null; // si falla el gráfico, continuamos sin él
+        }
     }
 }

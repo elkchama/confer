@@ -1,120 +1,634 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil</title>
-    <link rel="stylesheet" th:href="@{/perfil.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .profile-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 0;
+            max-width: 1100px;
+            width: 100%;
+            background: #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 50px 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .avatar-box {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .avatar:hover {
+            transform: scale(1.08);
+        }
+
+        .avatar:hover .foto-overlay {
+            opacity: 1;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .foto-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 50%;
+        }
+
+        .foto-icon {
+            font-size: 40px;
+        }
+
+        .upload-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .sidebar-info {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-info h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .sidebar-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 50px 45px;
+            background: #1e293b;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #f1f5f9;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .mensaje-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .mensaje-error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group.span-2 {
+            grid-column: span 2;
+        }
+
+        .input-label {
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-box {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: #f1f5f9;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #1e293b;
+        }
+
+        /* Estilo para inputs en solo lectura */
+        .input-box[readonly], .input-box[aria-readonly="true"] {
+            background: #0b1220;
+            border-color: #24303a;
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .input-box::placeholder {
+            color: #64748b;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #334155, transparent);
+            margin: 40px 0;
+        }
+
+        .zona-peligro {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .zona-peligro h3 {
+            color: #fca5a5;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .zona-peligro p {
+            color: #cbd5e1;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 13px 32px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-eliminar {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 11px 28px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-eliminar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .volver-link {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .volver-link a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .volver-link a:hover {
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 900px) {
+            .profile-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 40px 30px;
+            }
+
+            .main-content {
+                padding: 40px 30px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group.span-2 {
+                grid-column: span 1;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<div class="perfil-container">
-    <div class="perfil-card">
-
-        <!-- Título -->
-        <h1>Mi Perfil</h1>
-
-        <!-- Mensajes de éxito -->
-        <div th:if="${param.ok}" class="mensaje-success">
-            ✓ Datos actualizados correctamente.
-        </div>
-        <div th:if="${param.foto}" class="mensaje-success">
-            ✓ Foto actualizada.
-        </div>
-
-        <!-- Mensaje de error -->
-        <div th:if="${errorImagen}" class="mensaje-error" th:text="${errorImagen}"></div>
-
-        <!-- FOTO DE PERFIL INTERACTIVA -->
-        <div class="foto-container">
-            <div class="foto-wrapper">
-                <img class="perfil-foto"
-                     th:src="${usuario.fotoPerfil != null} ? ${usuario.fotoPerfil} : '/img/default-user.png'"
-                     alt="Foto de perfil"
-                     id="previewFoto">
-                <div class="foto-overlay">
-                    <span class="foto-icon">📷</span>
+    <div class="profile-wrapper">
+        <div class="sidebar">
+            <div class="avatar-box">
+                <div class="avatar" onclick="document.getElementById('photoUpload').click()">
+                    <span id="avatarIcon">👤</span>
+                    <img id="avatarImg" style="display: none;" alt="Avatar">
+                    <div class="foto-overlay">
+                        <span class="foto-icon">📷</span>
+                    </div>
                 </div>
+                <div class="upload-badge" onclick="document.getElementById('photoUpload').click()">
+                    📷
+                </div>
+                <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="updateAvatar(event)">
             </div>
-            <p class="foto-hint">Haz clic en la foto para cambiarla</p>
-            
-            <!-- Formulario oculto para subir foto -->
-            <form id="formFoto" th:action="@{/perfil/foto}" method="post" enctype="multipart/form-data">
-                <input type="file" 
-                       id="inputFoto" 
-                       name="foto" 
-                       accept="image/*" 
-                       style="display:none"
-                       onchange="document.getElementById('formFoto').submit();" />
-            </form>
+            <div class="sidebar-info">
+                <h3>Mi Perfil</h3>
+                <p>Actualiza tu información</p>
+            </div>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- FORMULARIO DE DATOS DEL PERFIL -->
-        <form th:action="@{/perfil/actualizar}" method="post" class="perfil-form">
-
-            <div class="input-group">
-                <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" th:value="${usuario.nombre}" placeholder="Tu nombre completo" required>
+        <div class="main-content">
+            <div class="header">
+                <h1>Mi Perfil</h1>
+                <p>Gestiona tu información personal y empresarial</p>
             </div>
 
-            <div class="input-group">
-                <label for="correo">Correo</label>
-                <input type="email" id="correo" name="correo" th:value="${usuario.correo}" placeholder="correo@ejemplo.com" required>
+            <!-- Mensajes de éxito/error -->
+            <div id="mensajeSuccess" class="mensaje-success" style="display: none;">
+                ✓ Datos actualizados correctamente.
             </div>
+            <div id="mensajeError" class="mensaje-error" style="display: none;"></div>
 
-            <div class="input-group">
-                <label for="telefono">Teléfono</label>
-                <input type="text" id="telefono" name="telefono" th:value="${usuario.telefono}" placeholder="Número de contacto">
-            </div>
+            <form id="perfilForm" onsubmit="handleSubmit(event)">
+                <div class="form-grid">
+                    <div class="input-group span-2">
+                        <label class="input-label">
+                            <span>👤</span> Nombre Completo
+                        </label>
+                        <input type="text" id="nombre" name="nombre" class="input-box" placeholder="Tu nombre completo" required>
+                    </div>
 
-            <div class="input-group">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" name="direccion" th:value="${usuario.direccion}" placeholder="Tu dirección">
-            </div>
+                    <div class="input-group">
+                        <label class="input-label">
+                            <span>📧</span> Correo Electrónico
+                        </label>
+                        <input type="email" id="correo" name="correo" class="input-box" placeholder="correo@ejemplo.com" required readonly title="El correo no se puede editar desde aquí">
+                    </div>
 
-            <div class="input-group" th:if="${usuario.idRol == 3}">
-                <label for="empresa">Empresa</label>
-                <input type="text" id="empresa" name="empresa" th:value="${usuario.empresa}" placeholder="Nombre de la empresa">
-            </div>
+                    <div class="input-group">
+                        <label class="input-label">
+                            <span>📱</span> Teléfono
+                        </label>
+                        <input type="tel" id="telefono" name="telefono" class="input-box" placeholder="+57 300 000 0000">
+                    </div>
 
-            <div class="input-group" th:if="${usuario.idRol == 3}">
-                <label for="nit">NIT</label>
-                <input type="text" id="nit" name="nit" th:value="${usuario.nit}" placeholder="NIT de la empresa">
-            </div>
 
-            <button type="submit" class="btn-guardar">Guardar cambios</button>
-        </form>
+                </div>
 
-        <div class="divider"></div>
-
-        <!-- ZONA DE PELIGRO -->
-        <div class="zona-peligro">
-            <h3>Zona de peligro</h3>
-            <p>Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, ten certeza.</p>
-            <form th:action="@{'/admin/usuarios/eliminar/' + ${usuario.id}}" method="get"
-                  onsubmit="return confirm('¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                <button type="submit" class="btn-eliminar">Eliminar cuenta</button>
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
             </form>
-        </div>
 
-        <!-- Enlace para volver -->
-        <div class="volver-link">
-            <a th:href="@{/}">← Volver al inicio</a>
+            <div class="divider"></div>
+
+            <!-- Zona de peligro -->
+            <div class="zona-peligro">
+                <h3>Zona de peligro</h3>
+                <p>Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, ten certeza.</p>
+                <button type="button" class="btn-eliminar" onclick="eliminarCuenta()">Eliminar cuenta</button>
+            </div>
+
+            <!-- Enlace para volver -->
+            <div class="volver-link">
+                <a href="/bienvenida" onclick="volverInicio(event)">← Volver al inicio</a>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // Al hacer click en la imagen o el overlay → abrir selector de archivos
-    document.getElementById('previewFoto').addEventListener('click', function () {
-        document.getElementById('inputFoto').click();
-    });
-    
-    document.querySelector('.foto-overlay').addEventListener('click', function () {
-        document.getElementById('inputFoto').click();
-    });
-</script>
+    <script>
+        // Datos del usuario (obtenidos desde la API)
+        let usuario = null;
 
+        // Cargar datos del usuario al iniciar
+        window.onload = function() {
+            fetchPerfil();
+        };
+
+        async function fetchPerfil() {
+            try {
+                const resp = await fetch('/api/usuarios/perfil', { credentials: 'include' });
+                if (resp.status === 401) {
+                    mostrarMensaje('error', 'No autenticado. Por favor inicia sesión.');
+                    return;
+                }
+                if (!resp.ok) {
+                    mostrarMensaje('error', 'No se pudo obtener la información del perfil');
+                    return;
+                }
+
+                usuario = await resp.json();
+                // Poblamos el formulario
+                document.getElementById('nombre').value = usuario.nombre || '';
+                document.getElementById('correo').value = usuario.correo || '';
+                document.getElementById('telefono').value = usuario.telefono || '';
+                // Si tienes otros campos visibles, configúralos aquí
+
+                // Cargar foto de perfil si existe
+                if (usuario.fotoPerfil) {
+                    document.getElementById('avatarImg').src = usuario.fotoPerfil;
+                    document.getElementById('avatarImg').style.display = 'block';
+                    document.getElementById('avatarIcon').style.display = 'none';
+                }
+
+            } catch (err) {
+                mostrarMensaje('error', 'Error al obtener perfil: ' + err.message);
+            }
+        }
+
+        function updateAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarImg').src = e.target.result;
+                    document.getElementById('avatarImg').style.display = 'block';
+                    document.getElementById('avatarIcon').style.display = 'none';
+                    // Guardamos temporalmente la imagen para previsualización
+                    if (!usuario) usuario = {};
+                    usuario.fotoPerfil = e.target.result;
+                }
+                reader.readAsDataURL(file);
+
+                // Enviar al backend la imagen
+                const formData = new FormData();
+                formData.append('file', file);
+                fetch('/api/usuarios/perfil/foto', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                }).then(async res => {
+                    if (!res.ok) {
+                        const text = await res.text();
+                        mostrarMensaje('error', 'Error al subir foto: ' + text);
+                        return;
+                    }
+                    const text = await res.text();
+                    // La API responde con un mensaje y la ruta, por ejemplo: "Foto actualizada: /uploads/.."
+                    // extraemos la ruta si viene acompañada
+                    const match = text.match(/(\/uploads\/.*)$/);
+                    if (match) {
+                        const ruta = match[1];
+                        usuario.fotoPerfil = ruta;
+                        document.getElementById('avatarImg').src = ruta;
+                        mostrarMensaje('success', 'Foto actualizada correctamente.');
+                    } else {
+                        mostrarMensaje('success', 'Foto actualizada.');
+                    }
+                }).catch(err => mostrarMensaje('error', 'Error al subir foto: ' + err.message));
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            // Construir objeto con campos editables
+            const payload = {
+                nombre: document.getElementById('nombre').value,
+                correo: document.getElementById('correo').value,
+                telefono: document.getElementById('telefono').value
+            };
+
+            try {
+                const resp = await fetch('/api/usuarios/perfil', {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (resp.status === 401) {
+                    mostrarMensaje('error', 'No autenticado. Por favor inicia sesión.');
+                    return;
+                }
+
+                if (!resp.ok) {
+                    const text = await resp.text();
+                    mostrarMensaje('error', 'Error al actualizar perfil: ' + text);
+                    return;
+                }
+
+                mostrarMensaje('success', '✓ Datos actualizados correctamente.');
+                // Actualizar el objeto local
+                usuario = { ...usuario, ...payload };
+            } catch (err) {
+                mostrarMensaje('error', 'Error al actualizar perfil: ' + err.message);
+            }
+        }
+
+        function resetForm() {
+            // Restaurar valores originales
+            document.getElementById('nombre').value = usuario.nombre;
+            document.getElementById('correo').value = usuario.correo;
+            document.getElementById('telefono').value = usuario.telefono;
+        }
+
+        async function eliminarCuenta() {
+            if (!confirm('¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) return;
+
+            try {
+                const resp = await fetch('/api/usuarios/perfil', {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (resp.status === 401) {
+                    mostrarMensaje('error', 'No autenticado.');
+                    return;
+                }
+                if (!resp.ok) {
+                    const text = await resp.text();
+                    mostrarMensaje('error', 'No se pudo eliminar la cuenta: ' + text);
+                    return;
+                }
+                mostrarMensaje('success', 'Cuenta eliminada correctamente.');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } catch (err) {
+                mostrarMensaje('error', 'Error al eliminar cuenta: ' + err.message);
+            }
+        }
+
+        function volverInicio(event) {
+            // Evitamos la navegación por defecto y redirigimos según el estado de sesión
+            event.preventDefault();
+            // Si usuario está cargado y tiene id, redirigimos a la vista de bienvenida
+            if (usuario && usuario.id) {
+                window.location.href = '/bienvenida';
+                return;
+            }
+            // Si no hay usuario autenticado, redirigimos al login por seguridad
+            window.location.href = '/login';
+        }
+
+        function mostrarMensaje(tipo, mensaje) {
+            if (tipo === 'success') {
+                const elem = document.getElementById('mensajeSuccess');
+                elem.textContent = mensaje;
+                elem.style.display = 'flex';
+                setTimeout(() => elem.style.display = 'none', 4000);
+            } else if (tipo === 'error') {
+                const elem = document.getElementById('mensajeError');
+                elem.textContent = mensaje;
+                elem.style.display = 'block';
+                setTimeout(() => elem.style.display = 'none', 4000);
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,24 +1,53 @@
 package com.example.confer.service;
 
-import com.example.confer.model.Producto;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.common.BitMatrix;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-
-import org.springframework.stereotype.Service;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.springframework.stereotype.Service;
+
+import com.example.confer.model.Producto;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
 public class ReporteProductoPDFService {
+
+    private static final DecimalFormat PRICE_FORMAT = new DecimalFormat("#,##0.00");
 
     public ByteArrayInputStream generarReporteProductos(List<Producto> productos) {
         Document documento = new Document(PageSize.A4.rotate(), 40, 40, 40, 40);
@@ -49,39 +78,42 @@ public class ReporteProductoPDFService {
 
             documento.add(Chunk.NEWLINE);
 
-            // Tabla
-            PdfPTable tabla = new PdfPTable(5);
-            tabla.setWidthPercentage(100);
-            tabla.setWidths(new float[]{3, 4, 6, 3, 3});
+            // Tabla organizada
+            PdfPTable tabla = new PdfPTable(6);
+            tabla.setWidthPercentage(105);
+            tabla.setWidths(new float[]{3, 4, 3, 3, 2.2f, 3});
+            tabla.setSpacingBefore(10f);
+            tabla.setHeaderRows(1);
 
             agregarCeldaEncabezado(tabla, "Vendedor");
             agregarCeldaEncabezado(tabla, "Nombre");
-            agregarCeldaEncabezado(tabla, "Descripción");
+            agregarCeldaEncabezado(tabla, "Categoría");
+            agregarCeldaEncabezado(tabla, "Marca");
             agregarCeldaEncabezado(tabla, "Precio");
             agregarCeldaEncabezado(tabla, "Imagen");
 
             for (Producto p : productos) {
-                tabla.addCell(p.getVendedor() != null ? p.getVendedor().getNombre() : "N/A");
-                tabla.addCell(p.getNombre());
-                tabla.addCell(p.getDescripcion());
-                tabla.addCell("$" + p.getPrecio().toString());
+                agregarCeldaDato(tabla, p.getVendedor() != null ? p.getVendedor().getNombre() : "N/A");
+                agregarCeldaDato(tabla, p.getNombre());
+                agregarCeldaDato(tabla, p.getCategoria());
+                agregarCeldaDato(tabla, p.getMarca());
 
-                if (p.getImagenUrl() != null) {
-                    String ruta = "uploads/" + p.getImagenUrl();
-                    try {
-                        Image imagen = Image.getInstance(ruta);
-                        imagen.scaleToFit(60, 60);
-                        PdfPCell celdaImg = new PdfPCell(imagen, true);
-                        tabla.addCell(celdaImg);
-                    } catch (Exception ex) {
-                        tabla.addCell("Error img");
-                    }
-                } else {
-                    tabla.addCell("Sin imagen");
-                }
+                String precio = p.getPrecio() != null ? "$" + PRICE_FORMAT.format(p.getPrecio()) : "N/A";
+                agregarCeldaDato(tabla, precio, Element.ALIGN_RIGHT);
+
+                tabla.addCell(crearCeldaImagenProducto(p.getImagenUrl()));
             }
 
             documento.add(tabla);
+
+            // Gráfico: productos por categoría
+            Image graficoCategorias = generarGraficoCategorias(productos);
+            if (graficoCategorias != null) {
+                graficoCategorias.scaleToFit(520, 320);
+                graficoCategorias.setAlignment(Image.ALIGN_CENTER);
+                documento.add(Chunk.NEWLINE);
+                documento.add(graficoCategorias);
+            }
 
             // QR
             documento.add(Chunk.NEWLINE);
@@ -103,9 +135,73 @@ public class ReporteProductoPDFService {
     }
 
     private void agregarCeldaEncabezado(PdfPTable tabla, String texto) {
-        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10)));
         celda.setBackgroundColor(BaseColor.LIGHT_GRAY);
+        celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        celda.setPadding(6f);
         tabla.addCell(celda);
+    }
+
+    private void agregarCeldaDato(PdfPTable tabla, String texto) {
+        agregarCeldaDato(tabla, texto, Element.ALIGN_LEFT);
+    }
+
+    private void agregarCeldaDato(PdfPTable tabla, String texto, int alignment) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto != null ? texto : "", FontFactory.getFont(FontFactory.HELVETICA, 10)));
+        celda.setPadding(6f);
+        celda.setHorizontalAlignment(alignment);
+        tabla.addCell(celda);
+    }
+
+    private PdfPCell crearCeldaImagenProducto(String imagenUrl) {
+        final float maxLado = 70f;
+        if (imagenUrl == null || imagenUrl.isBlank()) {
+            return celdaTextoImagen("Sin imagen");
+        }
+
+        try {
+            Image imagen = cargarImagen(imagenUrl);
+            if (imagen == null) {
+                return celdaTextoImagen("Sin imagen");
+            }
+            imagen.scaleToFit(maxLado, maxLado);
+            PdfPCell celda = new PdfPCell(imagen, true);
+            celda.setFixedHeight(maxLado + 10f);
+            celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+            celda.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            celda.setPadding(4f);
+            return celda;
+        } catch (Exception e) {
+            return celdaTextoImagen("Sin imagen");
+        }
+    }
+
+    private PdfPCell celdaTextoImagen(String texto) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 9)));
+        celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        celda.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        celda.setFixedHeight(70f);
+        return celda;
+    }
+
+    private Image cargarImagen(String imagenUrl) {
+        // 1) Ruta en uploads (sistema de archivos)
+        try {
+            Path rutaFs = Paths.get("uploads").resolve(imagenUrl);
+            if (Files.exists(rutaFs)) {
+                return Image.getInstance(rutaFs.toAbsolutePath().toString());
+            }
+        } catch (Exception ignored) {}
+
+        // 2) Ruta en recursos estáticos dentro del jar (por si se despliega así)
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("static/uploads/" + imagenUrl)) {
+            if (is != null) {
+                byte[] bytes = is.readAllBytes();
+                return Image.getInstance(bytes);
+            }
+        } catch (Exception ignored) {}
+
+        return null;
     }
 
     private Image generarQR(String texto) throws WriterException, IOException, BadElementException {
@@ -124,5 +220,35 @@ public class ReporteProductoPDFService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "png", baos);
         return Image.getInstance(baos.toByteArray());
+    }
+
+    private Image generarGraficoCategorias(List<Producto> productos) {
+        Map<String, Long> conteo = productos.stream()
+                .collect(Collectors.groupingBy(p -> p.getCategoria() != null ? p.getCategoria() : "Sin categoría",
+                        Collectors.counting()));
+
+        if (conteo.isEmpty()) return null;
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        conteo.forEach((categoria, cantidad) -> dataset.addValue(cantidad, "Productos", categoria));
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Productos por categoría",
+                "Categoría",
+                "Cantidad",
+                dataset,
+                PlotOrientation.VERTICAL,
+                false,
+                false,
+                false
+        );
+
+        try {
+            ByteArrayOutputStream chartOut = new ByteArrayOutputStream();
+            ChartUtils.writeChartAsPNG(chartOut, chart, 640, 360);
+            return Image.getInstance(chartOut.toByteArray());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

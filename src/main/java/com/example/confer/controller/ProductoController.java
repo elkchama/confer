@@ -35,6 +35,7 @@ import com.example.confer.model.Producto;
 import com.example.confer.model.Usuario;
 import com.example.confer.service.ProductoService;
 import com.example.confer.service.ReporteProductoPDFService;
+import com.example.confer.service.UsuarioService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,8 +46,12 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/vendedor")
 public class ProductoController {
 
+
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
@@ -260,9 +265,11 @@ public class ProductoController {
     }
 
 
+
     @GetMapping("/admin/productos/nuevo")
     public String mostrarFormularioNuevoProductoAdmin(Model model) {
         model.addAttribute("producto", new Producto());
+        model.addAttribute("vendedores", usuarioService.listarVendedores());
         return "admin/producto-form";
     }
 
@@ -290,6 +297,7 @@ public class ProductoController {
             return "redirect:/vendedor/admin/productos";
         }
         model.addAttribute("producto", producto);
+        model.addAttribute("vendedores", usuarioService.listarVendedores());
         return "admin/producto-form";
     }
 
@@ -477,21 +485,44 @@ class IndexProductosController {
     @GetMapping("/indexProductos")
     public String mostrarCatalogoGeneral(
             @RequestParam(value = "buscar", required = false) String buscar,
+            @RequestParam(value = "categoria", required = false) String categoria,
+            @RequestParam(value = "marca", required = false) String marca,
+            @RequestParam(value = "minPrecio", required = false) String minPrecioStr,
+            @RequestParam(value = "maxPrecio", required = false) String maxPrecioStr,
+            @RequestParam(value = "filtro", required = false) String filtro,
             Model model,
             HttpSession session) {
-        List<Producto> productos;
-        if (buscar != null && !buscar.isEmpty()) {
-            productos = productoService.buscarPorNombre(buscar);
-        } else {
-            productos = productoService.listarProductos();
-        }
+
+        java.math.BigDecimal minPrecio = null;
+        java.math.BigDecimal maxPrecio = null;
+        try {
+            if (minPrecioStr != null && !minPrecioStr.isEmpty()) minPrecio = new java.math.BigDecimal(minPrecioStr);
+        } catch (NumberFormatException e) { /* ignorar */ }
+        try {
+            if (maxPrecioStr != null && !maxPrecioStr.isEmpty()) maxPrecio = new java.math.BigDecimal(maxPrecioStr);
+        } catch (NumberFormatException e) { /* ignorar */ }
+
+        List<Producto> productos = productoService.listarProductosFiltrados(categoria, marca, minPrecio, maxPrecio, buscar, filtro);
+
         Object usuario = session.getAttribute("usuario");
         if (usuario != null) {
             model.addAttribute("usuario", usuario);
         }
+
+        List<String> categorias = productoService.listarCategorias();
+
         model.addAttribute("productos", productos);
         model.addAttribute("totalProductos", productos.size());
         model.addAttribute("terminoBusqueda", buscar);
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("categoriaSeleccionada", categoria);
+        model.addAttribute("marcaSeleccionada", marca);
+        model.addAttribute("minPrecio", minPrecio != null ? minPrecio.toString() : "");
+        model.addAttribute("maxPrecio", maxPrecio != null ? maxPrecio.toString() : "");
+        model.addAttribute("filtro", filtro);
+        model.addAttribute("totalCategorias", categorias != null ? categorias.size() : 0);
+        model.addAttribute("productosDestacados", productoService.contarDestacados());
+
         return "indexProductos";
     }
 }

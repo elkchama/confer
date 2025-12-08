@@ -1,651 +1,790 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Confer</title>
+    <title>Dashboard - CONFER</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --border-radius: 12px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            background-color: #f8fafc;
-            color: var(--dark);
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr;
+            background: linear-gradient(135deg, #0f1724 0%, #111827 60%, #0b1220 100%);
             min-height: 100vh;
+            color: #e6edf3;
         }
 
-        /* Main Content */
-        .main-content {
-            padding: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
+        /* Navbar Elegante */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .header {
+        .navbar-brand {
+            font-weight: 800;
+            color: white !important;
+            font-size: 32px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-links {
             display: flex;
-            justify-content: space-between;
+            gap: 10px;
             align-items: center;
-            margin-bottom: 28px;
-            background-color: white;
-            padding: 18px 24px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: bold;
-            color: var(--primary);
-            letter-spacing: 0.5px;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .header-btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        .nav-btn {
+            padding: 10px 24px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
             font-weight: 500;
+            font-size: 14px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            background-color: #f0f2f5;
-            color: var(--dark);
-            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
         }
 
-        .header-btn:hover {
-            background-color: #e0e2e5;
-            transform: translateY(-1px);
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .header-btn i {
-            font-size: 15px;
+        .nav-btn.logout {
+            background: rgba(255,255,255,0.95);
+            color: #667eea;
+            border: none;
         }
 
-        .header-btn.logout {
-            background-color: #f8d7da;
-            color: #dc3545;
-        }
-
-        .header-btn.logout:hover {
-            background-color: #f1b0b7;
-        }
-
-        .user-menu {
+        .navbar-container {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 18px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
 
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+        /* Main Content */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
         }
 
-        .user-name {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 15px;
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .user-role {
-            font-size: 12px;
-            color: #6c757d;
-            background-color: #f0f2f5;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 3px;
+        .welcome-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #e6edf3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-section p {
+            color: #cbd5e0;
+            font-size: 1.1rem;
         }
 
         /* KPI Cards */
-        .kpi-cards {
+        .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
         }
 
-        .card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 22px;
-            box-shadow: var(--box-shadow);
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .card:hover {
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .kpi-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
         }
 
-        .card-header {
+        .kpi-card:hover::before {
+            opacity: 1;
+        }
+
+        .kpi-card.active {
+            border-color: #667eea;
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+        }
+
+        .kpi-card.active::before {
+            opacity: 1;
+        }
+
+        .kpi-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 20px;
         }
 
-        .card-icon {
-            width: 44px;
-            height: 44px;
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
             color: white;
-            font-size: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
-        .card-icon.sellers {
-            background-color: var(--primary);
+        .kpi-icon.users {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        .card-icon.products {
-            background-color: var(--success);
+        .kpi-icon.products {
+            background: linear-gradient(135deg, #4cc9f0 0%, #3a9fbf 100%);
         }
 
-        .card-icon.clients {
-            background-color: var(--warning);
+        .kpi-icon.categories {
+            background: linear-gradient(135deg, #f72585 0%, #c71465 100%);
         }
 
-        .card-icon.contacts {
-            background-color: var(--danger);
-        }
-
-        .card h3 {
-            font-size: 13px;
-            color: #6c757d;
-            font-weight: 500;
+        .kpi-title {
+            font-size: 0.9rem;
+            color: #cbd5e0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .card h2 {
-            font-size: 26px;
-            margin: 8px 0;
             font-weight: 600;
         }
 
-        .card p {
-            font-size: 13px;
-            color: #28a745;
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: white;
+        }
+
+        .kpi-change {
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
+            gap: 6px;
         }
 
-        .card p.negative {
-            color: #dc3545;
+        .kpi-change.positive {
+            color: #4ade80;
         }
 
-        .card p i {
-            margin-right: 6px;
+        .kpi-change.negative {
+            color: #f87171;
         }
 
-        /* Featured Sellers */
-        .featured-sellers {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 24px;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 28px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+        /* Charts Section */
+        .charts-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
         }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-        }
-
-        .section-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .section-btn {
-            background: none;
-            border: none;
-            color: #6c757d;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .sellers-grid {
+        .charts-section.active {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
 
-        .seller-card {
-            text-align: center;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .seller-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-            background-color: white;
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .seller-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
+        .chart-header {
+            margin-bottom: 24px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
             color: white;
-            font-size: 26px;
-            background-color: var(--primary);
-            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+            margin-bottom: 8px;
         }
 
-        .seller-card h4 {
-            font-size: 15px;
-            margin-bottom: 6px;
+        .chart-header p {
+            color: #cbd5e0;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 12px;
             font-weight: 600;
-        }
-
-        .seller-card p {
-            font-size: 13px;
-            color: #6c757d;
-            margin-bottom: 14px;
-        }
-
-        .seller-stats {
-            display: flex;
-            justify-content: space-around;
-            font-size: 12px;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-value {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 14px;
-        }
-
-        /* Alerts Section */
-        .alerts-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 24px;
-            box-shadow: var(--box-shadow);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .alert-item {
-            display: flex;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
             align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid #eee;
-            transition: all 0.2s ease;
+            gap: 8px;
+            margin-bottom: 24px;
         }
 
-        .alert-item:hover {
-            background-color: #fafafa;
-        }
-
-        .alert-item:last-child {
-            border-bottom: none;
-        }
-
-        .alert-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-            color: white;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .alert-icon.danger {
-            background-color: var(--danger);
-            box-shadow: 0 4px 8px rgba(247, 37, 133, 0.2);
-        }
-
-        .alert-icon.warning {
-            background-color: var(--warning);
-            box-shadow: 0 4px 8px rgba(248, 150, 30, 0.2);
-        }
-
-        .alert-icon.success {
-            background-color: #28a745;
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
-        }
-
-        .alert-content {
-            flex: 1;
-        }
-
-        .alert-content h4 {
-            font-size: 15px;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        .alert-content p {
-            font-size: 13px;
-            color: #6c757d;
-            line-height: 1.4;
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-5px);
         }
 
         /* Responsive */
-        @media (max-width: 1200px) {
-            .kpi-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .sellers-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         @media (max-width: 768px) {
-            .header {
+            .navbar-container {
                 flex-direction: column;
-                gap: 16px;
-                padding: 16px;
+                gap: 20px;
             }
-            
-            .header-left {
-                flex-direction: column;
-                width: 100%;
-                gap: 12px;
-            }
-            
-            .header-buttons {
-                width: 100%;
+
+            .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            
-            .user-menu {
-                width: 100%;
-                justify-content: center;
-                margin-top: 10px;
-            }
-            
-            .kpi-cards {
+
+            .kpi-grid {
                 grid-template-columns: 1fr;
             }
 
-            .sellers-grid {
+            .charts-section.active {
                 grid-template-columns: 1fr;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .kpi-value {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-    <div class="header-left">
-        <div class="logo">Confer</div>
-        <div class="header-buttons">
-            <a href="/admin/usuarios" class="header-btn">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/vendedor/admin/productos" class="header-btn">
-    <i class="fas fa-shopping-bag"></i> Productos
-</a>
-
-            <a href="/admin/categorias" class="header-btn">
-                <i class="fas fa-tags"></i> 
-            </a>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/admin/dashboard">CONFER</a>
+            <div class="nav-links">
+                <a href="/admin/usuarios" class="nav-btn">
+                    <i class="fas fa-users"></i> Usuarios
+                </a>
+                <a href="/vendedor/admin/productos" class="nav-btn">
+                    <i class="fas fa-shopping-bag"></i> Productos
+                </a>
+                <a href="/login" class="nav-btn logout">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </a>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <div class="user-menu">
-        <a href="/login" class="header-btn logout">
-    <i class="fas fa-sign-out-alt"></i> Salir
-</a>
-
-        <div class="user-info">
-            <span class="user-name">Admin</span>
-            <span class="user-role">Administrador</span>
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1><i class="fas fa-chart-line"></i> Dashboard Administrativo</h1>
+            <p>Análisis en tiempo real de la plataforma CONFER</p>
         </div>
-    </div>
-</div>
 
-
-            <!-- KPI Cards -->
-            <div class="kpi-cards">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Vendedores</h3>
-                        <div class="card-icon sellers">
-                            <i class="fas fa-users"></i>
-                        </div>
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card" onclick="showCharts('users')">
+                <div class="kpi-header">
+                    <div class="kpi-icon users">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <h2>1,248</h2>
-                    <p><i class="fas fa-arrow-up"></i> 12.5% vs mes anterior</p>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Productos Activos</h3>
-                        <div class="card-icon products">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
-                    </div>
-                    <h2>5</h2>
-                    <p><i class="fas fa-arrow-up"></i> 8.3% vs mes anterior</p>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Clientes Únicos</h3>
-                        <div class="card-icon clients">
-                            <i class="fas fa-user-tag"></i>
-                        </div>
-                    </div>
-                    <h2>8,562</h2>
-                    <p><i class="fas fa-arrow-up"></i> 15.2% vs mes anterior</p>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Contactos</h3>
-                        <div class="card-icon contacts">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                    </div>
-                    <h2>2,156</h2>
-                    <p class="negative"><i class="fas fa-arrow-down"></i> 3.1% vs mes anterior</p>
+                <div class="kpi-title">Total Usuarios</div>
+                <div class="kpi-value" th:text="${totalUsuarios ?: 1248}">1,248</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12.5% vs mes anterior</span>
                 </div>
             </div>
 
-            <!-- Featured Sellers (Electrónicos) -->
-            <div class="featured-sellers">
-                <div class="section-header">
-                    <h2>Vendedores de Electrónicos Destacados</h2>
-                    <button class="section-btn">
-                        <i class="fas fa-ellipsis-h"></i>
-                    </button>
+            <div class="kpi-card" onclick="showCharts('products')">
+                <div class="kpi-header">
+                    <div class="kpi-icon products">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
                 </div>
-                <div class="sellers-grid">
-                    <div class="seller-card">
-                        <div class="seller-icon">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <h4>Tech Solutions</h4>
-                        <p>Especialistas en computación</p>
-                        <div class="seller-stats">
-                            <div class="stat-item">
-                                <span class="stat-value">42</span>
-                                <span>Productos</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">78</span>
-                                <span>Ventas</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="seller-card">
-                        <div class="seller-icon" style="background-color: var(--success);">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4>Mobile World</h4>
-                        <p>Expertos en smartphones</p>
-                        <div class="seller-stats">
-                            <div class="stat-item">
-                                <span class="stat-value">36</span>
-                                <span>Productos</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">64</span>
-                                <span>Ventas</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="seller-card">
-                        <div class="seller-icon" style="background-color: var(--warning);">
-                            <i class="fas fa-headphones"></i>
-                        </div>
-                        <h4>Audio Tech</h4>
-                        <p>Audio profesional</p>
-                        <div class="seller-stats">
-                            <div class="stat-item">
-                                <span class="stat-value">28</span>
-                                <span>Productos</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">52</span>
-                                <span>Ventas</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="seller-card">
-                        <div class="seller-icon" style="background-color: var(--danger);">
-                            <i class="fas fa-gamepad"></i>
-                        </div>
-                        <h4>Gaming Pro</h4>
-                        <p>Equipo para gamers</p>
-                        <div class="seller-stats">
-                            <div class="stat-item">
-                                <span class="stat-value">31</span>
-                                <span>Productos</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">47</span>
-                                <span>Ventas</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="kpi-title">Productos Activos</div>
+                <div class="kpi-value" th:text="${totalProductos ?: 5}">5</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>8.3% vs mes anterior</span>
                 </div>
             </div>
 
-            <!-- Alerts Section -->
-            <div class="alerts-container">
-                <div class="section-header">
-                    <h2>Alertas Recientes</h2>
-                    <button class="section-btn">
-                        <i class="fas fa-ellipsis-h"></i>
-                    </button>
-                </div>
-                <div class="alert-item">
-                    <div class="alert-icon danger">
-                        <i class="fas fa-exclamation"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>12 productos electrónicos sin fotos</h4>
-                        <p>Revisar antes de publicar. Estos productos no se están mostrando correctamente en la plataforma.</p>
+            <div class="kpi-card" onclick="showCharts('categories')">
+                <div class="kpi-header">
+                    <div class="kpi-icon categories">
+                        <i class="fas fa-tags"></i>
                     </div>
                 </div>
-                <div class="alert-item">
-                    <div class="alert-icon warning">
-                        <i class="fas fa-bolt"></i>
+                <div class="kpi-title">Categorías</div>
+                <div class="kpi-value" th:text="${totalCategorias ?: 12}">12</div>
+                <div class="kpi-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>3.1% vs mes anterior</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Sections -->
+        <div id="charts-users" class="charts-section">
+            <div style="grid-column: 1 / -1;">
+                <button class="back-btn" onclick="hideCharts()">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </button>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-users"></i> Usuarios por Rol</h3>
+                    <p>Distribución de tipos de cuentas registradas</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="rolesBarChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-balance-scale"></i> Análisis Comparativo</h3>
+                    <p>Interpretación automática de la relación entre usuarios</p>
+                </div>
+                <div style="padding:16px; color:#cbd5e0; font-size:1rem;" id="comparisonAnalysis">
+                    <!-- Texto generado por JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="charts-products" class="charts-section">
+            <button class="back-btn" onclick="hideCharts()">
+                <i class="fas fa-arrow-left"></i> Volver al Dashboard
+            </button>
+            <div style="grid-column: 1 / -1;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-shopping-bag"></i> Análisis de Productos</h3>
+                        <p>Estadísticas y distribución de productos</p>
                     </div>
-                    <div class="alert-content">
-                        <h4>Oferta especial en electrónicos</h4>
-                        <p>Los productos electrónicos tienen un 15% de descuento esta semana. Asegúrate de actualizar los precios.</p>
+                    <div class="chart-container">
+                        <canvas id="productsChart"></canvas>
                     </div>
                 </div>
-                <div class="alert-item">
-                    <div class="alert-icon success">
-                        <i class="fas fa-trophy"></i>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-star"></i> Productos por Estado</h3>
+                    <p>Activos vs Destacados</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-dollar-sign"></i> Rango de Precios</h3>
+                    <p>Distribución de productos por precio</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pricesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="charts-categories" class="charts-section">
+            <button class="back-btn" onclick="hideCharts()">
+                <i class="fas fa-arrow-left"></i> Volver al Dashboard
+            </button>
+            <div style="grid-column: 1 / -1;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-tags"></i> Análisis de Categorías</h3>
+                        <p>Distribución de productos por categoría</p>
                     </div>
-                    <div class="alert-content">
-                        <h4>iPhone 15 Pro - Top producto</h4>
-                        <p>45 contactos esta semana. Este producto está generando mucho interés entre los compradores.</p>
+                    <div class="chart-container">
+                        <canvas id="categoriesChart"></canvas>
                     </div>
                 </div>
-                <div class="alert-item">
-                    <div class="alert-icon warning">
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>Nuevos productos electrónicos</h4>
-                        <p>5 nuevos modelos de laptops han sido agregados esta semana por los vendedores.</p>
-                    </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> Categorías Más Populares</h3>
+                    <p>Top 5 categorías</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="topCategoriesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-percentage"></i> Participación de Mercado</h3>
+                    <p>Porcentaje por categoría</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketShareChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Elementos del DOM
-        const logoutBtn = document.getElementById('logoutBtn');
+    <script th:inline="javascript">
+        let activeCharts = [];
 
-        // Event Listeners
-        logoutBtn.addEventListener('click', () => {
-            if(confirm('¿Estás seguro de que deseas salir?')) {
-                alert('Sesión cerrada correctamente');
-                // Aquí normalmente redirigirías a la página de login
-                // window.location.href = '/login';
+        function showCharts(type) {
+            // Hide all charts
+            document.querySelectorAll('.charts-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all cards
+            document.querySelectorAll('.kpi-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Show selected chart
+            const chartsSection = document.getElementById(`charts-${type}`);
+            if (chartsSection) {
+                chartsSection.classList.add('active');
+                event.currentTarget.classList.add('active');
+                
+                // Destroy previous charts
+                activeCharts.forEach(chart => chart.destroy());
+                activeCharts = [];
+
+                // Create new charts
+                setTimeout(() => {
+                    switch(type) {
+                        case 'users':
+                            createUsersCharts();
+                            break;
+                        case 'products':
+                            createProductsCharts();
+                            break;
+                        case 'categories':
+                            createCategoriesCharts();
+                            break;
+                    }
+                }, 100);
             }
+        }
+
+        function hideCharts() {
+            document.querySelectorAll('.charts-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.kpi-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            activeCharts.forEach(chart => chart.destroy());
+            activeCharts = [];
+        }
+
+        const chartColors = {
+            primary: 'rgba(102, 126, 234, 0.8)',
+            secondary: 'rgba(118, 75, 162, 0.8)',
+            success: 'rgba(76, 201, 240, 0.8)',
+            warning: 'rgba(248, 150, 30, 0.8)',
+            danger: 'rgba(247, 37, 133, 0.8)',
+        };
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e6edf3',
+                        font: { family: 'Poppins', size: 12 }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { color: '#cbd5e0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#cbd5e0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        };
+
+        /* Datos dinámicos (Thymeleaf). Cada variable usa un valor por defecto si el modelo no lo proporciona. */
+        var rolesLabels = /*[[${rolesLabels}]]*/ ['Clientes','Vendedores','Administradores'];
+        var rolesCounts = /*[[${rolesCounts}]]*/ [1180,45,23];
+
+        var productsLabels = /*[[${productsLabels}]]*/ ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        var productsTotals = /*[[${productsTotals}]]*/ [5,8,12,18,25,32,38,45,52,58,62,65];
+        var statusLabels = /*[[${statusLabels}]]*/ ['Activos','Destacados','Inactivos'];
+        var statusCounts = /*[[${statusCounts}]]*/ [45,15,5];
+        var priceLabels = /*[[${priceLabels}]]*/ ['$0-100k','$100k-500k','$500k-1M','$1M-2M','$2M+'];
+        var priceCounts = /*[[${priceCounts}]]*/ [8,15,22,12,8];
+
+        var categoriesLabels = /*[[${categoriesLabels}]]*/ ['Electrónica','Hogar','Moda','Deportes','Juguetes','Oficina'];
+        var categoriesCounts = /*[[${categoriesCounts}]]*/ [120,80,95,60,45,30];
+        var topCategoriesLabels = /*[[${topCategoriesLabels}]]*/ ['Electrónica','Moda','Hogar','Deportes','Juguetes'];
+        var topCategoriesCounts = /*[[${topCategoriesCounts}]]*/ [120,95,80,60,45];
+        var marketShareLabels = /*[[${marketShareLabels}]]*/ ['Electrónica','Moda','Hogar','Otros'];
+        var marketShareCounts = /*[[${marketShareCounts}]]*/ [35,25,20,20];
+
+        function createUsersCharts() {
+            // Bar chart comparing account types: clientes, vendedores, administradores
+            const rolesBarCtx = document.getElementById('rolesBarChart');
+            if (rolesBarCtx) {
+                activeCharts.push(new Chart(rolesBarCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: rolesLabels,
+                        datasets: [{
+                            label: 'Cantidad',
+                            data: rolesCounts,
+                            backgroundColor: [chartColors.success, chartColors.warning, chartColors.danger]
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: {
+                            y: { 
+                                ticks: { color: '#cbd5e0' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: { 
+                                ticks: { color: '#cbd5e0' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    }
+                }));
+            }
+
+            // Análisis comparativo simple
+            try {
+                const analysisEl = document.getElementById('comparisonAnalysis');
+                if (analysisEl) {
+                    // Determinar índices para vendedores y clientes
+                    let idxClientes = rolesLabels.findIndex(l => /cliente/i.test(l));
+                    let idxVendedores = rolesLabels.findIndex(l => /vendedor/i.test(l));
+                    // Fallback a posiciones conocidas
+                    if (idxClientes === -1) idxClientes = 0;
+                    if (idxVendedores === -1) idxVendedores = 1;
+
+                    const clientes = (rolesCounts[idxClientes] || 0);
+                    const vendedores = (rolesCounts[idxVendedores] || 0);
+
+                    let text = '';
+                    if (vendedores > clientes) {
+                        text = `Hay más vendedores (${vendedores}) que clientes (${clientes}).`;
+                    } else if (clientes > vendedores) {
+                        text = `Hay más clientes (${clientes}) que vendedores (${vendedores}).`;
+                    } else {
+                        text = `La cantidad de clientes y vendedores es igual (${clientes}).`;
+                    }
+
+                    analysisEl.innerText = text;
+                }
+            } catch (e) {
+                console.warn('Error generando análisis comparativo:', e);
+            }
+        }
+
+        function createProductsCharts() {
+            // Products Area Chart
+            const productsCtx = document.getElementById('productsChart');
+            if (productsCtx) {
+                activeCharts.push(new Chart(productsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: productsLabels,
+                        datasets: [{
+                            label: 'Productos Totales',
+                            data: productsTotals,
+                            borderColor: chartColors.success,
+                            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                }));
+            }
+
+            // Status Pie Chart
+            const statusCtx = document.getElementById('statusChart');
+            if (statusCtx) {
+                activeCharts.push(new Chart(statusCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [{
+                            data: statusCounts,
+                            backgroundColor: [chartColors.success, chartColors.warning, chartColors.danger]
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: undefined
+                    }
+                }));
+            }
+
+            // Prices Bar Chart
+            const pricesCtx = document.getElementById('pricesChart');
+            if (pricesCtx) {
+                activeCharts.push(new Chart(pricesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: priceLabels,
+                        datasets: [{
+                            label: 'Productos',
+                            data: priceCounts,
+                            backgroundColor: chartColors.success
+                        }]
+                    },
+                    options: chartOptions
+                }));
+            }
+        }
+
+        function createCategoriesCharts() {
+            // Categories Distribution
+            const categoriesCtx = document.getElementById('categoriesChart');
+            if (categoriesCtx) {
+                activeCharts.push(new Chart(categoriesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: categoriesLabels,
+                        datasets: [{
+                            label: 'Productos por Categoría',
+                            data: categoriesCounts,
+                            backgroundColor: [chartColors.primary, chartColors.success, chartColors.secondary, chartColors.warning, chartColors.danger, 'rgba(200,200,200,0.8)']
+                        }]
+                    },
+                    options: chartOptions
+                }));
+            }
+
+            // Top Categories Pie
+            const topCategoriesCtx = document.getElementById('topCategoriesChart');
+            if (topCategoriesCtx) {
+                activeCharts.push(new Chart(topCategoriesCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: topCategoriesLabels,
+                        datasets: [{
+                            data: topCategoriesCounts,
+                            backgroundColor: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning, chartColors.danger]
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: undefined
+                    }
+                }));
+            }
+
+            // Market Share Donut
+            const marketShareCtx = document.getElementById('marketShareChart');
+            if (marketShareCtx) {
+                activeCharts.push(new Chart(marketShareCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: marketShareLabels,
+                        datasets: [{
+                            data: marketShareCounts,
+                            backgroundColor: [chartColors.primary, chartColors.secondary, chartColors.success, 'rgba(180,180,180,0.6)']
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: undefined
+                    }
+                }));
+            }
+        }
+
+        // Close charts with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') hideCharts();
+        });
+
+        // Destroy charts on page unload
+        window.addEventListener('beforeunload', () => {
+            activeCharts.forEach(c => c && c.destroy && c.destroy());
+            activeCharts = [];
         });
     </script>
 </body>
