@@ -65,7 +65,7 @@ public class ReporteProductoPDFService {
             // Logo
             Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
             logo.scaleToFit(100, 100);
-            logo.setAlignment(Element.ALIGN_CENTER);
+            logo.setAlignment(Image.ALIGN_CENTER);
             documento.add(logo);
 
             // Título
