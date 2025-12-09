@@ -26,6 +26,7 @@ public class EmailService {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
+            helper.setFrom("confersystem@gmail.com");
             helper.setTo(destinatario);
             helper.setSubject("🎉 Registro exitoso en Cónfer");
 
@@ -79,6 +80,7 @@ public class EmailService {
         MimeMessage mensaje = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
+        helper.setFrom("confersystem@gmail.com");
         helper.setTo(destinatario);
         helper.setSubject(asunto);
         helper.setText(cuerpo, true); // true permite contenido HTML
