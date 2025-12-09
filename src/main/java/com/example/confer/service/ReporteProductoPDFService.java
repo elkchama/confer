@@ -130,9 +130,12 @@ public class ReporteProductoPDFService {
             qr.scaleToFit(100, 100);
             documento.add(qr);
 
-            documento.close();
         } catch (IOException | WriterException | DocumentException e) {
             logger.error("Error al generar reporte", e);
+        } finally {
+            if (documento.isOpen()) {
+                documento.close();
+            }
         }
 
         return new ByteArrayInputStream(out.toByteArray());
