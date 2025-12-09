@@ -63,10 +63,14 @@ public class ReporteProductoPDFService {
             documento.open();
 
             // Logo
-            Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
-            logo.scaleToFit(100, 100);
-            logo.setAlignment(Image.ALIGN_CENTER);
-            documento.add(logo);
+            try {
+                Image logo = Image.getInstance("src/main/resources/static/img/logo.png");
+                logo.scaleToFit(100, 100);
+                logo.setAlignment(Image.ALIGN_CENTER);
+                documento.add(logo);
+            } catch (Exception e) {
+                logger.warn("No se pudo cargar el logo: {}", e.getMessage());
+            }
 
             // Título
             Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
