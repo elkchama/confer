@@ -23,12 +23,18 @@ public class EmailService {
     @Async
     public void enviarCorreoRegistroExitoso(String destinatario, String nombreUsuario) {
         try {
+            System.out.println("=== INICIO ENVÍO DE CORREO ===");
+            System.out.println("Destinatario: " + destinatario);
+            System.out.println("Nombre usuario: " + nombreUsuario);
+            
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
             helper.setFrom("confersystem@gmail.com");
             helper.setTo(destinatario);
             helper.setSubject("🎉 Registro exitoso en Cónfer");
+            
+            System.out.println("Mensaje configurado, intentando enviar...");
 
             // URL pública del banner (asegúrate que el nombre de archivo sea conferbanner.jpg)
             // URL pública del banner
@@ -68,8 +74,14 @@ public class EmailService {
 
             helper.setText(contenidoHtml, true);
             mailSender.send(mensaje);
+            
+            System.out.println("✅ Correo enviado exitosamente a: " + destinatario);
 
         } catch (MessagingException e) {
+            System.err.println("❌ ERROR al enviar correo: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("❌ ERROR GENERAL al enviar correo: " + e.getMessage());
             e.printStackTrace();
         }
     }
